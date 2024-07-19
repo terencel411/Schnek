@@ -1,5 +1,8 @@
 
+#include <computation/field-factory.hpp>
 #include <computation/algorithm.hpp>
+#include <generic/type-util.hpp>
+
 #include <grid/field.hpp>
 #include <grid/grid.hpp>
 #include <grid/gridstorage.hpp>
@@ -44,6 +47,27 @@ BOOST_AUTO_TEST_CASE( MultiArchitectureFieldFactory )
   BOOST_CHECK_EQUAL(domain.getHi(1), 1.25);
 
 }
+
+BOOST_AUTO_TEST_CASE( AlgorithmStepBuilder )
+{
+  schnek::computation
+    ::MultiArchitectureFieldFactory< schnek::computation::FieldTypeWrapper<int, 2> > factoryInt;
+  schnek::computation
+    ::MultiArchitectureFieldFactory< schnek::computation::FieldTypeWrapper<double, 2> > factoryDouble;
+  schnek::computation::Algorithm algorithm;
+
+  auto regA = algorithm.registerFieldFactory(factoryInt);
+  auto regB = algorithm.registerFieldFactory(factoryInt);
+  auto regC = algorithm.registerFieldFactory(factoryDouble);
+  auto regD = algorithm.registerFieldFactory(factoryDouble);
+
+  auto step = algorithm.stepBuilder<2, TestArchitecture>()
+    .input(regA, schnek::generic::size_to_type<2>())
+    .input(regB, schnek::generic::size_to_type<2>())
+    .output(regC, schnek::generic::size_to_type<2>())
+    .output(regD, schnek::generic::size_to_type<2>());
+}
+
 
 
 BOOST_AUTO_TEST_SUITE_END()
