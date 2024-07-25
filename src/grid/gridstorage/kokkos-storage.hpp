@@ -43,9 +43,9 @@
 namespace schnek {
 
     namespace internal {
-        template<typename T, size_t rank>
+        template<typename T, size_t rank_t>
         struct KokkosViewType {
-            typedef typename KokkosViewType<T, rank-1>::type* type;
+            typedef typename KokkosViewType<T, rank_t-1>::type* type;
         };
 
         template<typename T>
@@ -63,17 +63,23 @@ namespace schnek {
      */
     template <
         typename T, 
-        size_t rank, 
+        size_t rank_t, 
         class ...ViewProperties
     >
     class KokkosGridStorage
     {
     public:
+        /// The value type
+        typedef T value_type;
+
+        /// The rank of the grid
+        static constexpr size_t rank = rank_t;
+
         /// The grid index type
-        typedef Array<int, rank> IndexType;
+        typedef Array<int, rank_t> IndexType;
 
         /// The grid range type
-        typedef Range<int, rank> RangeType;
+        typedef Range<int, rank_t> RangeType;
     private:
         typedef std::function<void(const RangeType&)> UpdaterType;
         typedef std::map<void *, UpdaterType> UpdaterMapType;
@@ -84,7 +90,7 @@ namespace schnek {
         /// The dimensions of the grid `dims = high - low + 1`
         IndexType dims;
 
-        Kokkos::View<typename internal::KokkosViewType<T, rank>::type, ViewProperties...> view;
+        Kokkos::View<typename internal::KokkosViewType<T, rank_t>::type, ViewProperties...> view;
 
         /// A map of updaters that are called when the grid is resized
         std::shared_ptr<UpdaterMapType> updaters;
@@ -170,13 +176,13 @@ namespace schnek {
         template<std::size_t... I>
         auto createKokkosViewImpl(const IndexType& a, std::index_sequence<I...>)
         {
-            Kokkos::View<typename internal::KokkosViewType<T, rank>::type, ViewProperties...> view("schnek", a[I]...);
+            Kokkos::View<typename internal::KokkosViewType<T, rank_t>::type, ViewProperties...> view("schnek", a[I]...);
             return view;
         }
         
         auto createKokkosView(const IndexType& dims)
         {
-            return createKokkosViewImpl(dims, std::make_index_sequence<rank>{});
+            return createKokkosViewImpl(dims, std::make_index_sequence<rank_t>{});
         }
 
         template<std::size_t... I>
@@ -193,12 +199,12 @@ namespace schnek {
 
         SCHNEK_INLINE T& getFromView(const IndexType& pos)
         {
-            return getFromViewImpl(pos, std::make_index_sequence<rank>{});
+            return getFromViewImpl(pos, std::make_index_sequence<rank_t>{});
         }
 
         SCHNEK_INLINE const T& getFromView(const IndexType& pos) const
         {
-            return getFromViewImpl(pos, std::make_index_sequence<rank>{});
+            return getFromViewImpl(pos, std::make_index_sequence<rank_t>{});
         }
 
         void update(const RangeType& range) {
@@ -209,22 +215,22 @@ namespace schnek {
 
         void updateSizeInfo(const RangeType &range) {
             this->range = range;
-            for (size_t i = 0; i < rank; ++i)
+            for (size_t i = 0; i < rank_t; ++i)
             {
                 dims[i] = range.getHi(i) - range.getLo(i) + 1;
             }
         }
     };
 
-    template<typename T, size_t rank>
-    using KokkosDefaultGridStorage = KokkosGridStorage<T, rank>;
+    template<typename T, size_t rank_t>
+    using KokkosDefaultGridStorage = KokkosGridStorage<T, rank_t>;
 
     //=================================================================
     //==================== KokkosGridStorage ==========================
     //=================================================================
 
-    template <typename T, size_t rank, class ...ViewProperties>
-    KokkosGridStorage<T, rank, ViewProperties...>::KokkosGridStorage() 
+    template <typename T, size_t rank_t, class ...ViewProperties>
+    KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage() 
         : range{IndexType{0}, IndexType{0}}, 
           dims{0},
           updaters{new UpdaterMapType}
@@ -232,8 +238,8 @@ namespace schnek {
         (*updaters)[this] = [this](const RangeType& range) { this->updateSizeInfo(range); };
     }
 
-    template <typename T, size_t rank, class ...ViewProperties>
-    KokkosGridStorage<T, rank, ViewProperties...>::KokkosGridStorage(const KokkosGridStorage &other) 
+    template <typename T, size_t rank_t, class ...ViewProperties>
+    KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const KokkosGridStorage &other) 
         : range{other.range}, 
           dims{other.dims}, view{other.view},
           updaters{other.updaters}
@@ -241,8 +247,8 @@ namespace schnek {
         (*updaters)[this] = [this](const RangeType& range) { this->updateSizeInfo(range); };
     }
 
-    template <typename T, size_t rank, class ...ViewProperties>
-    KokkosGridStorage<T, rank, ViewProperties...>::KokkosGridStorage(const IndexType &lo, const IndexType &hi) 
+    template <typename T, size_t rank_t, class ...ViewProperties>
+    KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const IndexType &lo, const IndexType &hi) 
         : range{lo, hi},
           updaters{new UpdaterMapType}
     {
@@ -251,8 +257,8 @@ namespace schnek {
         (*updaters)[this] = [this](const RangeType& range) { this->updateSizeInfo(range); };
     }
 
-    template <typename T, size_t rank, class ...ViewProperties>
-    KokkosGridStorage<T, rank, ViewProperties...>::KokkosGridStorage(const RangeType &range) 
+    template <typename T, size_t rank_t, class ...ViewProperties>
+    KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const RangeType &range) 
         : range{range},
           updaters{new UpdaterMapType}  
     {
@@ -261,44 +267,44 @@ namespace schnek {
         (*updaters)[this] = [this](const RangeType& range) { this->updateSizeInfo(range); };
     }
 
-    template <typename T, size_t rank, class ...ViewProperties>
-    KokkosGridStorage<T, rank, ViewProperties...>::~KokkosGridStorage()
+    template <typename T, size_t rank_t, class ...ViewProperties>
+    KokkosGridStorage<T, rank_t, ViewProperties...>::~KokkosGridStorage()
     {
         updaters->erase(this);
     }
 
-    template <typename T, size_t rank, class ...ViewProperties>
-    SCHNEK_INLINE const T &KokkosGridStorage<T, rank, ViewProperties...>::get(const IndexType &index) const
+    template <typename T, size_t rank_t, class ...ViewProperties>
+    SCHNEK_INLINE const T &KokkosGridStorage<T, rank_t, ViewProperties...>::get(const IndexType &index) const
     {
         IndexType pos;
-        for (size_t i=0; i<rank; ++i)
+        for (size_t i=0; i<rank_t; ++i)
         {
             pos[i] = index[i] - range.getLo(i);
         }
         return getFromView(pos);
     }
 
-    template <typename T, size_t rank, class ...ViewProperties>
-    SCHNEK_INLINE T &KokkosGridStorage<T, rank, ViewProperties...>::get(const IndexType &index)
+    template <typename T, size_t rank_t, class ...ViewProperties>
+    SCHNEK_INLINE T &KokkosGridStorage<T, rank_t, ViewProperties...>::get(const IndexType &index)
     {       
         IndexType pos;
-        for (size_t i=0; i<rank; ++i)
+        for (size_t i=0; i<rank_t; ++i)
         {
             pos[i] = index[i] - range.getLo(i);
         }
         return getFromView(pos);
     }
     
-    template <typename T, size_t rank, class ...ViewProperties>
-    void KokkosGridStorage<T, rank, ViewProperties...>::resize(const IndexType &lo, const IndexType &hi)
+    template <typename T, size_t rank_t, class ...ViewProperties>
+    void KokkosGridStorage<T, rank_t, ViewProperties...>::resize(const IndexType &lo, const IndexType &hi)
     {
         IndexType dims = hi - lo + 1;
         this->view = createKokkosView(dims);
         update(RangeType{lo, hi});
     }
 
-    template <typename T, size_t rank, class ...ViewProperties>
-    SCHNEK_INLINE ptrdiff_t KokkosGridStorage<T, rank, ViewProperties...>::stride(size_t dim) const
+    template <typename T, size_t rank_t, class ...ViewProperties>
+    SCHNEK_INLINE ptrdiff_t KokkosGridStorage<T, rank_t, ViewProperties...>::stride(size_t dim) const
     {
         return this->view.stride(dim);
     }

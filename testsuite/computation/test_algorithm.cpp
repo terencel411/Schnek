@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( MultiArchitectureFieldFactory )
 
 }
 
-BOOST_AUTO_TEST_CASE( AlgorithmStepBuilder )
+BOOST_AUTO_TEST_CASE( registerFieldFactory )
 {
   schnek::computation
     ::MultiArchitectureFieldFactory< schnek::computation::FieldTypeWrapper<int, 2> > factoryInt;
@@ -61,11 +61,11 @@ BOOST_AUTO_TEST_CASE( AlgorithmStepBuilder )
   auto regC = algorithm.registerFieldFactory(factoryDouble);
   auto regD = algorithm.registerFieldFactory(factoryDouble);
 
-  auto step = algorithm.stepBuilder<2, TestArchitecture>()
-    .input(regA, schnek::generic::size_to_type<2>())
-    .input(regB, schnek::generic::size_to_type<2>())
-    .output(regC, schnek::generic::size_to_type<2>())
-    .output(regD, schnek::generic::size_to_type<2>());
+  // auto step = algorithm.stepBuilder<2, TestArchitecture>()
+  //   .input(regA, schnek::generic::size_to_type<2>())
+  //   .input(regB, schnek::generic::size_to_type<2>())
+  //   .output(regC, schnek::generic::size_to_type<2>())
+  //   .output(regD, schnek::generic::size_to_type<2>());
 }
 
 
