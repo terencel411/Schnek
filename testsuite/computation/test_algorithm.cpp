@@ -18,6 +18,12 @@ struct TestArchitecture {
     using GridStorageType = schnek::SingleArrayGridStorage<T, rank>;
 };
 
+struct TestFunction {
+  double operator()(double x) {
+    return x * x;
+  }
+};
+
 BOOST_AUTO_TEST_CASE( MultiArchitectureFieldFactory )
 {
   schnek::computation
@@ -55,17 +61,25 @@ BOOST_AUTO_TEST_CASE( registerFieldFactory )
   schnek::computation
     ::MultiArchitectureFieldFactory< schnek::computation::FieldTypeWrapper<double, 2> > factoryDouble;
   schnek::computation::Algorithm algorithm;
+  TestFunction testFunction;
 
   auto regA = algorithm.registerFieldFactory(factoryInt);
   auto regB = algorithm.registerFieldFactory(factoryInt);
   auto regC = algorithm.registerFieldFactory(factoryDouble);
   auto regD = algorithm.registerFieldFactory(factoryDouble);
 
-  // auto step = algorithm.stepBuilder<2, TestArchitecture>()
-  //   .input(regA, schnek::generic::size_to_type<2>())
-  //   .input(regB, schnek::generic::size_to_type<2>())
-  //   .output(regC, schnek::generic::size_to_type<2>())
-  //   .output(regD, schnek::generic::size_to_type<2>());
+  BOOST_CHECK_NE(regA.getId(), regB.getId());
+  BOOST_CHECK_NE(regA.getId(), regC.getId());
+  BOOST_CHECK_NE(regA.getId(), regD.getId());
+
+  auto step = algorithm.stepBuilder<2, TestArchitecture>()
+    .input(regA, schnek::generic::size_to_type<2>())
+    .input(regB, schnek::generic::size_to_type<2>())
+    .output(regC, schnek::generic::size_to_type<2>())
+    .output(regD, schnek::generic::size_to_type<2>())
+    .build(testFunction);
+  
+  algorithm.addStep(step);
 }
 
 

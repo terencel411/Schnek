@@ -30,6 +30,7 @@
 #include "../grid/field.hpp"
 #include "../generic/typelist.hpp"
 #include "../generic/type-util.hpp"
+#include "../util/unique.hpp"
 
 #include "concepts/architecture-concept.hpp"
 
@@ -37,6 +38,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <list>
+#include <map>
 
 // Work in progress
 // This file is brainstorming for a new way to implement algorithms in Schnek.
@@ -47,22 +49,57 @@
 // and the algorithm class creates them using the registered factories.
 namespace schnek::computation {
     class Algorithm;
+    namespace internal {
+        class RegistrationWrapper: public schnek::Unique<RegistrationWrapper> {
+            public:
+                virtual ~RegistrationWrapper() {}
+        };
+        typedef std::shared_ptr<RegistrationWrapper> pRegistrationWrapper;
+
+        class AlgorithmStepWrapper {
+            public:
+                virtual ~AlgorithmStepWrapper() {}
+        };
+        typedef std::shared_ptr<AlgorithmStepWrapper> pAlgorithmStepWrapper;
+    }
 
     /**
      * A Registration object is returned by the registerFieldFactory method of the Algorithm class.
      * 
      * The registration object is used to keep track of the fields that have been registered. They
      * are used to reference fields in the algorithm steps.
+     * 
+     * Registration objects can be copied and passed around, preserving their identity.
      */
     template<typename FieldType>
     class Registration {
         private:
             MultiArchitectureFieldFactory<FieldType> &factory;
+            internal::RegistrationWrapper *wrapper;
+            
             Registration(MultiArchitectureFieldFactory<FieldType> &factory): factory(factory) {}
             friend class Algorithm;
+
+            template<size_t rank, typename Architecture, typename... InputOutputDefinitions>
+            friend class AlgorithmStepBuilder;
         public:
-            Registration(const Registration &other): factory(other.factory) {}
+            Registration(const Registration &other): factory(other.factory), wrapper(other.wrapper) {}
+            Registration &operator=(const Registration &other) {
+                factory = other.factory;
+                wrapper = other.wrapper;
+                return *this;
+            }
+            long getId() const { return wrapper->getId(); }
     };
+
+    namespace internal {
+        template<typename FieldType>
+        class RegistrationWrapperImpl: public RegistrationWrapper {
+            public:
+                Registration<FieldType> registration;
+                RegistrationWrapperImpl(Registration<FieldType> registration): registration(registration) {}
+        };
+    }
 
     template<size_t rank, typename FuncType, typename Architecture, typename... InputOutputDefinitions>
     class AlgorithmStep;
@@ -73,7 +110,8 @@ namespace schnek::computation {
 
     class Algorithm {
         private:
-            // std::list<Registration> registrations;
+            std::map<long, internal::pRegistrationWrapper> registrations;
+            std::list<internal::pAlgorithmStepWrapper> steps;
         public:
             /**
              * Register a field factory for all the architectures in the collection
@@ -94,11 +132,7 @@ namespace schnek::computation {
              * Get a builder to create an AlgorithmStep
              */
             template<size_t rank, typename Architecture>
-            AlgorithmStepBuilder<rank, Architecture> stepBuilder() {
-                static_assert(rank > 0, "Rank must be greater than 0");
-                // static_assert(concept::ArchitectureConcept<Architecture>::value, "Architecture must meet ArchitectureConcept requirements");
-                return AlgorithmStepBuilder<rank, Architecture>();
-            }
+            AlgorithmStepBuilder<rank, Architecture> stepBuilder();
     };
 
     namespace internal {
@@ -132,7 +166,7 @@ namespace schnek::computation {
 
         template<typename InputOutputDefinition>
         struct IODefinitionToRegistration {
-            typedef Registration<typename InputOutputDefinition::FieldType> type;
+            typedef Registration<typename InputOutputDefinition::FieldType>* type;
         };
 
         template<typename... InputOutputDefinitions>
@@ -166,7 +200,18 @@ namespace schnek::computation {
                 FuncType func
             ): inputRegistrations(inputRegistrations), outputRegistrations(outputRegistrations), func(func)
             {}
+
+            AlgorithmStep(const AlgorithmStep &other) = default;
     };
+
+    namespace internal {
+        template<size_t rank, typename FuncType, typename Architecture, typename... InputOutputDefinitions>
+        class AlgorithmStepWrapperImpl: public AlgorithmStepWrapper {
+            public:
+                AlgorithmStep<rank, FuncType, Architecture, InputOutputDefinitions...> step;
+                AlgorithmStepWrapperImpl(AlgorithmStep<rank, FuncType, Architecture, InputOutputDefinitions...> step): step(step) {}
+        };
+    }
 
 
     template<size_t rank, typename Architecture, typename... InputOutputDefinitions>
@@ -179,8 +224,8 @@ namespace schnek::computation {
             OutputRegistrationsTuple outputRegistrations;
         public:
             AlgorithmStepBuilder(
-                InputRegistrationsTuple &inputRegistrations, 
-                OutputRegistrationsTuple &outputRegistrations
+                const InputRegistrationsTuple &inputRegistrations, 
+                const OutputRegistrationsTuple &outputRegistrations
             ): inputRegistrations(inputRegistrations), outputRegistrations(outputRegistrations)
             {}
 
@@ -195,9 +240,11 @@ namespace schnek::computation {
                     InputOutputDefinitions..., 
                     internal::InputDefinition<rank, GhostCells, FieldType>
                 >;
+                Registration<FieldType> *originalRegistration 
+                    = &dynamic_cast<internal::RegistrationWrapperImpl<FieldType>*>(registration.wrapper)->registration;
 
                 auto newInputRegistrations = generic::tupleAssign<InputRegistrationsTuple, NewInputRegistrationsTuple>(inputRegistrations);
-                std::get<std::tuple_size<NewInputRegistrationsTuple>::value-1>(newInputRegistrations) = registration;
+                std::get<std::tuple_size<NewInputRegistrationsTuple>::value-1>(newInputRegistrations) = originalRegistration;
                 
                 return AlgorithmStepBuilder<
                     rank,
@@ -221,9 +268,10 @@ namespace schnek::computation {
                     InputOutputDefinitions..., 
                     internal::OutputDefinition<rank, GhostCells, FieldType>
                 >;
-
+                Registration<FieldType> *originalRegistration 
+                    = &dynamic_cast<internal::RegistrationWrapperImpl<FieldType>*>(registration.wrapper)->registration;
                 auto newOutputRegistrations = generic::tupleAssign<OutputRegistrationsTuple, NewOutputRegistrationsTuple>(outputRegistrations);
-                std::get<std::tuple_size<NewOutputRegistrationsTuple>::value-1>(newOutputRegistrations) = registration;
+                std::get<std::tuple_size<NewOutputRegistrationsTuple>::value-1>(newOutputRegistrations) = originalRegistration;
 
                 return AlgorithmStepBuilder<
                     rank,
@@ -270,11 +318,25 @@ namespace schnek::computation {
 
     template<typename FieldType>
     Registration<FieldType> Algorithm::registerFieldFactory(MultiArchitectureFieldFactory<FieldType> &factory) {
-        // Registration<FieldType> registration = std::make_shared< Registration<FieldType> >(factory);
-        // auto registration = Registration(ref);
-        // registrations.push_back(registration);
-        // return registration;
-        return Registration<FieldType>(factory);
+        Registration<FieldType> registration{factory};
+        internal::pRegistrationWrapper wrapper = std::make_shared<internal::RegistrationWrapperImpl<FieldType>>(registration);
+        registration.wrapper = wrapper.get();
+        registrations[registration.getId()] = wrapper;
+        return registration;
+    }
+
+    template<size_t rank, typename Architecture>
+    AlgorithmStepBuilder<rank, Architecture> Algorithm::stepBuilder() {
+        static_assert(rank > 0, "Rank must be greater than 0");
+        // static_assert(concept::ArchitectureConcept<Architecture>::value, "Architecture must meet ArchitectureConcept requirements");
+        return AlgorithmStepBuilder<rank, Architecture>(std::tuple<>(), std::tuple<>());
+    }
+
+    template<size_t rank, typename Architecture, typename... InputOutputDefinitions>
+    void Algorithm::addStep(AlgorithmStep<rank, Architecture, InputOutputDefinitions...> &step) {
+        internal::pAlgorithmStepWrapper wrapper 
+            = std::make_shared<internal::AlgorithmStepWrapperImpl<rank, Architecture, InputOutputDefinitions...>>(step);
+        steps.push_back(wrapper);
     }
 } // namespace schnek::computation
 

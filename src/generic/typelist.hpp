@@ -163,6 +163,16 @@ namespace schnek {
             };
         }
 
+        /**
+         * @brief Assigns the values of a tuple to another tuple
+         * 
+         * The values in the destination tuple must be default constructible.
+         * 
+         * @tparam SourceTuple The source tuple type
+         * @tparam DestTuple The destination tuple type
+         * @param source The source tuple
+         * @return DestTuple The destination tuple
+         */
         template<typename SourceTuple, typename DestTuple>
         DestTuple tupleAssign(SourceTuple source) {
             DestTuple dest;
