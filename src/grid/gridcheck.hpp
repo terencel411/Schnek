@@ -35,47 +35,47 @@
 
 namespace schnek {
 
-  template <size_t rank>
+  template<size_t rank>
   class GridNoArgCheck {
-      public:
-    typedef Array<int, rank, ArrayNoArgCheck> IndexType;
-    SCHNEK_INLINE static const IndexType &check(const IndexType &pos, const IndexType &low, const IndexType &high);
+    public:
+      typedef Array<int, rank, ArrayNoArgCheck> IndexType;
+      SCHNEK_INLINE static const IndexType &check(const IndexType &pos, const IndexType &low, const IndexType &high);
   };
 
-  template <size_t rank>
+  template<size_t rank>
   class GridAssertCheck {
-      public:
-    typedef Array<int, rank, ArrayAssertArgCheck> IndexType;
-    SCHNEK_INLINE static const IndexType &check(const IndexType &pos, const IndexType &low, const IndexType &high);
+    public:
+      typedef Array<int, rank, ArrayAssertArgCheck> IndexType;
+      SCHNEK_INLINE static const IndexType &check(const IndexType &pos, const IndexType &low, const IndexType &high);
   };
 
-  template <size_t rank>
+  template<size_t rank>
   class GridDebugCheck {
-      public:
-    typedef Array<int, rank, ArrayAssertArgCheck> IndexType;
+    public:
+      typedef Array<int, rank, ArrayAssertArgCheck> IndexType;
 
-      private:
-    static bool errorFlag;
-    static int errorInfo;
-    static IndexType offending;
+    private:
+      static bool errorFlag;
+      static int errorInfo;
+      static IndexType offending;
 
-      public:
-    static const IndexType check(const IndexType &pos, const IndexType &low, const IndexType &high);
+    public:
+      static const IndexType check(const IndexType &pos, const IndexType &low, const IndexType &high);
 
-    static bool getErrorFlag() { return errorFlag; }
+      static bool getErrorFlag() { return errorFlag; }
 
-    static int getErrorInfo() { return errorInfo; }
+      static int getErrorInfo() { return errorInfo; }
 
-    static IndexType getOffending() { return offending; }
+      static IndexType getOffending() { return offending; }
   };
 
-  template <size_t rank>
+  template<size_t rank>
   SCHNEK_INLINE const typename GridNoArgCheck<rank>::IndexType &
   GridNoArgCheck<rank>::check(const IndexType &pos, const IndexType &, const IndexType &) {
     return pos;
   }
 
-  template <size_t rank>
+  template<size_t rank>
   SCHNEK_INLINE const typename GridAssertCheck<rank>::IndexType &GridAssertCheck<rank>::check(
       const IndexType &pos, const IndexType &low, const IndexType &high
   ) {
@@ -86,16 +86,16 @@ namespace schnek {
     return pos;
   }
 
-  template <size_t rank>
+  template<size_t rank>
   bool GridDebugCheck<rank>::errorFlag = false;
 
-  template <size_t rank>
+  template<size_t rank>
   int GridDebugCheck<rank>::errorInfo = 0;
 
-  template <size_t rank>
+  template<size_t rank>
   typename GridDebugCheck<rank>::IndexType GridDebugCheck<rank>::offending;
 
-  template <size_t rank>
+  template<size_t rank>
   inline const typename GridDebugCheck<rank>::IndexType GridDebugCheck<rank>::check(
       const IndexType &pos, const IndexType &low, const IndexType &high
   ) {

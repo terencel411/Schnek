@@ -37,13 +37,13 @@ namespace schnek {
    *
    *  The type to create is given by the template parameter TYPE
    */
-  template <class TYPE>
+  template<class TYPE>
   class CreateUsingNew {
-      public:
-    /** Create the object of type TYPE by calling the standard "new"
-     *  allocation
-     */
-    static TYPE* create() { return new TYPE(); }
+    public:
+      /** Create the object of type TYPE by calling the standard "new"
+       *  allocation
+       */
+      static TYPE* create() { return new TYPE(); }
   };
 
   /** A singleton template class
@@ -67,39 +67,39 @@ namespace schnek {
    *  The Singleton class itself can not be instantiated because all
    *  constructors are private.
    */
-  template <class TYPE, template <class> class CreationPolicy = CreateUsingNew>
+  template<class TYPE, template<class> class CreationPolicy = CreateUsingNew>
   class Singleton {
-      public:
-    /** Access to the singleton instance.
-     *
-     *  If no instance exists the CreationPolicy<TYPE>::create() method
-     *  is called to create one.
-     */
-    static TYPE& instance() {
-      if (!pInstance) {
-        pInstance = CreationPolicy<TYPE>::create();
+    public:
+      /** Access to the singleton instance.
+       *
+       *  If no instance exists the CreationPolicy<TYPE>::create() method
+       *  is called to create one.
+       */
+      static TYPE& instance() {
+        if (!pInstance) {
+          pInstance = CreationPolicy<TYPE>::create();
+        }
+        return *pInstance;
       }
-      return *pInstance;
-    }
 
-      protected:
-    Singleton() {}
-    /** Destructor made private and not implemented  */
-    ~Singleton() {}
+    protected:
+      Singleton() {}
+      /** Destructor made private and not implemented  */
+      ~Singleton() {}
 
-      private:
-    /** Copy constructor made private and not implemented  */
-    Singleton(const Singleton&);
-    /** Copy operator made private and not implemented  */
-    Singleton& operator=(const Singleton&);
+    private:
+      /** Copy constructor made private and not implemented  */
+      Singleton(const Singleton&);
+      /** Copy operator made private and not implemented  */
+      Singleton& operator=(const Singleton&);
 
-    /** The pointer to the one and only instance of the singleton instance
-     *  class.
-     */
-    static TYPE* pInstance;
+      /** The pointer to the one and only instance of the singleton instance
+       *  class.
+       */
+      static TYPE* pInstance;
   };
 
-  template <class TYPE, template <class> class CreationPolicy>
+  template<class TYPE, template<class> class CreationPolicy>
   TYPE* Singleton<TYPE, CreationPolicy>::pInstance = 0;
 
 }  // namespace schnek

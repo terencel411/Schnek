@@ -24,7 +24,7 @@
  *
  */
 
-template <class InputIterator>
+template<class InputIterator>
 typename InputIterator::value_type mean(InputIterator begin, InputIterator end) {
   typedef typename InputIterator::value_type Value;
   Value m(0);

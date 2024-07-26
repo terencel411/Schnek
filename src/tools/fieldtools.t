@@ -28,12 +28,20 @@
 
 namespace schnek {
 
-  template <
-      typename T, size_t rank, template <size_t> class GridCheckingPolicy, template <size_t> class ArrayCheckingPolicy,
-      template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class GridCheckingPolicy,
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   void fill_field(
-      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field, Array<double, rank, ArrayCheckingPolicy> &coords,
-      T &value, DependencyUpdater &updater
+      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field,
+      Array<double, rank, ArrayCheckingPolicy> &coords,
+      T &value,
+      DependencyUpdater &updater
   ) {
     Range<int, rank> domain(field.getLo(), field.getHi());
 
@@ -56,12 +64,21 @@ namespace schnek {
     }
   }
 
-  template <
-      typename T, size_t rank, template <size_t> class GridCheckingPolicy, template <size_t> class ArrayCheckingPolicy,
-      template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class GridCheckingPolicy,
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   void fill_field(
-      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field, Array<double, rank, ArrayCheckingPolicy> &coords,
-      T &value, DependencyUpdater &updater, pParameter dependent
+      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field,
+      Array<double, rank, ArrayCheckingPolicy> &coords,
+      T &value,
+      DependencyUpdater &updater,
+      pParameter dependent
   ) {
     updater.clearDependent();
     updater.addDependent(dependent);

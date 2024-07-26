@@ -37,10 +37,10 @@ namespace schnek {
    *  A method to pass type information in an argument without creating a large
    *  object.
    */
-  template <class Type>
+  template<class Type>
   struct Type2Type {
-    /** the original type */
-    typedef Type OriginalType;
+      /** the original type */
+      typedef Type OriginalType;
   };
 
   ///** Type to type mapper class.
@@ -60,30 +60,30 @@ namespace schnek {
    *  Typelists are used for creating generalized functors, generating
    *  class hierarchies and more
    */
-  template <class H, class T>
+  template<class H, class T>
   struct Typelist {
-    /** The head is an actual type */
-    typedef H Head;
-    /** The tail is either a typelist itself or NullType*/
-    typedef T Tail;
+      /** The head is an actual type */
+      typedef H Head;
+      /** The tail is either a typelist itself or NullType*/
+      typedef T Tail;
   };
 
-  template <class TList, unsigned int index, class DefaultType>
+  template<class TList, unsigned int index, class DefaultType>
   struct TypeAtNonStrict;
 
-  template <class Head, class Tail, class DefaultType>
+  template<class Head, class Tail, class DefaultType>
   struct TypeAtNonStrict<Typelist<Head, Tail>, 0, DefaultType> {
-    typedef Head Result;
+      typedef Head Result;
   };
 
-  template <class DefaultType, unsigned int index>
+  template<class DefaultType, unsigned int index>
   struct TypeAtNonStrict<NullType, index, DefaultType> {
-    typedef DefaultType Result;
+      typedef DefaultType Result;
   };
 
-  template <class Head, class Tail, unsigned int index, class DefaultType>
+  template<class Head, class Tail, unsigned int index, class DefaultType>
   struct TypeAtNonStrict<Typelist<Head, Tail>, index, DefaultType> {
-    typedef typename TypeAtNonStrict<Tail, index - 1, DefaultType>::Result Result;
+      typedef typename TypeAtNonStrict<Tail, index - 1, DefaultType>::Result Result;
   };
 
 }  // namespace schnek

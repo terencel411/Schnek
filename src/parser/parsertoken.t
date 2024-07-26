@@ -28,48 +28,48 @@
  * TypePromoter
  */
 
-template <class ExpressionPointer>
+template<class ExpressionPointer>
 inline void TypePromoter::operator()(ExpressionPointer e1, ExpressionPointer e2) {
   result1 = e1;
   result2 = e2;
 }
 
-template <>
+template<>
 inline void TypePromoter::operator()(pIntExpression e1, pFloatExpression e2) {
   pFloatExpression pF(new TypecastOp<double, int>(e1));
   result1 = pF;
   result2 = e2;
 }
 
-template <>
+template<>
 inline void TypePromoter::operator()(pFloatExpression e1, pIntExpression e2) {
   pFloatExpression pF(new TypecastOp<double, int>(e2));
   result1 = e1;
   result2 = pF;
 }
 
-template <>
+template<>
 inline void TypePromoter::operator()(pIntExpression e1, pStringExpression e2) {
   pStringExpression pS(new TypecastOp<std::string, int, LexicalCast>(e1));
   result1 = pS;
   result2 = e2;
 }
 
-template <>
+template<>
 inline void TypePromoter::operator()(pStringExpression e1, pIntExpression e2) {
   pStringExpression pS(new TypecastOp<std::string, int, LexicalCast>(e2));
   result1 = e1;
   result2 = pS;
 }
 
-template <>
+template<>
 inline void TypePromoter::operator()(pFloatExpression e1, pStringExpression e2) {
   pStringExpression pS(new TypecastOp<std::string, double, LexicalCast>(e1));
   result1 = pS;
   result2 = e2;
 }
 
-template <>
+template<>
 inline void TypePromoter::operator()(pStringExpression e1, pFloatExpression e2) {
   pStringExpression pS(new TypecastOp<std::string, double, LexicalCast>(e2));
   result1 = e1;
@@ -80,42 +80,42 @@ inline void TypePromoter::operator()(pStringExpression e1, pFloatExpression e2) 
  * TypePromoterAssign for assignments from one type to another
  */
 
-template <class ExpressionPointer>
+template<class ExpressionPointer>
 inline ExpressionVariant TypePromoterAssign::operator()(ExpressionPointer, ExpressionPointer e2) {
   return e2;
 }
 
-template <>
+template<>
 inline ExpressionVariant TypePromoterAssign::operator()(pIntExpression, pFloatExpression e2) {
   pIntExpression pI(new TypecastOp<int, double>(e2));
   return pI;
 }
 
-template <>
+template<>
 inline ExpressionVariant TypePromoterAssign::operator()(pFloatExpression, pIntExpression e2) {
   pFloatExpression pF(new TypecastOp<double, int>(e2));
   return pF;
 }
 
-template <>
+template<>
 inline ExpressionVariant TypePromoterAssign::operator()(pIntExpression, pStringExpression e2) {
   pIntExpression pI(new TypecastOp<int, std::string, LexicalCast>(e2));
   return pI;
 }
 
-template <>
+template<>
 inline ExpressionVariant TypePromoterAssign::operator()(pStringExpression, pIntExpression e2) {
   pStringExpression pS(new TypecastOp<std::string, int, LexicalCast>(e2));
   return pS;
 }
 
-template <>
+template<>
 inline ExpressionVariant TypePromoterAssign::operator()(pFloatExpression, pStringExpression e2) {
   pFloatExpression pF(new TypecastOp<double, std::string, LexicalCast>(e2));
   return pF;
 }
 
-template <>
+template<>
 inline ExpressionVariant TypePromoterAssign::operator()(pStringExpression, pFloatExpression e2) {
   pStringExpression pS(new TypecastOp<std::string, double, LexicalCast>(e2));
   return pS;
@@ -125,39 +125,39 @@ inline ExpressionVariant TypePromoterAssign::operator()(pStringExpression, pFloa
  * ParserToken operator assignment
  */
 
-template <template <class> class op>
+template<template<class> class op>
 struct UnaryOperatorVisitor : public boost::static_visitor<ExpressionVariant> {
-  template <class ExpressionPointer>
-  ExpressionVariant operator()(ExpressionPointer a1) {
-    typedef typename ExpressionPointer::element_type etype;
-    typedef typename etype::ValueType vtype;
-    typedef op<vtype> OpType;
+    template<class ExpressionPointer>
+    ExpressionVariant operator()(ExpressionPointer a1) {
+      typedef typename ExpressionPointer::element_type etype;
+      typedef typename etype::ValueType vtype;
+      typedef op<vtype> OpType;
 
-    ExpressionPointer eP(new UnaryOp<OpType, vtype>(a1));
-    return eP;
-  }
+      ExpressionPointer eP(new UnaryOp<OpType, vtype>(a1));
+      return eP;
+    }
 };
 
-template <template <class> class op>
+template<template<class> class op>
 struct BinaryOperatorVisitor : public boost::static_visitor<ExpressionVariant> {
-  ExpressionVariant arg2;
+    ExpressionVariant arg2;
 
-  BinaryOperatorVisitor(ExpressionVariant arg2_) : arg2(arg2_) {}
+    BinaryOperatorVisitor(ExpressionVariant arg2_) : arg2(arg2_) {}
 
-  template <class ExpressionPointer>
-  ExpressionVariant operator()(ExpressionPointer a1) {
-    typedef typename ExpressionPointer::element_type etype;
-    typedef typename etype::ValueType vtype;
-    typedef op<vtype> OpType;
+    template<class ExpressionPointer>
+    ExpressionVariant operator()(ExpressionPointer a1) {
+      typedef typename ExpressionPointer::element_type etype;
+      typedef typename etype::ValueType vtype;
+      typedef op<vtype> OpType;
 
-    ExpressionPointer a2 = boost::get<ExpressionPointer>(arg2);
+      ExpressionPointer a2 = boost::get<ExpressionPointer>(arg2);
 
-    ExpressionPointer eP(new BinaryOp<OpType, vtype>(a1, a2));
-    return eP;
-  }
+      ExpressionPointer eP(new BinaryOp<OpType, vtype>(a1, a2));
+      return eP;
+    }
 };
 
-template <template <class> class OpType>
+template<template<class> class OpType>
 void ParserToken::assignUnaryOperator(ParserToken &parTok) {
   context = parTok.context;
   atomTok = parTok.atomTok;
@@ -167,7 +167,7 @@ void ParserToken::assignUnaryOperator(ParserToken &parTok) {
   data = boost::apply_visitor(visit, parTok.data);
 }
 
-template <template <class> class OpType>
+template<template<class> class OpType>
 void ParserToken::assignBinaryOperator(ParserToken &parTok1, ParserToken &parTok2) {
   context = parTok1.context;
   atomTok = parTok1.atomTok;

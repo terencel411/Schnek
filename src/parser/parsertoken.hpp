@@ -51,75 +51,76 @@ namespace schnek {
   typedef std::shared_ptr<ParserToken> pParserToken;
 
   struct ParserError : public SchnekException {
-    std::string message;
-    Token atomToken;
-    ParserError(std::string message_, Token atomToken_) : SchnekException(), message(message_), atomToken(atomToken_) {}
-    std::string getFilename() { return atomToken.getFilename(); }
-    int getLine() { return atomToken.getLine(); }
+      std::string message;
+      Token atomToken;
+      ParserError(std::string message_, Token atomToken_)
+          : SchnekException(), message(message_), atomToken(atomToken_) {}
+      std::string getFilename() { return atomToken.getFilename(); }
+      int getLine() { return atomToken.getLine(); }
   };
 
   class ParserToken {
-      public:
-    enum TokenType {
-      deck,
-      blocklist,
-      block,
-      statementlist,
-      statement,
-      expression,
-      expressionlist,
-      value,
-      int_type,
-      float_type,
-      string_type,
-      atom,
-      none
-    };
+    public:
+      enum TokenType {
+        deck,
+        blocklist,
+        block,
+        statementlist,
+        statement,
+        expression,
+        expressionlist,
+        value,
+        int_type,
+        float_type,
+        string_type,
+        atom,
+        none
+      };
 
-    ParserToken();
-    ParserToken(const Token atomTok_, ParserContext context_);
-    ParserToken(const ParserToken &tok);
-    ParserToken &operator=(const ParserToken &tok);
+      ParserToken();
+      ParserToken(const Token atomTok_, ParserContext context_);
+      ParserToken(const ParserToken &tok);
+      ParserToken &operator=(const ParserToken &tok);
 
-    TokenType getType() const;
-    std::string getString() const { return atomTok.getString(); }
+      TokenType getType() const;
+      std::string getString() const { return atomTok.getString(); }
 
-    void append(ParserToken &parTok);
+      void append(ParserToken &parTok);
 
-    // assignment functions
-    void assignInteger(ParserToken &parTok);
-    void assignFloat(ParserToken &parTok);
-    void assignString(ParserToken &parTok);
-    void assignIdentifier(ParserToken &parTok);
+      // assignment functions
+      void assignInteger(ParserToken &parTok);
+      void assignFloat(ParserToken &parTok);
+      void assignString(ParserToken &parTok);
+      void assignIdentifier(ParserToken &parTok);
 
-    template <template <class> class OpType>
-    void assignUnaryOperator(ParserToken &parTok);
+      template<template<class> class OpType>
+      void assignUnaryOperator(ParserToken &parTok);
 
-    template <template <class> class OpType>
-    void assignBinaryOperator(ParserToken &parTok1, ParserToken &parTok2);
+      template<template<class> class OpType>
+      void assignBinaryOperator(ParserToken &parTok1, ParserToken &parTok2);
 
-    void makeExpressionList();
-    void assignFunction(ParserToken &parTok1, ParserToken &parTok2);
-    void assignFunction(ParserToken &parTok1);
+      void makeExpressionList();
+      void assignFunction(ParserToken &parTok1, ParserToken &parTok2);
+      void assignFunction(ParserToken &parTok1);
 
-    void evaluateExpression(ParserToken &identifier, ParserToken &expression);
+      void evaluateExpression(ParserToken &identifier, ParserToken &expression);
 
-    void storeVariable(ParserToken &parTok);
-    void updateVariable();
+      void storeVariable(ParserToken &parTok);
+      void updateVariable();
 
-    void createBlock(ParserToken &parTok);
-    void endBlock();
+      void createBlock(ParserToken &parTok);
+      void endBlock();
 
-      private:
-    void ensureVariable(ParserToken &parTok);
+    private:
+      void ensureVariable(ParserToken &parTok);
 
-    ParserContext context;
-    Token atomTok;
-    TokenType type;
-    ExpressionVariant data;
-    pVariable var;
+      ParserContext context;
+      Token atomTok;
+      TokenType type;
+      ExpressionVariant data;
+      pVariable var;
 
-    pParserToken chainedToken;
+      pParserToken chainedToken;
   };
 
   inline std::string toString(ParserToken::TokenType type) {
@@ -159,31 +160,31 @@ namespace schnek {
    * ExpressionVariant.
    */
   class TypePromoter : public boost::static_visitor<void> {
-      private:
-    ExpressionVariant result1;
-    ExpressionVariant result2;
+    private:
+      ExpressionVariant result1;
+      ExpressionVariant result2;
 
-      public:
-    template <class ExpressionPointer1, class ExpressionPointer2>
-    void operator()(ExpressionPointer1 e1, ExpressionPointer2 e2);
+    public:
+      template<class ExpressionPointer1, class ExpressionPointer2>
+      void operator()(ExpressionPointer1 e1, ExpressionPointer2 e2);
 
-    template <class ExpressionPointer>
-    void operator()(ExpressionPointer e1, ExpressionPointer e2);
+      template<class ExpressionPointer>
+      void operator()(ExpressionPointer e1, ExpressionPointer e2);
 
-    const ExpressionVariant &getResultA() { return result1; }
-    const ExpressionVariant &getResultB() { return result2; }
+      const ExpressionVariant &getResultA() { return result1; }
+      const ExpressionVariant &getResultB() { return result2; }
   };
 
   /** This class creates result types from two argument types and stores them in a
    * ExpressionVariant.
    */
   class TypePromoterAssign : public boost::static_visitor<ExpressionVariant> {
-      public:
-    template <class ExpressionPointer1, class ExpressionPointer2>
-    ExpressionVariant operator()(ExpressionPointer1, ExpressionPointer2 e2);
+    public:
+      template<class ExpressionPointer1, class ExpressionPointer2>
+      ExpressionVariant operator()(ExpressionPointer1, ExpressionPointer2 e2);
 
-    template <class ExpressionPointer>
-    ExpressionVariant operator()(ExpressionPointer, ExpressionPointer e2);
+      template<class ExpressionPointer>
+      ExpressionVariant operator()(ExpressionPointer, ExpressionPointer e2);
   };
 
 #include "parsertoken.t"

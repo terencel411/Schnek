@@ -30,8 +30,8 @@
 namespace schnek {}
 
 class Operator {
-    public:
-  virtual ExpressionVariant evaluate() = 0;
+  public:
+    virtual ExpressionVariant evaluate() = 0;
 };
 
 }  // namespace

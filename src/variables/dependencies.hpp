@@ -51,98 +51,100 @@ namespace schnek {
    *
    */
   class DependencyMap {
-      private:
-    typedef std::set<long> DependencySet;
-    struct VarInfo {
-      pVariable v;
-      DependencySet dependsOn;
-      DependencySet modifies;
-      int counter;
-      VarInfo() {}
-      VarInfo(pVariable v_, DependencySet dependsOn_, DependencySet modifies_)
-          : v(v_), dependsOn(dependsOn_), modifies(modifies_), counter(0) {
-        assert(v);
-      }
-    };
+    private:
+      typedef std::set<long> DependencySet;
+      struct VarInfo {
+          pVariable v;
+          DependencySet dependsOn;
+          DependencySet modifies;
+          int counter;
+          VarInfo() {}
+          VarInfo(pVariable v_, DependencySet dependsOn_, DependencySet modifies_)
+              : v(v_), dependsOn(dependsOn_), modifies(modifies_), counter(0) {
+            assert(v);
+          }
+      };
 
-    typedef std::map<long, VarInfo> DepMap;
+      typedef std::map<long, VarInfo> DepMap;
 
-    /// This is used internally. The pointers are to VarInfo objects stored in the dependencies map.
-    typedef std::map<long, VarInfo *> RefDepMap;
-    typedef std::shared_ptr<RefDepMap> pRefDepMap;
+      /// This is used internally. The pointers are to VarInfo objects stored in the dependencies map.
+      typedef std::map<long, VarInfo *> RefDepMap;
+      typedef std::shared_ptr<RefDepMap> pRefDepMap;
 
-    typedef std::set<pVariable> VariableSet;
-    typedef std::list<pVariable> VariableList;
+      typedef std::set<pVariable> VariableSet;
+      typedef std::list<pVariable> VariableList;
 
-    DepMap dependencies;
-    pBlockVariables blockVars;
+      DepMap dependencies;
+      pBlockVariables blockVars;
 
-    pVariable dummyVar;
+      pVariable dummyVar;
 
-    friend class DependencyUpdater;
+      friend class DependencyUpdater;
 
-    void constructMapRecursive(const pBlockVariables vars);
-    void constructMap(const pBlockVariables vars);
-    void resetCounters();
+      void constructMapRecursive(const pBlockVariables vars);
+      void constructMap(const pBlockVariables vars);
+      void resetCounters();
 
-    void makeUpdateList(const VariableSet &independentVars, const VariableSet &dependentVars, VariableList &updateList);
-    pRefDepMap makeUpdatePredecessors(const VariableSet &independentVars, const VariableSet &dependentVars);
-    pRefDepMap makeUpdateFollowers(const VariableSet &independentVars, pRefDepMap reverseDeps);
-    void makeUpdateOrder(pRefDepMap deps, VariableList &updateList);
+      void makeUpdateList(
+          const VariableSet &independentVars, const VariableSet &dependentVars, VariableList &updateList
+      );
+      pRefDepMap makeUpdatePredecessors(const VariableSet &independentVars, const VariableSet &dependentVars);
+      pRefDepMap makeUpdateFollowers(const VariableSet &independentVars, pRefDepMap reverseDeps);
+      void makeUpdateOrder(pRefDepMap deps, VariableList &updateList);
 
-      public:
-    DependencyMap(const pBlockVariables vars);
-    void recreate() { constructMap(blockVars); }
-    pBlockVariables getBlockVariables();
-    void updateAll();
+    public:
+      DependencyMap(const pBlockVariables vars);
+      void recreate() { constructMap(blockVars); }
+      pBlockVariables getBlockVariables();
+      void updateAll();
 
-    //    bool hasRoots(pVariable v, pParametersGroup roots);
+      //    bool hasRoots(pVariable v, pParametersGroup roots);
   };
 
   typedef std::shared_ptr<DependencyMap> pDependencyMap;
 
   class DependencyUpdater {
-      private:
-    typedef std::set<pParameter> ParameterSet;
-    typedef std::set<pVariable> VariableSet;
-    typedef std::list<pVariable> VariableList;
+    private:
+      typedef std::set<pParameter> ParameterSet;
+      typedef std::set<pVariable> VariableSet;
+      typedef std::list<pVariable> VariableList;
 
-    VariableList updateList;
-    VariableSet independentVars;
-    VariableSet dependentVars;
-    ParameterSet dependentParameters;
+      VariableList updateList;
+      VariableSet independentVars;
+      VariableSet dependentVars;
+      ParameterSet dependentParameters;
 
-    pDependencyMap dependencies;
-    bool isValid;
+      pDependencyMap dependencies;
+      bool isValid;
 
-      public:
-    DependencyUpdater(pDependencyMap dependencies_);
-    void addIndependent(pParameter v);
-    void addDependent(pParameter v);
-    void clearDependent();
+    public:
+      DependencyUpdater(pDependencyMap dependencies_);
+      void addIndependent(pParameter v);
+      void addDependent(pParameter v);
+      void clearDependent();
 
-    template <size_t rank, template <size_t> class CheckingPolicy>
-    void addIndependentArray(Array<pParameter, rank, CheckingPolicy> v) {
-      for (size_t i = 0; i < rank; ++i) addIndependent(v[i]);
-    }
-
-    template <size_t rank, template <size_t> class CheckingPolicy>
-    void addDependentArray(Array<pParameter, rank, CheckingPolicy> v) {
-      for (size_t i = 0; i < rank; ++i) addDependent(v[i]);
-    }
-
-    /** Updates the dependent variables and all the variables needed to evaluate them.
-     *
-     *  This method is inline because it is potentially speed critical.
-     */
-    void update() {
-      if (!isValid) {
-        dependencies->makeUpdateList(independentVars, dependentVars, updateList);
-        isValid = true;
+      template<size_t rank, template<size_t> class CheckingPolicy>
+      void addIndependentArray(Array<pParameter, rank, CheckingPolicy> v) {
+        for (size_t i = 0; i < rank; ++i) addIndependent(v[i]);
       }
-      for (pVariable v : updateList) v->evaluateExpression();
-      for (pParameter p : dependentParameters) p->update();
-    }
+
+      template<size_t rank, template<size_t> class CheckingPolicy>
+      void addDependentArray(Array<pParameter, rank, CheckingPolicy> v) {
+        for (size_t i = 0; i < rank; ++i) addDependent(v[i]);
+      }
+
+      /** Updates the dependent variables and all the variables needed to evaluate them.
+       *
+       *  This method is inline because it is potentially speed critical.
+       */
+      void update() {
+        if (!isValid) {
+          dependencies->makeUpdateList(independentVars, dependentVars, updateList);
+          isValid = true;
+        }
+        for (pVariable v : updateList) v->evaluateExpression();
+        for (pParameter p : dependentParameters) p->update();
+      }
   };
 
   typedef std::shared_ptr<DependencyUpdater> pDependencyUpdater;

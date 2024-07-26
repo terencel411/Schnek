@@ -32,7 +32,7 @@
 
 namespace schnek {
 
-  template <typename T>
+  template<typename T>
   void HdfAttributes::set(std::string name, const T *value, hsize_t dims) {
     pInfo info(new Info);
     info->type = H5DataType<T>::type;
@@ -41,7 +41,7 @@ namespace schnek {
     this->attributes[name] = info;
   }
 
-  template <typename T>
+  template<typename T>
   void HdfAttributes::set(std::string name, const T &value, hsize_t dims) {
     pInfo info(new Info);
     info->type = H5DataType<T>::type;
@@ -50,7 +50,7 @@ namespace schnek {
     this->attributes[name] = info;
   }
 
-  template <typename FieldType>
+  template<typename FieldType>
   void HdfIStream::readGrid(GridContainer<FieldType> &g) {
     std::string dset_name = getNextBlockName();
 
@@ -135,7 +135,7 @@ namespace schnek {
     assert(ret != -1);
   }
 
-  template <typename FieldType>
+  template<typename FieldType>
   void HdfOStream::writeGrid(GridContainer<FieldType> &g) {
     if (!active) {
       return;
@@ -276,22 +276,32 @@ namespace schnek {
     H5Sclose(sid);
   }
 
-  template <typename InnerType>
+  template<typename InnerType>
   struct CopyToContainer {
-    static void copy(InnerType field, GridContainer<InnerType> &container);
+      static void copy(InnerType field, GridContainer<InnerType> &container);
   };
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   struct CopyToContainer<Field<T, rank, CheckingPolicy, StoragePolicy> > {
-    static void copy(
-        Field<T, rank, CheckingPolicy, StoragePolicy> field,
-        GridContainer<Field<T, rank, CheckingPolicy, StoragePolicy> > &container
-    );
+      static void copy(
+          Field<T, rank, CheckingPolicy, StoragePolicy> field,
+          GridContainer<Field<T, rank, CheckingPolicy, StoragePolicy> > &container
+      );
   };
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   inline void CopyToContainer<Field<T, rank, CheckingPolicy, StoragePolicy> >::copy(
       Field<T, rank, CheckingPolicy, StoragePolicy> field,
       GridContainer<Field<T, rank, CheckingPolicy, StoragePolicy> > &container
@@ -301,7 +311,7 @@ namespace schnek {
     container.local_max = field.getInnerHi();
   }
 
-  template <typename InnerType>
+  template<typename InnerType>
   inline void CopyToContainer<InnerType>::copy(InnerType field, GridContainer<InnerType> &container) {
     container.grid = field;
     container.local_min = field.getLo();
@@ -312,29 +322,29 @@ namespace schnek {
   // HDFGridDiagnostic
   //------------------------------------------------------------------------------
 
-  template <typename Type, class DiagnosticType>
+  template<typename Type, class DiagnosticType>
   std::string HDFGridDiagnostic<Type, DiagnosticType>::getDatasetName() {
     return "data";
   }
 
-  template <typename Type, class DiagnosticType>
+  template<typename Type, class DiagnosticType>
   void HDFGridDiagnostic<Type, DiagnosticType>::open(const std::string &fname) {
     output.open(fname.c_str());
   }
 
-  template <typename Type, class DiagnosticType>
+  template<typename Type, class DiagnosticType>
   void HDFGridDiagnostic<Type, DiagnosticType>::write() {
     output.setBlockName(this->getDatasetName());
     output.setAttributes(this->getAttributes());
     output.writeGrid(container);
   }
 
-  template <typename Type, class DiagnosticType>
+  template<typename Type, class DiagnosticType>
   void HDFGridDiagnostic<Type, DiagnosticType>::close() {
     output.close();
   }
 
-  template <typename Type, class DiagnosticType>
+  template<typename Type, class DiagnosticType>
   void HDFGridDiagnostic<Type, DiagnosticType>::init() {
     SimpleDiagnostic<Type, Type, DiagnosticType>::init();
 
@@ -349,7 +359,7 @@ namespace schnek {
   // HDFGridReader
   //------------------------------------------------------------------------------
 
-  template <typename Type>
+  template<typename Type>
   void HDFGridReader<Type>::init() {
     Block::init();
 
@@ -360,35 +370,35 @@ namespace schnek {
     container.global_max = this->getGlobalMax();
   }
 
-  template <typename Type>
+  template<typename Type>
   std::string HDFGridReader<Type>::getDatasetName() {
     return "data";
   }
 
-  template <typename Type>
+  template<typename Type>
   void HDFGridReader<Type>::open() {
     input.open(fileName.c_str());
   }
 
-  template <typename Type>
+  template<typename Type>
   void HDFGridReader<Type>::read() {
     input.setBlockName(this->getDatasetName());
     input.readGrid(container);
   }
 
-  template <typename Type>
+  template<typename Type>
   void HDFGridReader<Type>::close() {
     input.close();
   }
 
-  template <typename Type>
+  template<typename Type>
   void HDFGridReader<Type>::execute() {
     open();
     read();
     close();
   }
 
-  template <typename Type>
+  template<typename Type>
   void HDFGridReader<Type>::initParameters(BlockParameters &blockPars) {
     Block::initParameters(blockPars);
 

@@ -315,13 +315,13 @@ int HdfOStream::open(const char* fname) {
 
 // ----------------------------------------------------------------------
 
-template <>
+template<>
 const hid_t H5DataType<int>::type = H5T_NATIVE_INT;
 
-template <>
+template<>
 const hid_t H5DataType<float>::type = H5T_NATIVE_FLOAT;
 
-template <>
+template<>
 const hid_t H5DataType<double>::type = H5T_NATIVE_DOUBLE;
 
 #endif

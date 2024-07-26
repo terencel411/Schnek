@@ -28,18 +28,18 @@
 
 namespace schnek {
 
-  template <class GridType>
+  template<class GridType>
   SerialSubdivision<GridType>::SerialSubdivision() {}
 
-  template <class GridType>
+  template<class GridType>
   SerialSubdivision<GridType>::~SerialSubdivision() {}
 
-  template <class GridType>
+  template<class GridType>
   void SerialSubdivision<GridType>::init(const LimitType &low, const LimitType &high, int delta) {
     this->bounds = std::make_shared<BoundaryType>(low, high, delta);
   }
 
-  template <class GridType>
+  template<class GridType>
   void SerialSubdivision<GridType>::exchange(GridType &grid, size_t dim) {
     DomainType loGhost = this->bounds->getGhostDomain(dim, BoundaryType::Min);
     DomainType hiGhost = this->bounds->getGhostDomain(dim, BoundaryType::Max);
@@ -71,7 +71,7 @@ namespace schnek {
     }
   }
 
-  template <class GridType>
+  template<class GridType>
   void SerialSubdivision<GridType>::accumulate(GridType &grid, size_t dim) {
     DomainType loGhost = this->bounds->getGhostDomain(dim, BoundaryType::Min);
     DomainType hiGhost = this->bounds->getGhostDomain(dim, BoundaryType::Max);
@@ -105,7 +105,7 @@ namespace schnek {
     }
   }
 
-  template <class GridType>
+  template<class GridType>
   void SerialSubdivision<GridType>::exchangeData(size_t, int, BufferType &in, BufferType &out) {
     out = in;
   }

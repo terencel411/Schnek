@@ -34,37 +34,37 @@ using namespace schnek;
  *                 MpiValueType                                 *
  ****************************************************************/
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<signed char>::value = MPI_CHAR;
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<signed short int>::value = MPI_SHORT;
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<signed int>::value = MPI_INT;
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<signed long int>::value = MPI_LONG;
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<unsigned char>::value = MPI_UNSIGNED_CHAR;
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<unsigned short int>::value = MPI_UNSIGNED_SHORT;
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<unsigned int>::value = MPI_UNSIGNED;
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<unsigned long int>::value = MPI_UNSIGNED_LONG;
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<float>::value = MPI_FLOAT;
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<double>::value = MPI_DOUBLE;
 
-template <>
+template<>
 const MPI_Datatype MpiValueType<long double>::value = MPI_LONG_DOUBLE;
 
 #endif

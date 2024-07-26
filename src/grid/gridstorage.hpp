@@ -32,13 +32,13 @@
 #include "gridstorage/single-array-storage-base.hpp"
 
 namespace schnek {
-  template <typename T, size_t rank>
+  template<typename T, size_t rank>
   using SingleArrayGridStorage = SingleArrayGridCOrderStorageBase<T, rank, SingleArrayInstantAllocation>;
 
-  template <typename T, size_t rank>
+  template<typename T, size_t rank>
   using SingleArrayGridStorageFortran = SingleArrayGridFortranOrderStorageBase<T, rank, SingleArrayInstantAllocation>;
 
-  template <typename T, size_t rank>
+  template<typename T, size_t rank>
   using LazyArrayGridStorage = SingleArrayGridCOrderStorageBase<T, rank, SingleArrayLazyAllocation>;
 
 }  // namespace schnek

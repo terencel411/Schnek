@@ -34,20 +34,20 @@
 namespace schnek {
 
   struct ParserSettings {
-    VariableStorage variables;
-    FunctionRegistry funcReg;
-    BlockClasses blockClasses;
+      VariableStorage variables;
+      FunctionRegistry funcReg;
+      BlockClasses blockClasses;
 
-    ParserSettings(std::string name, std::string classname) : variables(name, classname) {}
+      ParserSettings(std::string name, std::string classname) : variables(name, classname) {}
 
-    template <typename func>
-    void registerFunction(std::string fname, func f) {
-      funcReg.registerFunction(fname, f);
-    }
+      template<typename func>
+      void registerFunction(std::string fname, func f) {
+        funcReg.registerFunction(fname, f);
+      }
 
-    BlockClassDescriptor &addBlockClass(std::string blockClass) { return blockClasses.registerBlock(blockClass); }
+      BlockClassDescriptor &addBlockClass(std::string blockClass) { return blockClasses.registerBlock(blockClass); }
 
-    BlockClassDescriptor &getBlock(std::string blockClass) { return blockClasses(blockClass); }
+      BlockClassDescriptor &getBlock(std::string blockClass) { return blockClasses(blockClass); }
   };
 
 }  // namespace schnek

@@ -29,16 +29,16 @@
 
 namespace schnek {
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array() {}
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <template <size_t> class CheckingPolicy2>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<template<size_t> class CheckingPolicy2>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(const Array<T, Length, CheckingPolicy2>& arr) {
     for (size_t i = 0; i < Length; ++i) data[i] = arr[i];
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(const T& v0) {
     for (size_t i = 0; i < Length; ++i) data[i] = v0;
   }
@@ -48,14 +48,14 @@ namespace schnek {
   // {
   // }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(const T& v0, const T& v1) {
     BOOST_STATIC_ASSERT(2 == Length);
     data[0] = v0;
     data[1] = v1;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(const T& v0, const T& v1, const T& v2) {
     BOOST_STATIC_ASSERT(3 == Length);
     data[0] = v0;
@@ -63,7 +63,7 @@ namespace schnek {
     data[2] = v2;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(const T& v0, const T& v1, const T& v2, const T& v3) {
     BOOST_STATIC_ASSERT(4 == Length);
     data[0] = v0;
@@ -72,7 +72,7 @@ namespace schnek {
     data[3] = v3;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(
       const T& v0, const T& v1, const T& v2, const T& v3, const T& v4
   ) {
@@ -84,7 +84,7 @@ namespace schnek {
     data[4] = v4;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(
       const T& v0, const T& v1, const T& v2, const T& v3, const T& v4, const T& v5
   ) {
@@ -97,7 +97,7 @@ namespace schnek {
     data[5] = v5;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(
       const T& v0, const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6
   ) {
@@ -111,7 +111,7 @@ namespace schnek {
     data[6] = v6;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(
       const T& v0, const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7
   ) {
@@ -126,9 +126,16 @@ namespace schnek {
     data[7] = v7;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(
-      const T& v0, const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7,
+      const T& v0,
+      const T& v1,
+      const T& v2,
+      const T& v3,
+      const T& v4,
+      const T& v5,
+      const T& v6,
+      const T& v7,
       const T& v8
   ) {
     BOOST_STATIC_ASSERT(9 == Length);
@@ -143,10 +150,18 @@ namespace schnek {
     data[8] = v8;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(
-      const T& v0, const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7,
-      const T& v8, const T& v9
+      const T& v0,
+      const T& v1,
+      const T& v2,
+      const T& v3,
+      const T& v4,
+      const T& v5,
+      const T& v6,
+      const T& v7,
+      const T& v8,
+      const T& v9
   ) {
     BOOST_STATIC_ASSERT(10 == Length);
     data[0] = v0;
@@ -162,33 +177,33 @@ namespace schnek {
   }
 
   /// Accessor operator
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE T& Array<T, Length, CheckingPolicy>::at(size_t pos) {
     this->check(pos);
     return data[pos];
   }
 
   /// Constant accessor operator
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE T Array<T, Length, CheckingPolicy>::at(size_t pos) const {
     this->check(pos);
     return data[pos];
   }
 
   /// Accessor operator
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE T& Array<T, Length, CheckingPolicy>::operator[](size_t pos) {
     return at(pos);
   }
 
   /// Constant accessor operator
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   SCHNEK_INLINE T Array<T, Length, CheckingPolicy>::operator[](size_t pos) const {
     return at(pos);
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class T2, template <size_t> class CheckingPolicy2>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class T2, template<size_t> class CheckingPolicy2>
   Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::operator=(
       const Array<T2, Length, CheckingPolicy2>& val
   ) {
@@ -196,8 +211,8 @@ namespace schnek {
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class T2, template <size_t> class CheckingPolicy2>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class T2, template<size_t> class CheckingPolicy2>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::operator+=(
       const Array<T2, Length, CheckingPolicy2>& val
   ) {
@@ -205,8 +220,8 @@ namespace schnek {
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class T2, template <size_t> class CheckingPolicy2>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class T2, template<size_t> class CheckingPolicy2>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::operator-=(
       const Array<T2, Length, CheckingPolicy2>& val
   ) {
@@ -214,8 +229,8 @@ namespace schnek {
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class T2, template <size_t> class CheckingPolicy2>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class T2, template<size_t> class CheckingPolicy2>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::operator*=(
       const Array<T2, Length, CheckingPolicy2>& val
   ) {
@@ -223,8 +238,8 @@ namespace schnek {
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class T2, template <size_t> class CheckingPolicy2>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class T2, template<size_t> class CheckingPolicy2>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::operator/=(
       const Array<T2, Length, CheckingPolicy2>& val
   ) {
@@ -232,48 +247,48 @@ namespace schnek {
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <typename T2>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<typename T2>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::operator+=(const T2 val) {
     for (size_t i = 0; i < Length; ++i) data[i] += val;
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <typename T2>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<typename T2>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::operator-=(const T2 val) {
     for (size_t i = 0; i < Length; ++i) data[i] -= val;
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <typename T2>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<typename T2>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::operator*=(const T2 val) {
     for (size_t i = 0; i < Length; ++i) data[i] *= val;
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <typename T2>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<typename T2>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::operator/=(const T2 val) {
     for (size_t i = 0; i < Length; ++i) data[i] /= val;
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   inline Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::clear() {
     for (size_t i = 0; i < Length; ++i) data[i] = 0;
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   inline Array<T, Length, CheckingPolicy>& Array<T, Length, CheckingPolicy>::fill(const T& value) {
     for (size_t i = 0; i < Length; ++i) data[i] = value;
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <size_t destLength>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<size_t destLength>
   inline Array<T, destLength, CheckingPolicy> Array<T, Length, CheckingPolicy>::project() const {
     BOOST_STATIC_ASSERT(destLength <= Length);
 
@@ -282,7 +297,7 @@ namespace schnek {
     return result;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   inline Array<T, Length - 1, CheckingPolicy> Array<T, Length, CheckingPolicy>::projectDim(size_t dim) const {
     Array<T, Length - 1, CheckingPolicy> result;
     for (size_t i = 0; i < dim; ++i) {
@@ -294,31 +309,31 @@ namespace schnek {
     return result;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   inline Array<T, Length, CheckingPolicy> Array<T, Length, CheckingPolicy>::Zero() {
     return Array().fill(0);
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   inline Array<T, Length, CheckingPolicy> Array<T, Length, CheckingPolicy>::Ones() {
     return Array().fill(1);
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   inline T Array<T, Length, CheckingPolicy>::product() const {
     T p(1);
     for (size_t i = 0; i < Length; ++i) p *= at(i);
     return p;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   inline T Array<T, Length, CheckingPolicy>::sum() const {
     T s(0);
     for (size_t i = 0; i < Length; ++i) s += at(i);
     return s;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
   inline T Array<T, Length, CheckingPolicy>::sqr() const {
     T s(0);
     for (size_t i = 0; i < Length; ++i) {
@@ -330,8 +345,14 @@ namespace schnek {
 
 }  // namespace schnek
 
-template <
-    class T1, class T2, size_t Length, template <size_t> class CheckingPolicy1, template <size_t> class CheckingPolicy2>
+template<
+    class T1,
+    class T2,
+    size_t Length,
+    template<size_t>
+    class CheckingPolicy1,
+    template<size_t>
+    class CheckingPolicy2>
 bool operator==(
     const schnek::Array<T1, Length, CheckingPolicy1>& arr1, const schnek::Array<T2, Length, CheckingPolicy2>& arr2
 ) {
@@ -340,8 +361,14 @@ bool operator==(
   return true;
 }
 
-template <
-    class T1, class T2, size_t Length, template <size_t> class CheckingPolicy1, template <size_t> class CheckingPolicy2>
+template<
+    class T1,
+    class T2,
+    size_t Length,
+    template<size_t>
+    class CheckingPolicy1,
+    template<size_t>
+    class CheckingPolicy2>
 bool operator!=(
     const schnek::Array<T1, Length, CheckingPolicy1>& arr1, const schnek::Array<T2, Length, CheckingPolicy2>& arr2
 ) {
@@ -350,8 +377,14 @@ bool operator!=(
   return false;
 }
 
-template <
-    class T1, class T2, size_t Length, template <size_t> class CheckingPolicy1, template <size_t> class CheckingPolicy2>
+template<
+    class T1,
+    class T2,
+    size_t Length,
+    template<size_t>
+    class CheckingPolicy1,
+    template<size_t>
+    class CheckingPolicy2>
 bool operator<(
     const schnek::Array<T1, Length, CheckingPolicy1>& arr1, const schnek::Array<T2, Length, CheckingPolicy2>& arr2
 ) {
@@ -360,8 +393,14 @@ bool operator<(
   return true;
 }
 
-template <
-    class T1, class T2, size_t Length, template <size_t> class CheckingPolicy1, template <size_t> class CheckingPolicy2>
+template<
+    class T1,
+    class T2,
+    size_t Length,
+    template<size_t>
+    class CheckingPolicy1,
+    template<size_t>
+    class CheckingPolicy2>
 bool operator<=(
     const schnek::Array<T1, Length, CheckingPolicy1>& arr1, const schnek::Array<T2, Length, CheckingPolicy2>& arr2
 ) {

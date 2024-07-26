@@ -26,17 +26,17 @@
 
 namespace schnek {
 
-  template <size_t rank, template <size_t> class CheckingPolicy>
+  template<size_t rank, template<size_t> class CheckingPolicy>
   Boundary<rank, CheckingPolicy>::Boundary() : size(), delta(0) {}
 
-  template <size_t rank, template <size_t> class CheckingPolicy>
+  template<size_t rank, template<size_t> class CheckingPolicy>
   Boundary<rank, CheckingPolicy>::Boundary(const LimitType &low, const LimitType &high, int delta_)
       : size(low, high), delta(delta_) {}
 
-  template <size_t rank, template <size_t> class CheckingPolicy>
+  template<size_t rank, template<size_t> class CheckingPolicy>
   Boundary<rank, CheckingPolicy>::Boundary(DomainType &size_, int delta_) : size(size_), delta(delta_) {}
 
-  template <size_t rank, template <size_t> class CheckingPolicy>
+  template<size_t rank, template<size_t> class CheckingPolicy>
   typename Boundary<rank, CheckingPolicy>::DomainType Boundary<rank, CheckingPolicy>::getGhostDomain(
       size_t dim, bound b
   ) {
@@ -55,7 +55,7 @@ namespace schnek {
     return DomainType(boundsLo, boundsHi);
   }
 
-  template <size_t rank, template <size_t> class CheckingPolicy>
+  template<size_t rank, template<size_t> class CheckingPolicy>
   typename Boundary<rank, CheckingPolicy>::DomainType Boundary<rank, CheckingPolicy>::getGhostSourceDomain(
       size_t dim, bound b
   ) {
@@ -76,7 +76,7 @@ namespace schnek {
     return DomainType(boundsLo, boundsHi);
   }
 
-  template <size_t rank, template <size_t> class CheckingPolicy>
+  template<size_t rank, template<size_t> class CheckingPolicy>
   typename Boundary<rank, CheckingPolicy>::DomainType Boundary<rank, CheckingPolicy>::getBoundaryDomain(
       size_t dim, bound b, bool stagger
   ) {
@@ -93,7 +93,7 @@ namespace schnek {
     return bounds;
   }
 
-  template <size_t rank, template <size_t> class CheckingPolicy>
+  template<size_t rank, template<size_t> class CheckingPolicy>
   typename Boundary<rank, CheckingPolicy>::DomainType Boundary<rank, CheckingPolicy>::getInnerDomain() {
     typename DomainType::LimitType lo = size.getLo();
     typename DomainType::LimitType hi = size.getHi();
@@ -104,8 +104,8 @@ namespace schnek {
     return DomainType(lo, hi);
   }
 
-  template <size_t rank, template <size_t> class CheckingPolicy>
-  template <class GridType>
+  template<size_t rank, template<size_t> class CheckingPolicy>
+  template<class GridType>
   SubGrid<GridType, CheckingPolicy> Boundary<rank, CheckingPolicy>::getGhostBoundary(
       size_t dim, bound b, GridType &grid
   ) {
@@ -113,8 +113,8 @@ namespace schnek {
     return SubGrid<GridType, CheckingPolicy>(bounds.getLo(), bounds.getHi(), grid);
   }
 
-  template <size_t rank, template <size_t> class CheckingPolicy>
-  template <typename T, template <size_t> class CheckingPolicy2, template <typename, size_t> class StoragePolicy>
+  template<size_t rank, template<size_t> class CheckingPolicy>
+  template<typename T, template<size_t> class CheckingPolicy2, template<typename, size_t> class StoragePolicy>
   SubGrid<Field<T, rank, CheckingPolicy2, StoragePolicy>, CheckingPolicy>
   Boundary<rank, CheckingPolicy>::getGhostBoundary(
       size_t dim, bound b, Field<T, rank, CheckingPolicy2, StoragePolicy> &field

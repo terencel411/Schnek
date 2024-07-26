@@ -35,7 +35,7 @@
 using namespace schnek;
 
 struct ParserInternalError : public SchnekException {
-  ParserInternalError() : SchnekException() {}
+    ParserInternalError() : SchnekException() {}
 };
 
 #undef LOGLEVEL

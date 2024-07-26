@@ -42,111 +42,113 @@ namespace schnek {
 
   typedef std::list<ExpressionVariant> ExpressionList;
 
-  template <typename vtype>
+  template<typename vtype>
   struct ExpressionConverterVisitor : public boost::static_visitor<ExpressionVariant> {
-    typedef typename std::shared_ptr<Expression<vtype> > VarExpressionPointer;
-    ExpressionVariant operator()(VarExpressionPointer e) { return e; }
+      typedef typename std::shared_ptr<Expression<vtype> > VarExpressionPointer;
+      ExpressionVariant operator()(VarExpressionPointer e) { return e; }
 
-    template <class ExpressionPointer>
-    ExpressionVariant operator()(ExpressionPointer e) {
-      typedef typename ExpressionPointer::element_type::ValueType vtype_orig;
-      VarExpressionPointer vEP(new TypecastOp<vtype, vtype_orig, FastCast>(e));
-      return vEP;
-    }
-  };
-
-  template <class vtype, typename func>
-  class FunctionExpression : public Expression<vtype> {
-      public:
-    typedef typename bft::result_type<func>::type rtype;
-
-    //    template<
-    //      typename from = typename mpl::begin< bft::parameter_types<func> >::type,
-    //      typename to = typename mpl::end< bft::parameter_types<func> >::type
-    //    >
-    //    struct converter;
-
-      private:
-    struct isConstantVisitor : public boost::static_visitor<bool> {
-      template <class ExpressionPointer>
-      bool operator()(ExpressionPointer e) {
-        return e->isConstant();
+      template<class ExpressionPointer>
+      ExpressionVariant operator()(ExpressionPointer e) {
+        typedef typename ExpressionPointer::element_type::ValueType vtype_orig;
+        VarExpressionPointer vEP(new TypecastOp<vtype, vtype_orig, FastCast>(e));
+        return vEP;
       }
-    };
-
-    ExpressionList args;
-    func f;
-    bool updateAlways;
-
-      public:
-    FunctionExpression(func f_, ExpressionList &args_, bool updateAlways);
-
-    /// Return the modified value
-    vtype eval();
-
-    bool isConstant();
-
-    DependencyList getDependencies();
   };
 
-  template <
-      class vtype, typename func, typename from = typename mpl::begin<bft::parameter_types<func> >::type,
+  template<class vtype, typename func>
+  class FunctionExpression : public Expression<vtype> {
+    public:
+      typedef typename bft::result_type<func>::type rtype;
+
+      //    template<
+      //      typename from = typename mpl::begin< bft::parameter_types<func> >::type,
+      //      typename to = typename mpl::end< bft::parameter_types<func> >::type
+      //    >
+      //    struct converter;
+
+    private:
+      struct isConstantVisitor : public boost::static_visitor<bool> {
+          template<class ExpressionPointer>
+          bool operator()(ExpressionPointer e) {
+            return e->isConstant();
+          }
+      };
+
+      ExpressionList args;
+      func f;
+      bool updateAlways;
+
+    public:
+      FunctionExpression(func f_, ExpressionList &args_, bool updateAlways);
+
+      /// Return the modified value
+      vtype eval();
+
+      bool isConstant();
+
+      DependencyList getDependencies();
+  };
+
+  template<
+      class vtype,
+      typename func,
+      typename from = typename mpl::begin<bft::parameter_types<func> >::type,
       typename to = typename mpl::end<bft::parameter_types<func> >::type>
   struct FunctionExpressionConverter;
 
-  template <class vtype, typename func, typename to>
+  template<class vtype, typename func, typename to>
   struct FunctionExpressionConverter<vtype, func, to, to> {
-    typedef typename bft::result_type<func>::type rtype;
-    static void makeList(ExpressionList::iterator var, ExpressionList::iterator end, ExpressionList &) {
-      if (var != end) throw WrongNumberOfArgsException();
-    }
+      typedef typename bft::result_type<func>::type rtype;
+      static void makeList(ExpressionList::iterator var, ExpressionList::iterator end, ExpressionList &) {
+        if (var != end) throw WrongNumberOfArgsException();
+      }
 
-    template <typename ArgType>
-    static rtype evaluate(func f, ExpressionList::iterator, ArgType const &sArgs) {
-      return fusion::invoke(f, sArgs);
-    }
+      template<typename ArgType>
+      static rtype evaluate(func f, ExpressionList::iterator, ArgType const &sArgs) {
+        return fusion::invoke(f, sArgs);
+      }
   };
 
-  template <class vtype, typename func, typename from, typename to>
+  template<class vtype, typename func, typename from, typename to>
   struct FunctionExpressionConverter {
-    typedef typename bft::result_type<func>::type rtype;
-    typedef typename mpl::deref<from>::type arg_type;
-    typedef typename mpl::next<from>::type next_type_iter;
+      typedef typename bft::result_type<func>::type rtype;
+      typedef typename mpl::deref<from>::type arg_type;
+      typedef typename mpl::next<from>::type next_type_iter;
 
-    static void makeList(ExpressionList::iterator var, ExpressionList::iterator end, ExpressionList &args) {
-      if (var == end) throw WrongNumberOfArgsException();
+      static void makeList(ExpressionList::iterator var, ExpressionList::iterator end, ExpressionList &args) {
+        if (var == end) throw WrongNumberOfArgsException();
 
-      ExpressionConverterVisitor<arg_type> visit;
-      args.push_back(boost::apply_visitor(visit, (*var)));
-      ++var;
-      typedef FunctionExpressionConverter<vtype, func, next_type_iter, to> Con;
-      Con::makeList(var, end, args);
-      // FunctionExpressionConverter<vtype, func, next_type_iter, to>::makeList(var, end, args);
-    }
+        ExpressionConverterVisitor<arg_type> visit;
+        args.push_back(boost::apply_visitor(visit, (*var)));
+        ++var;
+        typedef FunctionExpressionConverter<vtype, func, next_type_iter, to> Con;
+        Con::makeList(var, end, args);
+        // FunctionExpressionConverter<vtype, func, next_type_iter, to>::makeList(var, end, args);
+      }
 
-    template <typename ArgType>
-    static rtype evaluate(func f, ExpressionList::iterator var, ArgType const &sArgs) {
-      typedef std::shared_ptr<Expression<arg_type> > pExprType;
-      pExprType expr = boost::get<pExprType>(*var);
-      ++var;
-      return FunctionExpressionConverter<vtype, func, next_type_iter, to>::evaluate(
-          f, var, fusion::push_back(sArgs, expr->eval())
-      );
-    }
+      template<typename ArgType>
+      static rtype evaluate(func f, ExpressionList::iterator var, ArgType const &sArgs) {
+        typedef std::shared_ptr<Expression<arg_type> > pExprType;
+        pExprType expr = boost::get<pExprType>(*var);
+        ++var;
+        return FunctionExpressionConverter<vtype, func, next_type_iter, to>::evaluate(
+            f, var, fusion::push_back(sArgs, expr->eval())
+        );
+      }
   };
 
-  template <class vtype, typename func>
+  template<class vtype, typename func>
   FunctionExpression<vtype, func>::FunctionExpression(func f_, ExpressionList &args_, bool updateAlways_)
       : f(f_), updateAlways(updateAlways_) {
     FunctionExpressionConverter<vtype, func>::makeList(args_.begin(), args_.end(), args);
   }
 
-  template <class vtype, typename func>
+  template<class vtype, typename func>
   vtype FunctionExpression<vtype, func>::eval() {
     return FunctionExpressionConverter<vtype, func>::evaluate(f, args.begin(), fusion::nil());
   }
 
-  template <class vtype, typename func>
+  template<class vtype, typename func>
   bool FunctionExpression<vtype, func>::isConstant() {
     if (updateAlways) return false;
     bool result = true;
@@ -158,7 +160,7 @@ namespace schnek {
     return result;
   }
 
-  template <class vtype, typename func>
+  template<class vtype, typename func>
   DependencyList FunctionExpression<vtype, func>::getDependencies() {
     DependencyList result;
 
@@ -172,50 +174,50 @@ namespace schnek {
   }
 
   class FunctionRegistry {
-      private:
-    class EntryBase {
+    private:
+      class EntryBase {
         public:
-      virtual ~EntryBase() {}
-      virtual ExpressionVariant getExpression(ExpressionList &) = 0;
-    };
+          virtual ~EntryBase() {}
+          virtual ExpressionVariant getExpression(ExpressionList &) = 0;
+      };
 
-    typedef std::shared_ptr<EntryBase> pEntryBase;
+      typedef std::shared_ptr<EntryBase> pEntryBase;
 
-    template <typename func>
-    class Entry : public EntryBase {
+      template<typename func>
+      class Entry : public EntryBase {
         private:
-      typedef typename bft::result_type<func>::type rtype;
-      typedef FunctionExpression<rtype, func> FExprType;
+          typedef typename bft::result_type<func>::type rtype;
+          typedef FunctionExpression<rtype, func> FExprType;
 
-      func f;
-      bool updateAlways;
+          func f;
+          bool updateAlways;
 
         public:
-      Entry(func f_, bool updateAlways_) : f(f_), updateAlways(updateAlways_) {}
+          Entry(func f_, bool updateAlways_) : f(f_), updateAlways(updateAlways_) {}
 
-      ExpressionVariant getExpression(ExpressionList &args) {
-        std::shared_ptr<Expression<rtype> > eP(new FunctionExpression<rtype, func>(f, args, updateAlways));
-        return eP;
+          ExpressionVariant getExpression(ExpressionList &args) {
+            std::shared_ptr<Expression<rtype> > eP(new FunctionExpression<rtype, func>(f, args, updateAlways));
+            return eP;
+          }
+      };
+
+      typedef std::map<std::string, pEntryBase> FExprMap;
+      std::shared_ptr<FExprMap> funcs;
+
+    public:
+      FunctionRegistry() : funcs(new FExprMap) {}
+      FunctionRegistry(const FunctionRegistry &reg) : funcs(reg.funcs) {}
+
+      template<typename func>
+      void registerFunction(std::string fname, func f, bool updateAlways = false) {
+        pEntryBase eB(new Entry<func>(f, updateAlways));
+        (*funcs)[fname] = eB;
       }
-    };
 
-    typedef std::map<std::string, pEntryBase> FExprMap;
-    std::shared_ptr<FExprMap> funcs;
-
-      public:
-    FunctionRegistry() : funcs(new FExprMap) {}
-    FunctionRegistry(const FunctionRegistry &reg) : funcs(reg.funcs) {}
-
-    template <typename func>
-    void registerFunction(std::string fname, func f, bool updateAlways = false) {
-      pEntryBase eB(new Entry<func>(f, updateAlways));
-      (*funcs)[fname] = eB;
-    }
-
-    ExpressionVariant getExpression(std::string fname, ExpressionList &args) {
-      if (funcs->count(fname) == 0) throw FunctionNotFoundException(fname);
-      return (*funcs)[fname]->getExpression(args);
-    }
+      ExpressionVariant getExpression(std::string fname, ExpressionList &args) {
+        if (funcs->count(fname) == 0) throw FunctionNotFoundException(fname);
+        return (*funcs)[fname]->getExpression(args);
+      }
   };
 
   /** Registers many functions supplied by cmath with the function registry.

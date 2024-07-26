@@ -26,18 +26,34 @@
 
 namespace schnek {
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   Field<T, rank, CheckingPolicy, StoragePolicy>::Field() {}
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
-  template <
-      template <size_t> class ArrayCheckingPolicy, template <size_t> class RangeCheckingPolicy,
-      template <size_t> class StaggerCheckingPolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
+  template<
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<size_t>
+      class RangeCheckingPolicy,
+      template<size_t>
+      class StaggerCheckingPolicy>
   Field<T, rank, CheckingPolicy, StoragePolicy>::Field(
-      const Array<int, rank, ArrayCheckingPolicy> &size, const Range<double, rank, RangeCheckingPolicy> &domain,
-      const Array<bool, rank, StaggerCheckingPolicy> &stagger, int ghostCells
+      const Array<int, rank, ArrayCheckingPolicy> &size,
+      const Range<double, rank, RangeCheckingPolicy> &domain,
+      const Array<bool, rank, StaggerCheckingPolicy> &stagger,
+      int ghostCells
   )
       : Grid<T, rank, CheckingPolicy, StoragePolicy>(), domain(domain), stagger(stagger), ghostCells(ghostCells) {
     IndexType low{IndexType::Zero()};
@@ -49,14 +65,25 @@ namespace schnek {
     this->Grid<T, rank, CheckingPolicy, StoragePolicy>::resize(low, high);
   }
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
-  template <
-      template <size_t> class ArrayCheckingPolicy, template <size_t> class RangeCheckingPolicy,
-      template <size_t> class StaggerCheckingPolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
+  template<
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<size_t>
+      class RangeCheckingPolicy,
+      template<size_t>
+      class StaggerCheckingPolicy>
   Field<T, rank, CheckingPolicy, StoragePolicy>::Field(
-      const Array<int, rank, ArrayCheckingPolicy> &low, const Array<int, rank, ArrayCheckingPolicy> &high,
-      const Range<double, rank, RangeCheckingPolicy> &domain, const Array<bool, rank, StaggerCheckingPolicy> &stagger,
+      const Array<int, rank, ArrayCheckingPolicy> &low,
+      const Array<int, rank, ArrayCheckingPolicy> &high,
+      const Range<double, rank, RangeCheckingPolicy> &domain,
+      const Array<bool, rank, StaggerCheckingPolicy> &stagger,
       int ghostCells
   )
       : Grid<T, rank, CheckingPolicy, StoragePolicy>(), domain(domain), stagger(stagger), ghostCells(ghostCells) {
@@ -70,14 +97,25 @@ namespace schnek {
     this->Grid<T, rank, CheckingPolicy, StoragePolicy>::resize(lo, hi);
   }
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
-  template <
-      template <size_t> class ArrayCheckingPolicy, template <size_t> class RangeCheckingPolicy,
-      template <size_t> class StaggerCheckingPolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
+  template<
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<size_t>
+      class RangeCheckingPolicy,
+      template<size_t>
+      class StaggerCheckingPolicy>
   Field<T, rank, CheckingPolicy, StoragePolicy>::Field(
-      const Range<int, rank, ArrayCheckingPolicy> &range, const Range<double, rank, RangeCheckingPolicy> &domain,
-      const Array<bool, rank, StaggerCheckingPolicy> &stagger, int ghostCells
+      const Range<int, rank, ArrayCheckingPolicy> &range,
+      const Range<double, rank, RangeCheckingPolicy> &domain,
+      const Array<bool, rank, StaggerCheckingPolicy> &stagger,
+      int ghostCells
   )
       : Grid<T, rank, CheckingPolicy, StoragePolicy>(), domain(domain), stagger(stagger), ghostCells(ghostCells) {
     IndexType lo{range.getLo()};
@@ -90,16 +128,26 @@ namespace schnek {
     this->Grid<T, rank, CheckingPolicy, StoragePolicy>::resize(lo, hi);
   }
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   Field<T, rank, CheckingPolicy, StoragePolicy>::Field(const Field<T, rank, CheckingPolicy, StoragePolicy> &field)
       : Grid<T, rank, CheckingPolicy, StoragePolicy>(field),
         domain(field.domain),
         stagger(field.stagger),
         ghostCells(field.ghostCells) {}
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   inline void Field<T, rank, CheckingPolicy, StoragePolicy>::positionToIndex(
       int dim, double pos, int &index, double &offset
   ) {
@@ -112,14 +160,25 @@ namespace schnek {
     offset = xnorm - index;
   }
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
-  template <
-      template <size_t> class ArrayCheckingPolicy, template <size_t> class RangeCheckingPolicy,
-      template <size_t> class StaggerCheckingPolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
+  template<
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<size_t>
+      class RangeCheckingPolicy,
+      template<size_t>
+      class StaggerCheckingPolicy>
   void Field<T, rank, CheckingPolicy, StoragePolicy>::resize(
-      const Array<int, rank, ArrayCheckingPolicy> &size_, const Range<double, rank, RangeCheckingPolicy> &domain_,
-      const Array<bool, rank, StaggerCheckingPolicy> &stagger_, int ghostCells_
+      const Array<int, rank, ArrayCheckingPolicy> &size_,
+      const Range<double, rank, RangeCheckingPolicy> &domain_,
+      const Array<bool, rank, StaggerCheckingPolicy> &stagger_,
+      int ghostCells_
   ) {
     domain = domain_;
     stagger = stagger_;
@@ -133,14 +192,25 @@ namespace schnek {
     this->Grid<T, rank, CheckingPolicy, StoragePolicy>::resize(low, high);
   }
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
-  template <
-      template <size_t> class ArrayCheckingPolicy, template <size_t> class RangeCheckingPolicy,
-      template <size_t> class StaggerCheckingPolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
+  template<
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<size_t>
+      class RangeCheckingPolicy,
+      template<size_t>
+      class StaggerCheckingPolicy>
   void Field<T, rank, CheckingPolicy, StoragePolicy>::resize(
-      const Array<int, rank, ArrayCheckingPolicy> &low_, const Array<int, rank, ArrayCheckingPolicy> &high_,
-      const Range<double, rank, RangeCheckingPolicy> &domain_, const Array<bool, rank, StaggerCheckingPolicy> &stagger_,
+      const Array<int, rank, ArrayCheckingPolicy> &low_,
+      const Array<int, rank, ArrayCheckingPolicy> &high_,
+      const Range<double, rank, RangeCheckingPolicy> &domain_,
+      const Array<bool, rank, StaggerCheckingPolicy> &stagger_,
       int ghostCells_
   ) {
     domain = domain_;
@@ -156,14 +226,25 @@ namespace schnek {
     this->Grid<T, rank, CheckingPolicy, StoragePolicy>::resize(low, high);
   }
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
-  template <
-      template <size_t> class ArrayCheckingPolicy, template <size_t> class RangeCheckingPolicy,
-      template <size_t> class StaggerCheckingPolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
+  template<
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<size_t>
+      class RangeCheckingPolicy,
+      template<size_t>
+      class StaggerCheckingPolicy>
   void Field<T, rank, CheckingPolicy, StoragePolicy>::resize(
-      const Range<int, rank, ArrayCheckingPolicy> &range_, const Range<double, rank, RangeCheckingPolicy> &domain_,
-      const Array<bool, rank, StaggerCheckingPolicy> &stagger_, int ghostCells_
+      const Range<int, rank, ArrayCheckingPolicy> &range_,
+      const Range<double, rank, RangeCheckingPolicy> &domain_,
+      const Array<bool, rank, StaggerCheckingPolicy> &stagger_,
+      int ghostCells_
   ) {
     domain = domain_;
     stagger = stagger_;
@@ -178,8 +259,13 @@ namespace schnek {
     this->Grid<T, rank, CheckingPolicy, StoragePolicy>::resize(low, high);
   }
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   inline int Field<T, rank, CheckingPolicy, StoragePolicy>::positionToIndex(int dim, double pos) {
     int lo = this->getLo()[dim];
     int hi = this->getHi()[dim];
@@ -189,8 +275,13 @@ namespace schnek {
     ));
   }
 
-  template <
-      typename T, size_t rank, template <size_t> class CheckingPolicy, template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class CheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   inline double Field<T, rank, CheckingPolicy, StoragePolicy>::indexToPosition(int dim, int index) {
     int lo = this->getLo()[dim];
     int hi = this->getHi()[dim];

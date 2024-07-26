@@ -40,21 +40,21 @@ namespace schnek {
   /** Class to plug into the Array as CheckingPolicy.
    *  Performs no argument checking at all.
    */
-  template <size_t limit>
+  template<size_t limit>
   class ArrayNoArgCheck {
-      public:
-    /** The check method does not do anything */
-    SCHNEK_INLINE void check(size_t) const {}
+    public:
+      /** The check method does not do anything */
+      SCHNEK_INLINE void check(size_t) const {}
   };
 
   /** Class to plug into the Array as CheckingPolicy.
    *  Performs no argument checking at all.
    */
-  template <size_t limit>
+  template<size_t limit>
   class ArrayAssertArgCheck {
-      public:
-    /** The check method does not do anything */
-    SCHNEK_INLINE void check(size_t i) const { assert(i < limit); }
+    public:
+      /** The check method does not do anything */
+      SCHNEK_INLINE void check(size_t i) const { assert(i < limit); }
   };
 
 }  // namespace schnek

@@ -31,10 +31,10 @@
 
 namespace schnek {
   namespace computation {
-    template <size_t rank, int... Values>
+    template<size_t rank, int... Values>
     struct StaticIndex {
-      static constexpr size_t size = rank;
-      static constexpr std::array<int, rank> values = {Values...};
+        static constexpr size_t size = rank;
+        static constexpr std::array<int, rank> values = {Values...};
     };
 
     /**
@@ -44,22 +44,22 @@ namespace schnek {
      *
      * @tparam Values The values in the stencil
      */
-    template <size_t rank, typename... Values>
+    template<size_t rank, typename... Values>
     struct Stencil {
-      /**
-       * The number of values in the stencil
-       */
-      static constexpr std::size_t size = sizeof...(Values);
+        /**
+         * The number of values in the stencil
+         */
+        static constexpr std::size_t size = sizeof...(Values);
 
-      /**
-       * Get the value at the given index
-       *
-       * @tparam index The index of the value to get
-       */
-      template <size_t index>
-      static constexpr std::array<int, rank> value() {
-        return TypeList<int, Values...>::get < ;
-      }
+        /**
+         * Get the value at the given index
+         *
+         * @tparam index The index of the value to get
+         */
+        template<size_t index>
+        static constexpr std::array<int, rank> value() {
+          return TypeList<int, Values...>::get < ;
+        }
     };
   }  // namespace computation
 }  // namespace schnek

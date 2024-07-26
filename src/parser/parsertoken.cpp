@@ -212,27 +212,27 @@ void ParserToken::assignFunction(ParserToken &parTok1) {
 }
 
 struct evaluateVisitor : public boost::static_visitor<pVariable> {
-  Token &atomTok;
+    Token &atomTok;
 
-  evaluateVisitor(Token &atomTok_) : atomTok(atomTok_) {}
+    evaluateVisitor(Token &atomTok_) : atomTok(atomTok_) {}
 
-  template <class ExpressionPointer>
-  pVariable operator()(ExpressionPointer e) {
-    SCHNEK_TRACE_ENTER_FUNCTION(4);
-    if (!e)
-      throw ParserError(
-          "Could not evaluate empty expression (local variables must be initialised where they are declared)", atomTok
-      );
-    if (e->isConstant()) {
-      //          std::cerr << " * evaluating " << e->eval() << std::endl;
-      pVariable pV(new Variable(e->eval()));
-      return pV;
-    } else {
-      //          std::cerr << " * assigning variable" << std::endl;
-      pVariable pV(new Variable(e));
-      return pV;
+    template<class ExpressionPointer>
+    pVariable operator()(ExpressionPointer e) {
+      SCHNEK_TRACE_ENTER_FUNCTION(4);
+      if (!e)
+        throw ParserError(
+            "Could not evaluate empty expression (local variables must be initialised where they are declared)", atomTok
+        );
+      if (e->isConstant()) {
+        //          std::cerr << " * evaluating " << e->eval() << std::endl;
+        pVariable pV(new Variable(e->eval()));
+        return pV;
+      } else {
+        //          std::cerr << " * assigning variable" << std::endl;
+        pVariable pV(new Variable(e));
+        return pV;
+      }
     }
-  }
 };
 
 void ParserToken::evaluateExpression(ParserToken &identifier, ParserToken &expression) {
@@ -249,13 +249,13 @@ void ParserToken::evaluateExpression(ParserToken &identifier, ParserToken &expre
 }
 
 class ValueToExpressionVisitor : public boost::static_visitor<ExpressionVariant> {
-    public:
-  template <typename T>
-  ExpressionVariant operator()(T var) {
-    SCHNEK_TRACE_ENTER_FUNCTION(4);
-    std::shared_ptr<Expression<T> > e(new Value<T>(var));
-    return e;
-  }
+  public:
+    template<typename T>
+    ExpressionVariant operator()(T var) {
+      SCHNEK_TRACE_ENTER_FUNCTION(4);
+      std::shared_ptr<Expression<T> > e(new Value<T>(var));
+      return e;
+    }
 };
 
 void ParserToken::storeVariable(ParserToken &parTok) {

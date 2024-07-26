@@ -51,7 +51,7 @@ namespace schnek {
    *                 MPICartSubdivision                    *
    ****************************************************************/
 
-  template <class GridType>
+  template<class GridType>
   MPICartSubdivision<GridType>::MPICartSubdivision() : comm(0), prevcoord(0), nextcoord(0) {
     for (size_t i = 0; i < Rank; ++i) {
       sendarr[i] = 0;
@@ -59,7 +59,7 @@ namespace schnek {
     }
   }
 
-  template <class GridType>
+  template<class GridType>
   void MPICartSubdivision<GridType>::init(const LimitType &lo, const LimitType &hi, int delta) {
     LimitType Low(lo);
     LimitType High(hi);
@@ -142,7 +142,7 @@ namespace schnek {
     DiagnosticManager::instance().setRank(this->procnum());
   }
 
-  template <class GridType>
+  template<class GridType>
   MPICartSubdivision<GridType>::~MPICartSubdivision() {
     for (size_t i = 0; i < Rank; ++i) {
       if (sendarr[i] != 0) delete[] sendarr[i];
@@ -151,7 +151,7 @@ namespace schnek {
     if (comm != 0) MPI_Comm_free(&comm);
   }
 
-  template <class GridType>
+  template<class GridType>
   void MPICartSubdivision<GridType>::exchange(GridType &grid, size_t dim) {
     // nothing to be done
     // if (dims[dim]==1) return;
@@ -233,7 +233,7 @@ namespace schnek {
     }
   }
 
-  template <class GridType>
+  template<class GridType>
   void MPICartSubdivision<GridType>::accumulate(GridType &grid, size_t dim) {
     // This algorithm uses four MPI communication calls.
     // For the usual bounds class this could be reduced to two calls but we will only do this
@@ -371,7 +371,7 @@ namespace schnek {
     }
   }
 
-  template <class GridType>
+  template<class GridType>
   void MPICartSubdivision<GridType>::exchangeData(size_t dim, int orientation, BufferType &in, BufferType &out) {
     typedef typename BufferType::IndexType Index;
     int sendSize = in.getDims(0);
@@ -394,56 +394,56 @@ namespace schnek {
     );
   }
 
-  template <class GridType>
+  template<class GridType>
   double MPICartSubdivision<GridType>::avgReduce(double val) const {
     double result;
     MPI_Allreduce(&val, &result, 1, MPI_DOUBLE, MPI_SUM, comm);
     return result / double(ComSize);
   }
 
-  template <class GridType>
+  template<class GridType>
   int MPICartSubdivision<GridType>::avgReduce(int val) const {
     int result;
     MPI_Allreduce(&val, &result, 1, MPI_INT, MPI_SUM, comm);
     return result / double(ComSize);
   }
 
-  template <class GridType>
+  template<class GridType>
   double MPICartSubdivision<GridType>::maxReduce(double val) const {
     double result;
     MPI_Allreduce(&val, &result, 1, MPI_DOUBLE, MPI_MAX, comm);
     return result;
   }
 
-  template <class GridType>
+  template<class GridType>
   int MPICartSubdivision<GridType>::maxReduce(int val) const {
     int result;
     MPI_Allreduce(&val, &result, 1, MPI_INT, MPI_MAX, comm);
     return result;
   }
 
-  template <class GridType>
+  template<class GridType>
   double MPICartSubdivision<GridType>::minReduce(double val) const {
     double result;
     MPI_Allreduce(&val, &result, 1, MPI_DOUBLE, MPI_MIN, comm);
     return result;
   }
 
-  template <class GridType>
+  template<class GridType>
   int MPICartSubdivision<GridType>::minReduce(int val) const {
     int result;
     MPI_Allreduce(&val, &result, 1, MPI_INT, MPI_MIN, comm);
     return result;
   }
 
-  template <class GridType>
+  template<class GridType>
   double MPICartSubdivision<GridType>::sumReduce(double val) const {
     double result;
     MPI_Allreduce(&val, &result, 1, MPI_DOUBLE, MPI_SUM, comm);
     return result;
   }
 
-  template <class GridType>
+  template<class GridType>
   int MPICartSubdivision<GridType>::sumReduce(int val) const {
     int result;
     MPI_Allreduce(&val, &result, 1, MPI_INT, MPI_SUM, comm);
@@ -451,7 +451,7 @@ namespace schnek {
   }
 
   /// returns an ID, which consists of the Dimensions and coordinates
-  template <class GridType>
+  template<class GridType>
   int MPICartSubdivision<GridType>::getUniqueId() const {
     int id = mycoord[0];
     for (int i = 1; i < Rank; ++i) id = dims[i] * id + mycoord[i];

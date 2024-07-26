@@ -31,35 +31,35 @@
 
 namespace schnek {
 
-  template <class Type, typename PointerType, class DiagnosticType>
+  template<class Type, typename PointerType, class DiagnosticType>
   SimpleDiagnostic<Type, PointerType, DiagnosticType>::~SimpleDiagnostic() {
     this->close();
   }
 
-  template <class Type, typename PointerType, class DiagnosticType>
+  template<class Type, typename PointerType, class DiagnosticType>
   void SimpleDiagnostic<Type, PointerType, DiagnosticType>::initParameters(BlockParameters &blockPars) {
     DiagnosticType::initParameters(blockPars);
     blockPars.addParameter("field", &fieldName);
   }
 
-  template <class Type, typename PointerType, class DiagnosticType>
+  template<class Type, typename PointerType, class DiagnosticType>
   void SimpleDiagnostic<Type, PointerType, DiagnosticType>::init() {
     if (!isDerived()) this->retrieveData(fieldName, field);
     SCHNEK_TRACE_LOG(2, "got field " << field);
   }
 
-  template <class Type, typename PointerType, class DiagnosticType>
+  template<class Type, typename PointerType, class DiagnosticType>
   void SimpleFileDiagnostic<Type, PointerType, DiagnosticType>::open(const std::string &fname) {
     output.open(fname.c_str());
     //  output.precision(14);
   }
 
-  template <class Type, typename PointerType, class DiagnosticType>
+  template<class Type, typename PointerType, class DiagnosticType>
   void SimpleFileDiagnostic<Type, PointerType, DiagnosticType>::write() {
     output << *(this->field);
   }
 
-  template <class Type, typename PointerType, class DiagnosticType>
+  template<class Type, typename PointerType, class DiagnosticType>
   void SimpleFileDiagnostic<Type, PointerType, DiagnosticType>::close() {
     output.close();
   }

@@ -38,160 +38,160 @@ namespace schnek {
    * will allow performing expressions without temporary variables.
    * @todo Handle type promotion
    */
-  template <class Operator, size_t Length>
+  template<class Operator, size_t Length>
   class ArrayExpression {
-      private:
-    /**The operator type. The operator will hold the information about
-     * the type of operation and references to all the arguments
-     */
-    Operator Op;
+    private:
+      /**The operator type. The operator will hold the information about
+       * the type of operation and references to all the arguments
+       */
+      Operator Op;
 
-      public:
-    typedef typename Operator::value_type value_type;
+    public:
+      typedef typename Operator::value_type value_type;
 
-    static constexpr size_t length = Length;
+      static constexpr size_t length = Length;
 
-    /**Construct the expression by passing a reference*/
-    SCHNEK_INLINE ArrayExpression(const Operator Op_) : Op(Op_) {}
+      /**Construct the expression by passing a reference*/
+      SCHNEK_INLINE ArrayExpression(const Operator Op_) : Op(Op_) {}
 
-    /**Copy constructor*/
-    SCHNEK_INLINE ArrayExpression(const ArrayExpression &Expr) : Op(Expr.Op) {}
+      /**Copy constructor*/
+      SCHNEK_INLINE ArrayExpression(const ArrayExpression &Expr) : Op(Expr.Op) {}
 
-    //    template<template<size_t> class CheckingPolicy>
-    //    operator Array<value_type, Length, CheckingPolicy>() {
-    //        Array<value_type, Length, CheckingPolicy> value;
-    //        for (size_t i=0; i<Length; ++i) value[i] = Op[i];
-    //        return value;
-    //    }
+      //    template<template<size_t> class CheckingPolicy>
+      //    operator Array<value_type, Length, CheckingPolicy>() {
+      //        Array<value_type, Length, CheckingPolicy> value;
+      //        for (size_t i=0; i<Length; ++i) value[i] = Op[i];
+      //        return value;
+      //    }
 
-    /**Return the i-th element of the expression*/
-    SCHNEK_INLINE value_type operator[](size_t i) const { return Op[i]; }
+      /**Return the i-th element of the expression*/
+      SCHNEK_INLINE value_type operator[](size_t i) const { return Op[i]; }
   };
 
   /**Operator class implementing unary operators for the ArrayExpression.
    * Holds const references to the expressions and type information of the
    * operator
    */
-  template <class Exp1, class OperatorType>
+  template<class Exp1, class OperatorType>
   class ArrayUnaryOp {
-      private:
-    /// Expression A
-    Exp1 A;
+    private:
+      /// Expression A
+      Exp1 A;
 
-      public:
-    typedef typename OperatorType::value_type value_type;
+    public:
+      typedef typename OperatorType::value_type value_type;
 
-    /**Construct passing the reference to the expressions*/
-    SCHNEK_INLINE ArrayUnaryOp(const Exp1 &A_) : A(A_) {}
+      /**Construct passing the reference to the expressions*/
+      SCHNEK_INLINE ArrayUnaryOp(const Exp1 &A_) : A(A_) {}
 
-    /**Copy constructor*/
-    SCHNEK_INLINE ArrayUnaryOp(const ArrayUnaryOp &Op) : A(Op.A) {}
+      /**Copy constructor*/
+      SCHNEK_INLINE ArrayUnaryOp(const ArrayUnaryOp &Op) : A(Op.A) {}
 
-    /**Return the i-th element of the operator expression
-     * Gets the i-th elements of A and B and asks the static OperatorType::apply
-     * method to perform the calculation
-     */
-    SCHNEK_INLINE value_type operator[](size_t i) const { return OperatorType::apply(A[i]); }
+      /**Return the i-th element of the operator expression
+       * Gets the i-th elements of A and B and asks the static OperatorType::apply
+       * method to perform the calculation
+       */
+      SCHNEK_INLINE value_type operator[](size_t i) const { return OperatorType::apply(A[i]); }
   };
 
   /**Operator class implementing binary operators for the ArrayExpression.
    * Holds const references to the expressions and type information of the
    * operator
    */
-  template <class Exp1, class Exp2, class OperatorType>
+  template<class Exp1, class Exp2, class OperatorType>
   class ArrayBinaryOp {
-      private:
-    /// Expression A
-    Exp1 A;
-    /// Expression B
-    Exp2 B;
+    private:
+      /// Expression A
+      Exp1 A;
+      /// Expression B
+      Exp2 B;
 
-      public:
-    typedef typename OperatorType::value_type value_type;
+    public:
+      typedef typename OperatorType::value_type value_type;
 
-    /**Construct passing the two references to the expressions*/
-    SCHNEK_INLINE ArrayBinaryOp(const Exp1 &A_, const Exp2 &B_) : A(A_), B(B_) {}
+      /**Construct passing the two references to the expressions*/
+      SCHNEK_INLINE ArrayBinaryOp(const Exp1 &A_, const Exp2 &B_) : A(A_), B(B_) {}
 
-    /**Copy constructor*/
-    SCHNEK_INLINE ArrayBinaryOp(const ArrayBinaryOp &Op) : A(Op.A), B(Op.B) {}
+      /**Copy constructor*/
+      SCHNEK_INLINE ArrayBinaryOp(const ArrayBinaryOp &Op) : A(Op.A), B(Op.B) {}
 
-    /**
-     * Return the i-th element of the operator expression
-     * Gets the i-th elements of A and B and asks the static OperatorType::apply
-     * method to perform the calculation
-     */
-    SCHNEK_INLINE value_type operator[](size_t i) const { return OperatorType::apply(A[i], B[i]); }
+      /**
+       * Return the i-th element of the operator expression
+       * Gets the i-th elements of A and B and asks the static OperatorType::apply
+       * method to perform the calculation
+       */
+      SCHNEK_INLINE value_type operator[](size_t i) const { return OperatorType::apply(A[i], B[i]); }
   };
 
-  template <typename T>
+  template<typename T>
   struct ArrayConstantExp {
-      private:
-    T val;
+    private:
+      T val;
 
-      public:
-    typedef T value_type;
-    SCHNEK_INLINE ArrayConstantExp(const T &val_) : val(val_) {}
-    SCHNEK_INLINE value_type operator[](size_t) const { return val; }
+    public:
+      typedef T value_type;
+      SCHNEK_INLINE ArrayConstantExp(const T &val_) : val(val_) {}
+      SCHNEK_INLINE value_type operator[](size_t) const { return val; }
   };
 
   /**An operator type implementing addition
    */
-  template <typename T>
+  template<typename T>
   struct ArrayOpPlus {
-    typedef T value_type;
+      typedef T value_type;
 
-    /// Returns the sum of the two elements
-    SCHNEK_INLINE static value_type apply(value_type x, value_type y) { return x + y; }
+      /// Returns the sum of the two elements
+      SCHNEK_INLINE static value_type apply(value_type x, value_type y) { return x + y; }
   };
 
   /**An operator type implementing subtraction
    */
-  template <typename T>
+  template<typename T>
   struct ArrayOpMinus {
-    typedef T value_type;
+      typedef T value_type;
 
-    /// Returns the sum of the two elements
-    static SCHNEK_INLINE value_type apply(value_type x, value_type y) { return x - y; }
+      /// Returns the sum of the two elements
+      static SCHNEK_INLINE value_type apply(value_type x, value_type y) { return x - y; }
   };
 
   /**An operator type implementing multiplication
    */
-  template <typename T>
+  template<typename T>
   struct ArrayOpMult {
-    typedef T value_type;
+      typedef T value_type;
 
-    /// Returns the sum of the two elements
-    static SCHNEK_INLINE value_type apply(value_type x, value_type y) { return x * y; }
+      /// Returns the sum of the two elements
+      static SCHNEK_INLINE value_type apply(value_type x, value_type y) { return x * y; }
   };
 
   /**An operator type implementing division
    */
-  template <typename T>
+  template<typename T>
   struct ArrayOpDiv {
-    typedef T value_type;
+      typedef T value_type;
 
-    /// Returns the sum of the two elements
-    static SCHNEK_INLINE value_type apply(value_type x, value_type y) { return x / y; }
+      /// Returns the sum of the two elements
+      static SCHNEK_INLINE value_type apply(value_type x, value_type y) { return x / y; }
   };
 
   /**An operator type implementing division
    */
-  template <typename T>
+  template<typename T>
   struct ArrayOpUnaryPlus {
-    typedef T value_type;
+      typedef T value_type;
 
-    /// Returns the sum of the two elements
-    static SCHNEK_INLINE value_type apply(value_type x) { return x; }
+      /// Returns the sum of the two elements
+      static SCHNEK_INLINE value_type apply(value_type x) { return x; }
   };
 
   /**An operator type implementing division
    */
-  template <typename T>
+  template<typename T>
   struct ArrayOpUnaryMinus {
-    typedef T value_type;
+      typedef T value_type;
 
-    /// Returns the sum of the two elements
-    static SCHNEK_INLINE value_type apply(value_type x) { return -x; }
+      /// Returns the sum of the two elements
+      static SCHNEK_INLINE value_type apply(value_type x) { return -x; }
   };
 
 #pragma GCC diagnostic push
@@ -206,7 +206,7 @@ namespace schnek {
 
 /* Operator for two ArrayExpression objects */
 #define EXPR_EXPR(op, symbol)                                                                                         \
-  template <class exp1, class exp2, size_t length>                                                                    \
+  template<class exp1, class exp2, size_t length>                                                                     \
   ArrayExpression<                                                                                                    \
       ArrayBinaryOp<ArrayExpression<exp1, length>, ArrayExpression<exp2, length>, op<typename exp1::value_type> >,    \
       length>                                                                                                         \
@@ -219,26 +219,26 @@ namespace schnek {
   }
 
 /* Operator for two Arrays */
-#define ARR_ARR(op, symbol)                                                                                           \
-  template <class T, size_t length, template <size_t> class CheckingPolicy1, template <size_t> class CheckingPolicy2> \
-  ArrayExpression<                                                                                                    \
-      ArrayBinaryOp<                                                                                                  \
-          ArrayExpression<Array<T, length, CheckingPolicy1>, length>,                                                 \
-          ArrayExpression<Array<T, length, CheckingPolicy2>, length>, op<T> >,                                        \
-      length>                                                                                                         \
-      SCHNEK_INLINE operator symbol(                                                                                  \
-          const Array<T, length, CheckingPolicy1> &A, const Array<T, length, CheckingPolicy2> &B                      \
-      ) {                                                                                                             \
-    typedef ArrayBinaryOp<                                                                                            \
-        ArrayExpression<Array<T, length, CheckingPolicy1>, length>,                                                   \
-        ArrayExpression<Array<T, length, CheckingPolicy2>, length>, op<T> >                                           \
-        OperatorType;                                                                                                 \
-    return ArrayExpression<OperatorType, length>(OperatorType(A, B));                                                 \
+#define ARR_ARR(op, symbol)                                                                                        \
+  template<class T, size_t length, template<size_t> class CheckingPolicy1, template<size_t> class CheckingPolicy2> \
+  ArrayExpression<                                                                                                 \
+      ArrayBinaryOp<                                                                                               \
+          ArrayExpression<Array<T, length, CheckingPolicy1>, length>,                                              \
+          ArrayExpression<Array<T, length, CheckingPolicy2>, length>, op<T> >,                                     \
+      length>                                                                                                      \
+      SCHNEK_INLINE operator symbol(                                                                               \
+          const Array<T, length, CheckingPolicy1> &A, const Array<T, length, CheckingPolicy2> &B                   \
+      ) {                                                                                                          \
+    typedef ArrayBinaryOp<                                                                                         \
+        ArrayExpression<Array<T, length, CheckingPolicy1>, length>,                                                \
+        ArrayExpression<Array<T, length, CheckingPolicy2>, length>, op<T> >                                        \
+        OperatorType;                                                                                              \
+    return ArrayExpression<OperatorType, length>(OperatorType(A, B));                                              \
   }
 
 /* Operator for a Array and a ArrayExpression object */
 #define EXPR_ARR(op, symbol)                                                                                          \
-  template <class exp, class T, size_t length, template <size_t> class CheckingPolicy>                                \
+  template<class exp, class T, size_t length, template<size_t> class CheckingPolicy>                                  \
   ArrayExpression<                                                                                                    \
       ArrayBinaryOp<ArrayExpression<exp, length>, ArrayExpression<Array<T, length, CheckingPolicy>, length>, op<T> >, \
       length>                                                                                                         \
@@ -254,7 +254,7 @@ namespace schnek {
 
 /* Operator for a Array and a ArrayExpression object */
 #define ARR_EXPR(op, symbol)                                                                                          \
-  template <class exp, class T, size_t length, template <size_t> class CheckingPolicy>                                \
+  template<class exp, class T, size_t length, template<size_t> class CheckingPolicy>                                  \
   ArrayExpression<                                                                                                    \
       ArrayBinaryOp<ArrayExpression<Array<T, length, CheckingPolicy>, length>, ArrayExpression<exp, length>, op<T> >, \
       length>                                                                                                         \
@@ -270,7 +270,7 @@ namespace schnek {
 
 /* Operator for a Scalar and a ArrayExpression object */
 #define SCAL_EXPR(op, symbol)                                                                                     \
-  template <class T, class exp, size_t length>                                                                    \
+  template<class T, class exp, size_t length>                                                                     \
   ArrayExpression<ArrayBinaryOp<ArrayConstantExp<T>, ArrayExpression<exp, length>, op<T> >, length> SCHNEK_INLINE \
   operator symbol(const T &A, const ArrayExpression<exp, length> &B) {                                            \
     typedef ArrayBinaryOp<ArrayConstantExp<T>, ArrayExpression<exp, length>, op<T> > OperatorType;                \
@@ -280,7 +280,7 @@ namespace schnek {
 
 /* Operator for a ArrayExpression and a Scalar object */
 #define EXPR_SCAL(op, symbol)                                                                                     \
-  template <class T, class exp, size_t length>                                                                    \
+  template<class T, class exp, size_t length>                                                                     \
   ArrayExpression<ArrayBinaryOp<ArrayExpression<exp, length>, ArrayConstantExp<T>, op<T> >, length> SCHNEK_INLINE \
   operator symbol(const ArrayExpression<exp, length> &A, const T &B) {                                            \
     typedef ArrayBinaryOp<ArrayExpression<exp, length>, ArrayConstantExp<T>, op<T> > OperatorType;                \
@@ -289,7 +289,7 @@ namespace schnek {
   }
 /* Operator for a Scalar and a Array object */
 #define SCAL_ARR(op, symbol)                                                                                          \
-  template <class T, size_t length, template <size_t> class CheckingPolicy>                                           \
+  template<class T, size_t length, template<size_t> class CheckingPolicy>                                             \
   ArrayExpression<ArrayBinaryOp<ArrayConstantExp<T>, Array<T, length, CheckingPolicy>, op<T> >, length> SCHNEK_INLINE \
   operator symbol(const T &A, const Array<T, length, CheckingPolicy> &B) {                                            \
     typedef ArrayBinaryOp<ArrayConstantExp<T>, Array<T, length, CheckingPolicy>, op<T> > OperatorType;                \
@@ -299,7 +299,7 @@ namespace schnek {
 
 /* Operator for a Array and a Scalar object */
 #define ARR_SCAL(op, symbol)                                                                                          \
-  template <class T, size_t length, template <size_t> class CheckingPolicy>                                           \
+  template<class T, size_t length, template<size_t> class CheckingPolicy>                                             \
   ArrayExpression<ArrayBinaryOp<Array<T, length, CheckingPolicy>, ArrayConstantExp<T>, op<T> >, length> SCHNEK_INLINE \
   operator symbol(const Array<T, length, CheckingPolicy> &A, const T &B) {                                            \
     typedef ArrayBinaryOp<Array<T, length, CheckingPolicy>, ArrayConstantExp<T>, op<T> > OperatorType;                \
@@ -309,7 +309,7 @@ namespace schnek {
 
 /* Unary Operator for Arrays */
 #define UNARY_ARR(op, symbol)                                                                               \
-  template <class T, size_t length, template <size_t> class CheckingPolicy1>                                \
+  template<class T, size_t length, template<size_t> class CheckingPolicy1>                                  \
   ArrayExpression<ArrayUnaryOp<ArrayExpression<Array<T, length, CheckingPolicy1>, length>, op<T> >, length> \
       SCHNEK_INLINE operator symbol(const Array<T, length, CheckingPolicy1> &A) {                           \
     typedef ArrayUnaryOp<ArrayExpression<Array<T, length, CheckingPolicy1>, length>, op<T> > OperatorType;  \
@@ -319,7 +319,7 @@ namespace schnek {
 
 /* Operator for a Array and a ArrayExpression object */
 #define UNARY_EXPR(op, symbol)                                                                               \
-  template <class exp, class T, size_t length, template <size_t> class CheckingPolicy>                       \
+  template<class exp, class T, size_t length, template<size_t> class CheckingPolicy>                         \
   ArrayExpression<ArrayUnaryOp<ArrayExpression<exp, length>, op<T> >, length> SCHNEK_INLINE operator symbol( \
       const ArrayExpression<exp, length> &A                                                                  \
   ) {                                                                                                        \
@@ -397,8 +397,8 @@ namespace schnek {
 
 #pragma GCC diagnostic pop
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class Operator>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class Operator>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy> &Array<T, Length, CheckingPolicy>::operator=(
       const ArrayExpression<Operator, Length> &expr
   ) {
@@ -408,8 +408,8 @@ namespace schnek {
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class Operator>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class Operator>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy> &Array<T, Length, CheckingPolicy>::operator+=(
       const ArrayExpression<Operator, Length> &expr
   ) {
@@ -417,8 +417,8 @@ namespace schnek {
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class Operator>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class Operator>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy> &Array<T, Length, CheckingPolicy>::operator-=(
       const ArrayExpression<Operator, Length> &expr
   ) {
@@ -426,8 +426,8 @@ namespace schnek {
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class Operator>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class Operator>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy> &Array<T, Length, CheckingPolicy>::operator*=(
       const ArrayExpression<Operator, Length> &expr
   ) {
@@ -435,8 +435,8 @@ namespace schnek {
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class Operator>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class Operator>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy> &Array<T, Length, CheckingPolicy>::operator/=(
       const ArrayExpression<Operator, Length> &expr
   ) {
@@ -444,8 +444,8 @@ namespace schnek {
     return *this;
   }
 
-  template <class T, size_t Length, template <size_t> class CheckingPolicy>
-  template <class Operator>
+  template<class T, size_t Length, template<size_t> class CheckingPolicy>
+  template<class Operator>
   SCHNEK_INLINE Array<T, Length, CheckingPolicy>::Array(const ArrayExpression<Operator, Length> &expr) {
     for (size_t i = 0; i < Length; ++i) {
       data[i] = expr[i];

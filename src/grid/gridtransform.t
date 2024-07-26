@@ -26,13 +26,13 @@
 
 namespace schnek {
 
-  template <typename T, int rank, class BaseGrid, typename Transformation>
+  template<typename T, int rank, class BaseGrid, typename Transformation>
   GridTransformStorage<T, rank, BaseGrid, Transformation>::GridTransformStorage() : baseGrid(NULL) {}
 
-  template <class BaseGrid, typename Transformation, template <int> class CheckingPolicy>
+  template<class BaseGrid, typename Transformation, template<int> class CheckingPolicy>
   GridTransform<BaseGrid, Transformation, CheckingPolicy>::GridTransform() : ParentType() {}
 
-  template <class BaseGrid, typename Transformation, template <int> class CheckingPolicy>
+  template<class BaseGrid, typename Transformation, template<int> class CheckingPolicy>
   GridTransform<BaseGrid, Transformation, CheckingPolicy>::GridTransform(BaseGridType &baseGrid_) : ParentType() {
     this->setBaseGrid(baseGrid_);
   }

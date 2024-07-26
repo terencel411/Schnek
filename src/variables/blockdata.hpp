@@ -39,22 +39,22 @@
 
 namespace schnek {
 
-  template <typename T>
+  template<typename T>
   class BlockData : public Singleton<BlockData<T> > {
-      private:
-    typedef std::map<std::string, T*> DataMap;
-    typedef std::shared_ptr<DataMap> pDataMap;
-    typedef std::map<long, pDataMap> BlockDataMap;
+    private:
+      typedef std::map<std::string, T*> DataMap;
+      typedef std::shared_ptr<DataMap> pDataMap;
+      typedef std::map<long, pDataMap> BlockDataMap;
 
-    BlockDataMap blockDataMap;
+      BlockDataMap blockDataMap;
 
-      public:
-    void add(long blockId, std::string key, T& data);
-    T* get(long blockId, std::string key);
-    bool exists(long blockId, std::string key);
+    public:
+      void add(long blockId, std::string key, T& data);
+      T* get(long blockId, std::string key);
+      bool exists(long blockId, std::string key);
   };
 
-  template <typename T>
+  template<typename T>
   void BlockData<T>::add(long blockId, std::string key, T& data) {
     SCHNEK_TRACE_LOG(2, "BlockData<T>::add(" << blockId << ", " << key << ")")
     if (0 == blockDataMap.count(blockId)) {
@@ -65,7 +65,7 @@ namespace schnek {
     (*blockDataMap[blockId])[key] = &data;
   }
 
-  template <typename T>
+  template<typename T>
   T* BlockData<T>::get(long blockId, std::string key) {
     SCHNEK_TRACE_LOG(2, "BlockData<T>::get(" << blockId << ", " << key << ")")
 
@@ -76,7 +76,7 @@ namespace schnek {
     return (*blockDataMap[blockId])[key];
   }
 
-  template <typename T>
+  template<typename T>
   bool BlockData<T>::exists(long blockId, std::string key) {
     SCHNEK_TRACE_LOG(2, "BlockData<T>::exists(" << blockId << ", " << key << ")")
     if (0 == blockDataMap.count(blockId)) return false;

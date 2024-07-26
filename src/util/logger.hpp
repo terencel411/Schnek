@@ -102,34 +102,34 @@ namespace schnek {
    *  are implemented to return the std::cout and std::cerr streams.
    */
   class Logger : public Singleton<Logger> {
-      public:
-    /** Return the ostream for writing standard debug comments.
-     *
-     *  Currently implemented to return std::cout
-     */
-    std::ostream &out() { return std::cout; }
+    public:
+      /** Return the ostream for writing standard debug comments.
+       *
+       *  Currently implemented to return std::cout
+       */
+      std::ostream &out() { return std::cout; }
 
-    /** Return the ostream for writing error messages.
-     *
-     *  Currently implemented to return std::cerr
-     */
-    std::ostream &err() { return std::cerr; }
+      /** Return the ostream for writing error messages.
+       *
+       *  Currently implemented to return std::cerr
+       */
+      std::ostream &err() { return std::cerr; }
 
-      private:
-    friend class Singleton<Logger>;
-    friend class CreateUsingNew<Logger>;
+    private:
+      friend class Singleton<Logger>;
+      friend class CreateUsingNew<Logger>;
 
-    /** The private default constructor can only be called by the
-     *  singleton template.
-     */
-    Logger() {}
+      /** The private default constructor can only be called by the
+       *  singleton template.
+       */
+      Logger() {}
 
-    /** The private destructor can only be called by the
-     *  singleton template.
-     */
-    ~Logger() {
-      //      std::cerr << "DELETING LOGGER "<< this <<" " <<i<<"\n";
-    }
+      /** The private destructor can only be called by the
+       *  singleton template.
+       */
+      ~Logger() {
+        //      std::cerr << "DELETING LOGGER "<< this <<" " <<i<<"\n";
+      }
   };
 
   /** @file logger.hpp

@@ -46,7 +46,7 @@ namespace schnek {
   /// A boost::variant that can hold the basic constant values
   typedef boost::variant<int*, double*, std::string*> ValuePointerVariant;
 
-  template <typename vtype>
+  template<typename vtype>
   class Expression;
   typedef std::shared_ptr<Expression<int> > pIntExpression;
   typedef std::shared_ptr<Expression<double> > pFloatExpression;
@@ -56,51 +56,51 @@ namespace schnek {
   typedef boost::variant<pIntExpression, pFloatExpression, pStringExpression> ExpressionVariant;
 
   class VariableNotFoundException : public SchnekException {
-      private:
-    std::string message;
+    private:
+      std::string message;
 
-      public:
-    VariableNotFoundException(std::string message_) : SchnekException(), message(message_) {}
-    // VariableNotFoundException() : SchnekException() {}
-    const std::string& getMessage() { return message; }
+    public:
+      VariableNotFoundException(std::string message_) : SchnekException(), message(message_) {}
+      // VariableNotFoundException() : SchnekException() {}
+      const std::string& getMessage() { return message; }
   };
 
   class EvaluationException : public SchnekException {
-      private:
-    std::string message;
+    private:
+      std::string message;
 
-      public:
-    EvaluationException(std::string message_) : SchnekException(), message(message_) {}
-    const std::string& getMessage() { return message; }
+    public:
+      EvaluationException(std::string message_) : SchnekException(), message(message_) {}
+      const std::string& getMessage() { return message; }
   };
 
   class VariableNotInitialisedException : public EvaluationException {
-    std::string varName;
+      std::string varName;
 
-      public:
-    VariableNotInitialisedException(std::string varName_)
-        : EvaluationException("Variable was not initialised: " + varName_), varName(varName_) {}
-    std::string getVarName() { return varName; }
+    public:
+      VariableNotInitialisedException(std::string varName_)
+          : EvaluationException("Variable was not initialised: " + varName_), varName(varName_) {}
+      std::string getVarName() { return varName; }
   };
 
   class DuplicateVariableException : public SchnekException {
-      public:
-    DuplicateVariableException() : SchnekException() {}
+    public:
+      DuplicateVariableException() : SchnekException() {}
   };
 
   class DuplicateBlockException : public SchnekException {
-      public:
-    DuplicateBlockException() : SchnekException() {}
+    public:
+      DuplicateBlockException() : SchnekException() {}
   };
 
   class TypeMismatchException : public SchnekException {
-      public:
-    TypeMismatchException() : SchnekException() {}
+    public:
+      TypeMismatchException() : SchnekException() {}
   };
 
   class ReadOnlyAssignmentException : public SchnekException {
-      public:
-    ReadOnlyAssignmentException() : SchnekException() {}
+    public:
+      ReadOnlyAssignmentException() : SchnekException() {}
   };
 
 }  // namespace schnek

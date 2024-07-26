@@ -37,10 +37,10 @@
 namespace schnek::computation::concept {
 
   namespace internal::architecture {
-    template <typename, template <typename, size_t> class, typename = std::void_t<>>
+    template<typename, template<typename, size_t> class, typename = std::void_t<>>
     struct has_grid_storage_type : std::false_type {};
 
-    template <typename T, template <typename, size_t> class GridStorageType>
+    template<typename T, template<typename, size_t> class GridStorageType>
     struct has_grid_storage_type<T, GridStorageType, std::void_t<typename T::template GridStorageType<int, 1>>>
         : std::true_type {};
   }  // namespace internal::architecture

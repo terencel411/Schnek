@@ -16,7 +16,7 @@
 
 namespace schnek {
 
-  template <class BlockType>
+  template<class BlockType>
   class ChildBlock;
 
   /** @brief A container for child blocks of a given type
@@ -33,51 +33,51 @@ namespace schnek {
    * iterating over the child blocks
    *
    */
-  template <class ChildType>
+  template<class ChildType>
   class BlockContainer {
-    friend ChildBlock<ChildType>;
+      friend ChildBlock<ChildType>;
 
-      public:
-    /// The iterator range type that is returned by childBlocks()
-    typedef boost::iterator_range<typename std::list<std::shared_ptr<ChildType> >::const_iterator> iterator_range;
-    /// The iterator type
-    typedef typename iterator_range::iterator iterator;
+    public:
+      /// The iterator range type that is returned by childBlocks()
+      typedef boost::iterator_range<typename std::list<std::shared_ptr<ChildType> >::const_iterator> iterator_range;
+      /// The iterator type
+      typedef typename iterator_range::iterator iterator;
 
-      private:
-    /// A container for all the children
-    std::list<std::shared_ptr<ChildType> > children;
+    private:
+      /// A container for all the children
+      std::list<std::shared_ptr<ChildType> > children;
 
-    /** @brief The function to add a single child
-     *
-     * This function is called by ChildBlock<ChildType>
-     */
-    void addChild(std::shared_ptr<ChildType> child) { children.push_back(child); }
+      /** @brief The function to add a single child
+       *
+       * This function is called by ChildBlock<ChildType>
+       */
+      void addChild(std::shared_ptr<ChildType> child) { children.push_back(child); }
 
-      protected:
-    /** @brief Return the child blocks
-     *
-     * This method returns an iterator range over the child blocks. Children are
-     * returned in the order they have been added which is usually the order
-     * in which they have been specified in the setup file.
-     */
-    iterator_range childBlocks() { return iterator_range(children.begin(), children.end()); }
+    protected:
+      /** @brief Return the child blocks
+       *
+       * This method returns an iterator range over the child blocks. Children are
+       * returned in the order they have been added which is usually the order
+       * in which they have been specified in the setup file.
+       */
+      iterator_range childBlocks() { return iterator_range(children.begin(), children.end()); }
 
-    /// Returns the number of child blocks
-    size_t numChildren() { return children.size(); }
+      /// Returns the number of child blocks
+      size_t numChildren() { return children.size(); }
   };
 
-  template <class BlockType>
+  template<class BlockType>
   class ChildBlock : public schnek::Block, public std::enable_shared_from_this<ChildBlock<BlockType> > {
-      public:
-    ChildBlock(pBlock parent = pBlock()) : schnek::Block(parent) {}
+    public:
+      ChildBlock(pBlock parent = pBlock()) : schnek::Block(parent) {}
 
-      protected:
-    void preInit() {
-      schnek::Block *pParent = getParent().get();
-      BlockContainer<BlockType> *parent = dynamic_cast<BlockContainer<BlockType> *>(pParent);
-      std::shared_ptr<BlockType> self = std::dynamic_pointer_cast<BlockType>(this->shared_from_this());
-      if (parent && self) parent->addChild(self);
-    }
+    protected:
+      void preInit() {
+        schnek::Block *pParent = getParent().get();
+        BlockContainer<BlockType> *parent = dynamic_cast<BlockContainer<BlockType> *>(pParent);
+        std::shared_ptr<BlockType> self = std::dynamic_pointer_cast<BlockType>(this->shared_from_this());
+        if (parent && self) parent->addChild(self);
+      }
   };
 
 }  // namespace schnek

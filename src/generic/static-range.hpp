@@ -32,35 +32,35 @@
 
 namespace schnek {
   namespace generic {
-    template <ptrdiff_t l, ptrdiff_t h>
+    template<ptrdiff_t l, ptrdiff_t h>
     struct StaticRange {
-      static constexpr ptrdiff_t lo = l;
-      static constexpr ptrdiff_t hi = h;
+        static constexpr ptrdiff_t lo = l;
+        static constexpr ptrdiff_t hi = h;
     };
 
-    template <typename... /* StaticRange */ Types>
+    template<typename... /* StaticRange */ Types>
     struct StaticGhostCells {
-      static constexpr int rank = sizeof...(Types);
+        static constexpr int rank = sizeof...(Types);
 
-      template <ptrdiff_t lo, ptrdiff_t hi>
-      using put = StaticGhostCells<Types..., StaticRange<lo, hi>>;
+        template<ptrdiff_t lo, ptrdiff_t hi>
+        using put = StaticGhostCells<Types..., StaticRange<lo, hi>>;
 
-      template <size_t count, ptrdiff_t lo, ptrdiff_t hi>
-      struct repeat {
-        typedef typename repeat<count - 1, lo, hi>::type::put<lo, hi> type;
-      };
+        template<size_t count, ptrdiff_t lo, ptrdiff_t hi>
+        struct repeat {
+            typedef typename repeat<count - 1, lo, hi>::type::put<lo, hi> type;
+        };
 
-      template <ptrdiff_t lo, ptrdiff_t hi>
-      struct repeat<0, lo, hi> {
-        typedef StaticGhostCells<> type;
-      };
+        template<ptrdiff_t lo, ptrdiff_t hi>
+        struct repeat<0, lo, hi> {
+            typedef StaticGhostCells<> type;
+        };
 
-      template <size_t rank>
-      struct get {
-        typedef typename TypeList<Types...>::get<rank>::type type;
-        static constexpr ptrdiff_t lo = type::lo;
-        static constexpr ptrdiff_t hi = type::hi;
-      };
+        template<size_t rank>
+        struct get {
+            typedef typename TypeList<Types...>::get<rank>::type type;
+            static constexpr ptrdiff_t lo = type::lo;
+            static constexpr ptrdiff_t hi = type::hi;
+        };
     };
 
   }  // namespace generic

@@ -35,17 +35,17 @@ namespace schnek {
 
   //! Base error class
   class ScheckException : public std::exception {
-      private:
-    std::string message;
+    private:
+      std::string message;
 
-      public:
-    ScheckException(
-        const std::string& file, long line, const std::string& functionName, const std::string& message_ = ""
-    );
+    public:
+      ScheckException(
+          const std::string& file, long line, const std::string& functionName, const std::string& message_ = ""
+      );
 
-    ~ScheckException() throw() {}
-    //! returns the error message.
-    const char* what() const throw();
+      ~ScheckException() throw() {}
+      //! returns the error message.
+      const char* what() const throw();
   };
 
 }  // namespace schnek

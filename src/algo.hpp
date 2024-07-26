@@ -40,7 +40,7 @@ namespace schnek {
    * @param end An iterator pointing behind the end of the value range
    * @return The average of all the values in the range
    */
-  template <class InputIterator>
+  template<class InputIterator>
   typename InputIterator::value_type mean(InputIterator begin, InputIterator end);
 
 #include "algo.t"

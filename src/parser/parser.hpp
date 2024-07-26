@@ -37,29 +37,29 @@
 namespace schnek {
 
   class Parser {
-      private:
-    VariableStorage variables;
-    FunctionRegistry funcReg;
-    BlockClasses blockClasses;
+    private:
+      VariableStorage variables;
+      FunctionRegistry funcReg;
+      BlockClasses blockClasses;
 
-      public:
-    Parser(std::string name, std::string classname, const BlockClasses &blockClasses_)
-        : variables(name, classname), funcReg(), blockClasses(blockClasses_) {}
+    public:
+      Parser(std::string name, std::string classname, const BlockClasses &blockClasses_)
+          : variables(name, classname), funcReg(), blockClasses(blockClasses_) {}
 
-    Parser(const VariableStorage &variables_, const FunctionRegistry &funcReg_)
-        : variables(variables_), funcReg(funcReg_), blockClasses(false) {}
+      Parser(const VariableStorage &variables_, const FunctionRegistry &funcReg_)
+          : variables(variables_), funcReg(funcReg_), blockClasses(false) {}
 
-    Parser(const VariableStorage &variables_, const FunctionRegistry &funcReg_, const BlockClasses &blockClasses_)
-        : variables(variables_), funcReg(funcReg_), blockClasses(blockClasses_) {}
+      Parser(const VariableStorage &variables_, const FunctionRegistry &funcReg_, const BlockClasses &blockClasses_)
+          : variables(variables_), funcReg(funcReg_), blockClasses(blockClasses_) {}
 
-    Parser(const ParserSettings &settings)
-        : variables(settings.variables), funcReg(settings.funcReg), blockClasses(settings.blockClasses) {}
+      Parser(const ParserSettings &settings)
+          : variables(settings.variables), funcReg(settings.funcReg), blockClasses(settings.blockClasses) {}
 
-    FunctionRegistry &getFunctionRegistry() { return funcReg; }
-    VariableStorage &getVariableStorage() { return variables; }
-    BlockClasses &getBlockClasses() { return blockClasses; }
+      FunctionRegistry &getFunctionRegistry() { return funcReg; }
+      VariableStorage &getVariableStorage() { return variables; }
+      BlockClasses &getBlockClasses() { return blockClasses; }
 
-    pBlock parse(std::istream &input, std::string filename = "Setup File");
+      pBlock parse(std::istream &input, std::string filename = "Setup File");
   };
 
 }  // namespace schnek

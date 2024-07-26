@@ -32,116 +32,121 @@
 
 namespace schnek {
 
-  template <typename T, int rank, class BaseGrid, typename Transformation>
+  template<typename T, int rank, class BaseGrid, typename Transformation>
   class GridTransformStorage {
-      public:
-    typedef Array<int, rank> IndexType;
-    typedef BaseGrid BaseGridType;
-    typedef Transformation TransformationType;
+    public:
+      typedef Array<int, rank> IndexType;
+      typedef BaseGrid BaseGridType;
+      typedef Transformation TransformationType;
 
-      protected:
-    BaseGridType *baseGrid;
-    Transformation transformation;
+    protected:
+      BaseGridType *baseGrid;
+      Transformation transformation;
 
-      public:
-    class const_storage_iterator {
+    public:
+      class const_storage_iterator {
         protected:
-      typedef typename BaseGridType::const_storage_iterator BaseIter;
-      BaseIter baseIter;
-      GridTransformStorage &storage;
+          typedef typename BaseGridType::const_storage_iterator BaseIter;
+          BaseIter baseIter;
+          GridTransformStorage &storage;
 
-      const_storage_iterator(BaseIter baseIter, GridTransformStorage &storage) : baseIter(baseIter), storage(storage) {}
+          const_storage_iterator(BaseIter baseIter, GridTransformStorage &storage)
+              : baseIter(baseIter), storage(storage) {}
 
-      friend class GridTransformStorage;
+          friend class GridTransformStorage;
 
         public:
-      T operator*() { return storage.transformation(*baseIter); }
+          T operator*() { return storage.transformation(*baseIter); }
 
-      const_storage_iterator &operator++() {
-        ++baseIter;
-        return *this;
+          const_storage_iterator &operator++() {
+            ++baseIter;
+            return *this;
+          }
+
+          bool operator==(const const_storage_iterator &SI) { return baseIter == SI.baseIter; }
+
+          bool operator!=(const const_storage_iterator &SI) { return baseIter != SI.baseIter; }
+      };
+
+      GridTransformStorage();
+
+      SCHNEK_INLINE T &get(const IndexType &index) {
+        static T result;
+        result = transformation(baseGrid->get(index));
+        return result;
       }
 
-      bool operator==(const const_storage_iterator &SI) { return baseIter == SI.baseIter; }
+      SCHNEK_INLINE T get(const IndexType &index) const { return transformation(baseGrid->get(index)); }
+      /** */
+      SCHNEK_INLINE const IndexType &getLo() const { return baseGrid->getLo(); }
+      /** */
+      SCHNEK_INLINE const IndexType &getHi() const { return baseGrid->getHi(); }
+      /** */
+      SCHNEK_INLINE const IndexType &getDims() const { return baseGrid->getDims(); }
 
-      bool operator!=(const const_storage_iterator &SI) { return baseIter != SI.baseIter; }
-    };
+      /** */
+      SCHNEK_INLINE int getLo(int k) const { return baseGrid->getLo(k); }
+      /** */
+      SCHNEK_INLINE int getHi(int k) const { return baseGrid->getHi(k); }
+      /** */
+      SCHNEK_INLINE int getDims(int k) const { return baseGrid->getDims(k); }
 
-    GridTransformStorage();
+      SCHNEK_INLINE const_storage_iterator begin() { return const_storage_iterator(baseGrid->begin(), *this); }
+      SCHNEK_INLINE const_storage_iterator end() { return const_storage_iterator(baseGrid->end(), *this); }
 
-    SCHNEK_INLINE T &get(const IndexType &index) {
-      static T result;
-      result = transformation(baseGrid->get(index));
-      return result;
-    }
+      const_storage_iterator cbegin() const { return const_storage_iterator(baseGrid->cbegin(), *this); }
+      const_storage_iterator cend() const { return const_storage_iterator(baseGrid->cend(), *this); }
 
-    SCHNEK_INLINE T get(const IndexType &index) const { return transformation(baseGrid->get(index)); }
-    /** */
-    SCHNEK_INLINE const IndexType &getLo() const { return baseGrid->getLo(); }
-    /** */
-    SCHNEK_INLINE const IndexType &getHi() const { return baseGrid->getHi(); }
-    /** */
-    SCHNEK_INLINE const IndexType &getDims() const { return baseGrid->getDims(); }
+      void setBaseGrid(BaseGridType &baseGrid_) { baseGrid = &baseGrid_; }
 
-    /** */
-    SCHNEK_INLINE int getLo(int k) const { return baseGrid->getLo(k); }
-    /** */
-    SCHNEK_INLINE int getHi(int k) const { return baseGrid->getHi(k); }
-    /** */
-    SCHNEK_INLINE int getDims(int k) const { return baseGrid->getDims(k); }
+      Transformation getTransformation() const { return transformation; }
 
-    SCHNEK_INLINE const_storage_iterator begin() { return const_storage_iterator(baseGrid->begin(), *this); }
-    SCHNEK_INLINE const_storage_iterator end() { return const_storage_iterator(baseGrid->end(), *this); }
-
-    const_storage_iterator cbegin() const { return const_storage_iterator(baseGrid->cbegin(), *this); }
-    const_storage_iterator cend() const { return const_storage_iterator(baseGrid->cend(), *this); }
-
-    void setBaseGrid(BaseGridType &baseGrid_) { baseGrid = &baseGrid_; }
-
-    Transformation getTransformation() const { return transformation; }
-
-    void setTransformation(const Transformation &transformation) { this->transformation = transformation; }
+      void setTransformation(const Transformation &transformation) { this->transformation = transformation; }
   };
 
-  template <class BaseGrid, typename Transformation, template <int> class CheckingPolicy = GridNoArgCheck>
+  template<class BaseGrid, typename Transformation, template<int> class CheckingPolicy = GridNoArgCheck>
   class GridTransform
       : public internal::GridBase<
-            typename Transformation::value_type, BaseGrid::Rank, CheckingPolicy<BaseGrid::Rank>,
+            typename Transformation::value_type,
+            BaseGrid::Rank,
+            CheckingPolicy<BaseGrid::Rank>,
             GridTransformStorage<typename BaseGrid::value_type, BaseGrid::Rank, BaseGrid, Transformation> > {
-      private:
-    typedef internal::GridBase<
-        typename Transformation::value_type, BaseGrid::Rank, CheckingPolicy<BaseGrid::Rank>,
-        GridTransformStorage<typename BaseGrid::value_type, BaseGrid::Rank, BaseGrid, Transformation> >
-        ParentType;
+    private:
+      typedef internal::GridBase<
+          typename Transformation::value_type,
+          BaseGrid::Rank,
+          CheckingPolicy<BaseGrid::Rank>,
+          GridTransformStorage<typename BaseGrid::value_type, BaseGrid::Rank, BaseGrid, Transformation> >
+          ParentType;
 
-      public:
-    enum { Rank = BaseGrid::Rank };
-    typedef typename Transformation::value_type value_type;
-    typedef typename BaseGrid::IndexType IndexType;
-    typedef BaseGrid BaseGridType;
-    /** default constructor creates an empty grid */
-    GridTransform();
+    public:
+      enum { Rank = BaseGrid::Rank };
+      typedef typename Transformation::value_type value_type;
+      typedef typename BaseGrid::IndexType IndexType;
+      typedef BaseGrid BaseGridType;
+      /** default constructor creates an empty grid */
+      GridTransform();
 
-    /** constructor, which builds Grid of size size[0] x ... x size[rank-1]
-     *
-     *  Example:
-     *  \begin{verbatim}
-     *  Grid<double,2>::IndexType size=(512,512);
-     *  Grid<double,2> m(size);
-     *  \end{verbatim}
-     *
-     *  The ranges then extend from 0 to size[i]-1
-     */
-    GridTransform(BaseGridType &baseGrid_);
+      /** constructor, which builds Grid of size size[0] x ... x size[rank-1]
+       *
+       *  Example:
+       *  \begin{verbatim}
+       *  Grid<double,2>::IndexType size=(512,512);
+       *  Grid<double,2> m(size);
+       *  \end{verbatim}
+       *
+       *  The ranges then extend from 0 to size[i]-1
+       */
+      GridTransform(BaseGridType &baseGrid_);
   };
 
-  template <typename SrcType, typename DestType>
+  template<typename SrcType, typename DestType>
   class TypeCastTransform {
-      public:
-    typedef DestType value_type;
+    public:
+      typedef DestType value_type;
 
-      public:
-    DestType operator()(SrcType x) { return (DestType)x; }
+    public:
+      DestType operator()(SrcType x) { return (DestType)x; }
   };
 
 }  // namespace schnek

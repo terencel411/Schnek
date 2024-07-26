@@ -37,113 +37,113 @@ namespace schnek {
    * Methods are provided that return Ranges to the boundary domains
    * on each side of the main domain.
    */
-  template <size_t rank, template <size_t> class CheckingPolicy = ArrayNoArgCheck>
+  template<size_t rank, template<size_t> class CheckingPolicy = ArrayNoArgCheck>
   class Boundary {
-      public:
-    /// The range type that contains the domain size
-    typedef Range<int, rank, CheckingPolicy> DomainType;
-    /// The array type that contains the limits of the domain
-    typedef typename DomainType::LimitType LimitType;
+    public:
+      /// The range type that contains the domain size
+      typedef Range<int, rank, CheckingPolicy> DomainType;
+      /// The array type that contains the limits of the domain
+      typedef typename DomainType::LimitType LimitType;
 
-    /// An enum specifying the location of a ghost domain.
-    typedef enum { Min, Max } bound;
+      /// An enum specifying the location of a ghost domain.
+      typedef enum { Min, Max } bound;
 
-      private:
-    /// The size of the complete domain, including ghost cells
-    DomainType size;
+    private:
+      /// The size of the complete domain, including ghost cells
+      DomainType size;
 
-    /// The number of ghost cells on each side
-    size_t delta;
+      /// The number of ghost cells on each side
+      size_t delta;
 
-      public:
-    /** Construct a zero boundary
-     */
-    Boundary();
+    public:
+      /** Construct a zero boundary
+       */
+      Boundary();
 
-    /** Construct a boundary supplying lo and hi coordinates and the
-     *  number of ghost cells. The domain given should include the ghost cells.
-     *
-     * @param lo the lower corner of the domain, including the ghost cells
-     * @param hi the upper corner of the domain, including the ghost cells
-     * @param delta_ the number of ghost cells
-     */
-    Boundary(const LimitType &lo, const LimitType &hi, int delta_);
+      /** Construct a boundary supplying lo and hi coordinates and the
+       *  number of ghost cells. The domain given should include the ghost cells.
+       *
+       * @param lo the lower corner of the domain, including the ghost cells
+       * @param hi the upper corner of the domain, including the ghost cells
+       * @param delta_ the number of ghost cells
+       */
+      Boundary(const LimitType &lo, const LimitType &hi, int delta_);
 
-    /** Constrauct a boundary supplying a reactangular domain and the
-     *  number of ghost cells. The domain given should include the ghost cells.
-     *
-     * @param size_ the rectangular domain, including the ghost cells
-     * @param delta_ the number of ghost cells
-     */
-    Boundary(DomainType &size_, int delta_);
+      /** Constrauct a boundary supplying a reactangular domain and the
+       *  number of ghost cells. The domain given should include the ghost cells.
+       *
+       * @param size_ the rectangular domain, including the ghost cells
+       * @param delta_ the number of ghost cells
+       */
+      Boundary(DomainType &size_, int delta_);
 
-    /** The number of ghost cells
-     *
-     * @return the number of ghost cells
-     */
-    int getDelta() { return delta; }
+      /** The number of ghost cells
+       *
+       * @return the number of ghost cells
+       */
+      int getDelta() { return delta; }
 
-    /** Returns the original domain, including the ghost cells */
-    const DomainType &getDomain() { return size; }
+      /** Returns the original domain, including the ghost cells */
+      const DomainType &getDomain() { return size; }
 
-    /** Returns the ghost domain, a rectangular region outside the inner domain.
-     * The ghost domain has a thickness given by the number of ghost cells, delta.
-     *
-     * @param dim the dimension index of the side on which the ghost domain lies.
-     * @param b the location of the ghost domain. Min will return the lower ghost
-     *        domain and Max will return the upper ghost domain
-     * @return A rectangular domain of ghost cells
-     */
-    DomainType getGhostDomain(size_t dim, bound b);
+      /** Returns the ghost domain, a rectangular region outside the inner domain.
+       * The ghost domain has a thickness given by the number of ghost cells, delta.
+       *
+       * @param dim the dimension index of the side on which the ghost domain lies.
+       * @param b the location of the ghost domain. Min will return the lower ghost
+       *        domain and Max will return the upper ghost domain
+       * @return A rectangular domain of ghost cells
+       */
+      DomainType getGhostDomain(size_t dim, bound b);
 
-    /** Returns the inner domain corresponding to the ghost domain of the neighbouring
-     * process. The domain has a thickness given by the number of ghost cells, delta.
-     *
-     * @param dim the dimension index of the side on which the inner domain lies.
-     * @param b the location of the inner domain. Min will return the domain on the lower side
-     *        and Max will return the domain on the upper side
-     * @return A rectangular domain of source cells
-     */
-    DomainType getGhostSourceDomain(size_t dim, bound b);
+      /** Returns the inner domain corresponding to the ghost domain of the neighbouring
+       * process. The domain has a thickness given by the number of ghost cells, delta.
+       *
+       * @param dim the dimension index of the side on which the inner domain lies.
+       * @param b the location of the inner domain. Min will return the domain on the lower side
+       *        and Max will return the domain on the upper side
+       * @return A rectangular domain of source cells
+       */
+      DomainType getGhostSourceDomain(size_t dim, bound b);
 
-    /** Returns the boundary domain, a rectangular region outside the inner domain.
-     * The bounadry domain has a thickness determined by the number of ghost cells.
-     * Unlike the ghost domain, the boundary domain is aware of grid staggering.
-     *
-     * @param dim the dimanesion index of the side on which the ghost domain lies.
-     * @param b the location of the gost domain. Min will return the lower ghost
-     *        domain and Max will return the upper ghost domain
-     * @return A rectangular domain of boundary cells
-     */
-    DomainType getBoundaryDomain(size_t dim, bound b, bool stagger);
+      /** Returns the boundary domain, a rectangular region outside the inner domain.
+       * The bounadry domain has a thickness determined by the number of ghost cells.
+       * Unlike the ghost domain, the boundary domain is aware of grid staggering.
+       *
+       * @param dim the dimanesion index of the side on which the ghost domain lies.
+       * @param b the location of the gost domain. Min will return the lower ghost
+       *        domain and Max will return the upper ghost domain
+       * @return A rectangular domain of boundary cells
+       */
+      DomainType getBoundaryDomain(size_t dim, bound b, bool stagger);
 
-    /** Returns the inner domain, excluding the ghost cells */
-    DomainType getInnerDomain();
+      /** Returns the inner domain, excluding the ghost cells */
+      DomainType getInnerDomain();
 
-    /** Returns the sub-grid containing only the ghost cells.
-     * The ghost domain has a thickness given by the number of ghost cells, delta.
-     *
-     * @param dim the dimanesion index of the side on which the ghost domain lies.
-     * @param b the location of the gost domain. Min will return the lower ghost
-     *        domain and Max will return the upper ghost domain
-     * @return A sub-grid containing ghost cells
-     */
-    template <class GridType>
-    SubGrid<GridType, CheckingPolicy> getGhostBoundary(size_t dim, bound b, GridType &grid);
+      /** Returns the sub-grid containing only the ghost cells.
+       * The ghost domain has a thickness given by the number of ghost cells, delta.
+       *
+       * @param dim the dimanesion index of the side on which the ghost domain lies.
+       * @param b the location of the gost domain. Min will return the lower ghost
+       *        domain and Max will return the upper ghost domain
+       * @return A sub-grid containing ghost cells
+       */
+      template<class GridType>
+      SubGrid<GridType, CheckingPolicy> getGhostBoundary(size_t dim, bound b, GridType &grid);
 
-    /** Returns sub-grid containing only the boundary domain.
-     * The bounadry domain has a thickness determined by the number of ghost cells.
-     * Unlike the ghost domain, the boundary domain is aware of grid staggering.
-     *
-     * @param dim the dimanesion index of the side on which the ghost domain lies.
-     * @param b the location of the gost domain. Min will return the lower ghost
-     *        domain and Max will return the upper ghost domain
-     * @return A sub-grid containing boundary cells
-     */
-    template <typename T, template <size_t> class CheckingPolicy2, template <typename, size_t> class StoragePolicy>
-    SubGrid<Field<T, rank, CheckingPolicy2, StoragePolicy>, CheckingPolicy> getGhostBoundary(
-        size_t dim, bound b, Field<T, rank, CheckingPolicy2, StoragePolicy> &field
-    );
+      /** Returns sub-grid containing only the boundary domain.
+       * The bounadry domain has a thickness determined by the number of ghost cells.
+       * Unlike the ghost domain, the boundary domain is aware of grid staggering.
+       *
+       * @param dim the dimanesion index of the side on which the ghost domain lies.
+       * @param b the location of the gost domain. Min will return the lower ghost
+       *        domain and Max will return the upper ghost domain
+       * @return A sub-grid containing boundary cells
+       */
+      template<typename T, template<size_t> class CheckingPolicy2, template<typename, size_t> class StoragePolicy>
+      SubGrid<Field<T, rank, CheckingPolicy2, StoragePolicy>, CheckingPolicy> getGhostBoundary(
+          size_t dim, bound b, Field<T, rank, CheckingPolicy2, StoragePolicy> &field
+      );
   };
 
 }  // namespace schnek

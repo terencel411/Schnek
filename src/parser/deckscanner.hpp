@@ -32,28 +32,28 @@
 namespace schnek {
 
   class DeckScanner {
-      private:
-    std::istream *input;
-    TokenList tokens;
+    private:
+      std::istream *input;
+      TokenList tokens;
 
-      public:
-    DeckScanner(std::string filename_) : tokens(filename_) {}
-    void scan(std::istream *input_, bool newscan = true) {
-      input = input_;
-      if (newscan) {
-        tokens.reset();
-        do_scan(tokens);
-      } else {
-        TokenList tklist("");
-        do_scan(tklist);
-        tokens.insert(tklist);
+    public:
+      DeckScanner(std::string filename_) : tokens(filename_) {}
+      void scan(std::istream *input_, bool newscan = true) {
+        input = input_;
+        if (newscan) {
+          tokens.reset();
+          do_scan(tokens);
+        } else {
+          TokenList tklist("");
+          do_scan(tklist);
+          tokens.insert(tklist);
+        }
       }
-    }
 
-    const TokenList &getTokens() { return tokens; }
+      const TokenList &getTokens() { return tokens; }
 
-      private:
-    void do_scan(TokenList &tlist);
+    private:
+      void do_scan(TokenList &tlist);
   };
 
 }  // namespace schnek

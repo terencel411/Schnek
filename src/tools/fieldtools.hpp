@@ -32,93 +32,124 @@
 
 namespace schnek {
 
-  template <
-      typename T, size_t rank, template <size_t> class GridCheckingPolicy, template <size_t> class ArrayCheckingPolicy,
-      template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class GridCheckingPolicy,
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   void fill_field(
-      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field, Array<double, rank, ArrayCheckingPolicy> &coords,
-      T &value, DependencyUpdater &updater
+      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field,
+      Array<double, rank, ArrayCheckingPolicy> &coords,
+      T &value,
+      DependencyUpdater &updater
   );
 
-  template <
-      typename T, size_t rank, template <size_t> class GridCheckingPolicy, template <size_t> class ArrayCheckingPolicy,
-      template <typename, size_t> class StoragePolicy>
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class GridCheckingPolicy,
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
   void fill_field(
-      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field, Array<double, rank, ArrayCheckingPolicy> &coords,
-      T &value, DependencyUpdater &updater, pParameter dependent
+      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field,
+      Array<double, rank, ArrayCheckingPolicy> &coords,
+      T &value,
+      DependencyUpdater &updater,
+      pParameter dependent
   );
 
   class FieldFiller {
-      private:
-    class implBase {
+    private:
+      class implBase {
         public:
-      virtual void fill() = 0;
-    };
+          virtual void fill() = 0;
+      };
 
-    template <
-        typename T, size_t rank, template <size_t> class GridCheckingPolicy,
-        template <size_t> class ArrayCheckingPolicy, template <typename, size_t> class StoragePolicy>
-    class impl : public implBase {
+      template<
+          typename T,
+          size_t rank,
+          template<size_t>
+          class GridCheckingPolicy,
+          template<size_t>
+          class ArrayCheckingPolicy,
+          template<typename, size_t>
+          class StoragePolicy>
+      class impl : public implBase {
         private:
-      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field;
-      Array<double, rank, ArrayCheckingPolicy> &coords;
-      T &value;
-      DependencyUpdater &updater;
+          Field<T, rank, GridCheckingPolicy, StoragePolicy> &field;
+          Array<double, rank, ArrayCheckingPolicy> &coords;
+          T &value;
+          DependencyUpdater &updater;
 
         public:
-      impl(
-          Field<T, rank, GridCheckingPolicy, StoragePolicy> &field_, Array<double, rank, ArrayCheckingPolicy> &coords_,
-          T &value_, DependencyUpdater &updater_
-      )
-          : field(field_), coords(coords_), value(value_), updater(updater_) {}
+          impl(
+              Field<T, rank, GridCheckingPolicy, StoragePolicy> &field_,
+              Array<double, rank, ArrayCheckingPolicy> &coords_,
+              T &value_,
+              DependencyUpdater &updater_
+          )
+              : field(field_), coords(coords_), value(value_), updater(updater_) {}
 
-      void fill() { fill_field(field, coords, value, updater); }
-    };
+          void fill() { fill_field(field, coords, value, updater); }
+      };
 
-    typedef std::shared_ptr<implBase> pImplBase;
-    std::list<pImplBase> implementations;
+      typedef std::shared_ptr<implBase> pImplBase;
+      std::list<pImplBase> implementations;
 
-      public:
-    template <size_t rank, template <size_t> class ArrayCheckingPolicy>
-    class fieldAdder {
+    public:
+      template<size_t rank, template<size_t> class ArrayCheckingPolicy>
+      class fieldAdder {
         private:
-      friend class FieldFiller;
-      Array<double, rank, ArrayCheckingPolicy> &coords;
-      DependencyUpdater &updater;
-      std::list<pImplBase> &implementations;
+          friend class FieldFiller;
+          Array<double, rank, ArrayCheckingPolicy> &coords;
+          DependencyUpdater &updater;
+          std::list<pImplBase> &implementations;
 
-      fieldAdder(
-          Array<double, rank, ArrayCheckingPolicy> &coords_, DependencyUpdater &updater_,
-          std::list<pImplBase> &implementations_
-      )
-          : coords(coords_), updater(updater_), implementations(implementations_) {}
+          fieldAdder(
+              Array<double, rank, ArrayCheckingPolicy> &coords_,
+              DependencyUpdater &updater_,
+              std::list<pImplBase> &implementations_
+          )
+              : coords(coords_), updater(updater_), implementations(implementations_) {}
 
         public:
-      template <typename T, template <size_t> class GridCheckingPolicy, template <typename, size_t> class StoragePolicy>
-      fieldAdder &operator()(Field<T, rank, GridCheckingPolicy, StoragePolicy> &field, T &value) {
-        pImplBase i(
-            new impl<T, rank, GridCheckingPolicy, ArrayCheckingPolicy, StoragePolicy>(field, coords, value, updater)
-        );
-        implementations.push_back(i);
-        return *this;
+          template<
+              typename T,
+              template<size_t>
+              class GridCheckingPolicy,
+              template<typename, size_t>
+              class StoragePolicy>
+          fieldAdder &operator()(Field<T, rank, GridCheckingPolicy, StoragePolicy> &field, T &value) {
+            pImplBase i(
+                new impl<T, rank, GridCheckingPolicy, ArrayCheckingPolicy, StoragePolicy>(field, coords, value, updater)
+            );
+            implementations.push_back(i);
+            return *this;
+          }
+      };
+
+      FieldFiller() {}
+
+      template<size_t rank, template<size_t> class ArrayCheckingPolicy>
+      fieldAdder<rank, ArrayCheckingPolicy> &set(
+          Array<double, rank, ArrayCheckingPolicy> &coords, DependencyUpdater &updater
+      ) {
+        static fieldAdder<rank, ArrayCheckingPolicy> adder(coords, updater, implementations);
+        return adder;
       }
-    };
 
-    FieldFiller() {}
+      void clear() { implementations.clear(); }
 
-    template <size_t rank, template <size_t> class ArrayCheckingPolicy>
-    fieldAdder<rank, ArrayCheckingPolicy> &set(
-        Array<double, rank, ArrayCheckingPolicy> &coords, DependencyUpdater &updater
-    ) {
-      static fieldAdder<rank, ArrayCheckingPolicy> adder(coords, updater, implementations);
-      return adder;
-    }
-
-    void clear() { implementations.clear(); }
-
-    void fillFields() {
-      for (pImplBase i : implementations) i->fill();
-    }
+      void fillFields() {
+        for (pImplBase i : implementations) i->fill();
+      }
   };
 
 }  // namespace schnek

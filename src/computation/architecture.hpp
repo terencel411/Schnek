@@ -44,14 +44,14 @@ namespace schnek::computation {
   /**
    *
    */
-  template <typename... Architecture>
+  template<typename... Architecture>
   struct ArchitectureCollection {
-    // static_assert(
-    //     concept::check_all_grid_storage_concepts<Architecture...>(),
-    //     "All Architectures must define compatible GridStorageType."
-    // );
+      // static_assert(
+      //     concept::check_all_grid_storage_concepts<Architecture...>(),
+      //     "All Architectures must define compatible GridStorageType."
+      // );
 
-    static constexpr size_t size = sizeof...(Architecture);
+      static constexpr size_t size = sizeof...(Architecture);
   };
 }  // namespace schnek::computation
 

@@ -25,8 +25,8 @@
 
 namespace schnek {
 
-  template <class T>
-  template <class ContainerType>
+  template<class T>
+  template<class ContainerType>
   void DataBuffer<T>::makeBuffer(ContainerType &container) {
     static const int dsize = sizeof(T);
     BufferType::IndexType sz(container.size());

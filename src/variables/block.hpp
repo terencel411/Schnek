@@ -43,17 +43,17 @@ namespace schnek {
   typedef std::shared_ptr<BlockList> pBlockList;
 
   class BlockTree {
-      private:
-    pBlock root;
-    pBlock cursor;
-    std::stack<int> depth;
+    private:
+      pBlock root;
+      pBlock cursor;
+      std::stack<int> depth;
 
-      public:
-    BlockTree();
-    void addChild(pBlock);
-    void moveDown();
-    void moveUp();
-    pBlock getRoot() { return root; }
+    public:
+      BlockTree();
+      void addChild(pBlock);
+      void moveDown();
+      void moveUp();
+      pBlock getRoot() { return root; }
   };
 
   typedef std::shared_ptr<BlockTree> pBlockTree;
@@ -62,69 +62,69 @@ namespace schnek {
    *
    */
   class Block : public Unique<Block> {
-      private:
-    BlockParameters blockParameters;
-    pBlock parent;
-    BlockList children;
-    std::string name;
+    private:
+      BlockParameters blockParameters;
+      pBlock parent;
+      BlockList children;
+      std::string name;
 
-    template <typename T>
-    bool getData(std::string key, T *&data, bool upward);
+      template<typename T>
+      bool getData(std::string key, T *&data, bool upward);
 
-    void registerHierarchy();
-    void preInitHierarchy();
-    void initHierarchy();
-    void postInitHierarchy();
+      void registerHierarchy();
+      void preInitHierarchy();
+      void initHierarchy();
+      void postInitHierarchy();
 
-    void setParent(pBlock parent_) { parent = parent_; }
-    friend class BlockTree;
+      void setParent(pBlock parent_) { parent = parent_; }
+      friend class BlockTree;
 
-      protected:
-    virtual void initParameters(BlockParameters &) {}
-    virtual void registerData() {}
-    virtual void preInit() {}
-    virtual void init() {}
-    virtual void postInit() {}
-    BlockList getChildren() { return BlockList(children); }
+    protected:
+      virtual void initParameters(BlockParameters &) {}
+      virtual void registerData() {}
+      virtual void preInit() {}
+      virtual void init() {}
+      virtual void postInit() {}
+      BlockList getChildren() { return BlockList(children); }
 
-      public:
-    Block(pBlock parent_ = pBlock()) : parent(parent_) {}
-    virtual ~Block() {}
+    public:
+      Block(pBlock parent_ = pBlock()) : parent(parent_) {}
+      virtual ~Block() {}
 
-    void setContext(pBlockVariables context) { blockParameters.setContext(context); }
+      void setContext(pBlockVariables context) { blockParameters.setContext(context); }
 
-    pBlockVariables getLocalVariables() { return blockParameters.getContext(); }
+      pBlockVariables getLocalVariables() { return blockParameters.getContext(); }
 
-    pBlockVariables getVariables() {
-      pBlockVariables vars = blockParameters.getContext();
-      while (vars->getParent()) vars = vars->getParent();
-      return vars;
-    }
+      pBlockVariables getVariables() {
+        pBlockVariables vars = blockParameters.getContext();
+        while (vars->getParent()) vars = vars->getParent();
+        return vars;
+      }
 
-    void setup();
-    void addChild(pBlock child);
-    void evaluateParameters();
+      void setup();
+      void addChild(pBlock child);
+      void evaluateParameters();
 
-    pBlock getParent() { return parent; }
+      pBlock getParent() { return parent; }
 
-    template <typename T>
-    void addData(std::string key, T &data);
+      template<typename T>
+      void addData(std::string key, T &data);
 
-    template <typename T>
-    void retrieveData(std::string key, T *&data);
+      template<typename T>
+      void retrieveData(std::string key, T *&data);
 
-    template <typename T>
-    void retrieveData(std::string key, T &data);
+      template<typename T>
+      void retrieveData(std::string key, T &data);
 
-    void initAll();
+      void initAll();
 
-    void setName(const std::string &name_) { name = name_; }
-    std::string getName() { return name; }
+      void setName(const std::string &name_) { name = name_; }
+      std::string getName() { return name; }
   };
 
   // template functions
 
-  template <typename T>
+  template<typename T>
   bool Block::getData(std::string key, T *&data, bool upward) {
     if (BlockData<T>::instance().exists(this->getId(), key)) {
       data = BlockData<T>::instance().get(this->getId(), key);
@@ -157,12 +157,12 @@ namespace schnek {
     return (count != 0);
   }
 
-  template <typename T>
+  template<typename T>
   void Block::addData(std::string key, T &data) {
     BlockData<T>::instance().add(this->getId(), key, data);
   }
 
-  template <typename T>
+  template<typename T>
   void Block::retrieveData(std::string key, T *&data) {
     T **datap;
     if (getData(key, datap, true)) {
@@ -171,7 +171,7 @@ namespace schnek {
       throw VariableNotFoundException("Could not find Block variable " + key);
   }
 
-  template <typename T>
+  template<typename T>
   void Block::retrieveData(std::string key, T &data) {
     T *datap;
     if (!getData(key, datap, true)) throw VariableNotFoundException("Could not find Block variable " + key);
