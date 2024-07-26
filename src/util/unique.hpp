@@ -32,19 +32,19 @@
 namespace schnek
 {
 
-template<class T>
-class Unique : public boost::noncopyable
-{
-  private:
-    static long runningId;
-    long Id;
-  public:
-    Unique() : Id(runningId++) {}
-    long getId() { return Id; }
-};
+  template<class T>
+  class Unique : public boost::noncopyable
+  {
+    private:
+      static long runningId;
+      long Id;
+    public:
+      Unique() : Id(runningId++) {}
+      long getId() const { return Id; }
+  };
 
-template<class T>
-long Unique<T>::runningId = 0;
+  template<class T>
+  long Unique<T>::runningId = 0;
 
 } // namespace
 
