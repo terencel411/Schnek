@@ -27,40 +27,36 @@
 #ifndef SCHNEK_ARRAYCHECK_HPP_
 #define SCHNEK_ARRAYCHECK_HPP_
 
-#include "../config.hpp"
-#include "../macros.hpp"
-
 #include <cassert>
 #include <cstddef>
 
+#include "../config.hpp"
+#include "../macros.hpp"
+
 namespace schnek {
 
-typedef std::size_t size_t;
+  typedef std::size_t size_t;
 
-/** Class to plug into the Array as CheckingPolicy.
- *  Performs no argument checking at all.
- */
-template<size_t limit>
-class ArrayNoArgCheck
-{
-  public:
+  /** Class to plug into the Array as CheckingPolicy.
+   *  Performs no argument checking at all.
+   */
+  template <size_t limit>
+  class ArrayNoArgCheck {
+      public:
     /** The check method does not do anything */
-    SCHNEK_INLINE void check(size_t) const {} 
-};
+    SCHNEK_INLINE void check(size_t) const {}
+  };
 
-/** Class to plug into the Array as CheckingPolicy.
- *  Performs no argument checking at all.
- */
-template<size_t limit>
-class ArrayAssertArgCheck
-{
-  public:
+  /** Class to plug into the Array as CheckingPolicy.
+   *  Performs no argument checking at all.
+   */
+  template <size_t limit>
+  class ArrayAssertArgCheck {
+      public:
     /** The check method does not do anything */
-    SCHNEK_INLINE void check(size_t i) const {
-      assert(i < limit);
-    }
-};
+    SCHNEK_INLINE void check(size_t i) const { assert(i < limit); }
+  };
 
-}
+}  // namespace schnek
 
-#endif // SCHNEK_ARGCHECK_HPP_
+#endif  // SCHNEK_ARGCHECK_HPP_

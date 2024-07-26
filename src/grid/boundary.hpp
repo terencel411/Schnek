@@ -27,39 +27,35 @@
 #ifndef SCHNEK_BOUNDARY_HPP_
 #define SCHNEK_BOUNDARY_HPP_
 
-#include "subgrid.hpp"
 #include "field.hpp"
+#include "subgrid.hpp"
 
 namespace schnek {
 
-/** A rectangular region that is aware of ghost cells.
- *
- * Methods are provided that return Ranges to the boundary domains
- * on each side of the main domain.
- */
-template<
-  size_t rank,
-  template<size_t> class CheckingPolicy = ArrayNoArgCheck
->
-class Boundary
-{
-  public:
+  /** A rectangular region that is aware of ghost cells.
+   *
+   * Methods are provided that return Ranges to the boundary domains
+   * on each side of the main domain.
+   */
+  template <size_t rank, template <size_t> class CheckingPolicy = ArrayNoArgCheck>
+  class Boundary {
+      public:
     /// The range type that contains the domain size
     typedef Range<int, rank, CheckingPolicy> DomainType;
     /// The array type that contains the limits of the domain
     typedef typename DomainType::LimitType LimitType;
 
     /// An enum specifying the location of a ghost domain.
-    typedef enum {Min, Max} bound;
+    typedef enum { Min, Max } bound;
 
-  private:
+      private:
     /// The size of the complete domain, including ghost cells
     DomainType size;
 
     /// The number of ghost cells on each side
     size_t delta;
 
-  public:
+      public:
     /** Construct a zero boundary
      */
     Boundary();
@@ -88,7 +84,7 @@ class Boundary
     int getDelta() { return delta; }
 
     /** Returns the original domain, including the ghost cells */
-    const DomainType& getDomain() { return size; }
+    const DomainType &getDomain() { return size; }
 
     /** Returns the ghost domain, a rectangular region outside the inner domain.
      * The ghost domain has a thickness given by the number of ghost cells, delta.
@@ -124,7 +120,6 @@ class Boundary
     /** Returns the inner domain, excluding the ghost cells */
     DomainType getInnerDomain();
 
-
     /** Returns the sub-grid containing only the ghost cells.
      * The ghost domain has a thickness given by the number of ghost cells, delta.
      *
@@ -133,7 +128,7 @@ class Boundary
      *        domain and Max will return the upper ghost domain
      * @return A sub-grid containing ghost cells
      */
-    template<class GridType>
+    template <class GridType>
     SubGrid<GridType, CheckingPolicy> getGhostBoundary(size_t dim, bound b, GridType &grid);
 
     /** Returns sub-grid containing only the boundary domain.
@@ -145,21 +140,14 @@ class Boundary
      *        domain and Max will return the upper ghost domain
      * @return A sub-grid containing boundary cells
      */
-    template<
-      typename T,
-      template<size_t> class CheckingPolicy2,
-      template<typename, size_t> class StoragePolicy
-    >
-    SubGrid<Field<T,rank,CheckingPolicy2,StoragePolicy>, CheckingPolicy>
-      getGhostBoundary(size_t dim, bound b, Field<T,rank,CheckingPolicy2,StoragePolicy> &field);
-};
+    template <typename T, template <size_t> class CheckingPolicy2, template <typename, size_t> class StoragePolicy>
+    SubGrid<Field<T, rank, CheckingPolicy2, StoragePolicy>, CheckingPolicy> getGhostBoundary(
+        size_t dim, bound b, Field<T, rank, CheckingPolicy2, StoragePolicy> &field
+    );
+  };
 
-} // namespace schnek
+}  // namespace schnek
 
 #include "boundary.t"
 
-#endif // SCHNEK_BOUNDARY_HPP_
-
-
-
-
+#endif  // SCHNEK_BOUNDARY_HPP_

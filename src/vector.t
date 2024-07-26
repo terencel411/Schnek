@@ -24,9 +24,4 @@
  *
  */
 
-
-namespace schnek
-{
-
-
-}
+namespace schnek {}

@@ -40,77 +40,69 @@
 
 namespace schnek {
 
-/// A boost::variant that can hold the basic constant values
-typedef boost::variant<int, double, std::string> ValueVariant;
+  /// A boost::variant that can hold the basic constant values
+  typedef boost::variant<int, double, std::string> ValueVariant;
 
-/// A boost::variant that can hold the basic constant values
-typedef boost::variant<int*, double*, std::string*> ValuePointerVariant;
+  /// A boost::variant that can hold the basic constant values
+  typedef boost::variant<int*, double*, std::string*> ValuePointerVariant;
 
-template<typename vtype> class Expression;
-typedef std::shared_ptr<Expression<int> > pIntExpression;
-typedef std::shared_ptr<Expression<double> > pFloatExpression;
-typedef std::shared_ptr<Expression<std::string> > pStringExpression;
+  template <typename vtype>
+  class Expression;
+  typedef std::shared_ptr<Expression<int> > pIntExpression;
+  typedef std::shared_ptr<Expression<double> > pFloatExpression;
+  typedef std::shared_ptr<Expression<std::string> > pStringExpression;
 
-/// A boost::variant that can hold expressions with different return type
-typedef boost::variant<pIntExpression, pFloatExpression, pStringExpression> ExpressionVariant;
+  /// A boost::variant that can hold expressions with different return type
+  typedef boost::variant<pIntExpression, pFloatExpression, pStringExpression> ExpressionVariant;
 
-
-
-class VariableNotFoundException : public SchnekException
-{
-  private:
+  class VariableNotFoundException : public SchnekException {
+      private:
     std::string message;
-  public:
+
+      public:
     VariableNotFoundException(std::string message_) : SchnekException(), message(message_) {}
-    //VariableNotFoundException() : SchnekException() {}
+    // VariableNotFoundException() : SchnekException() {}
     const std::string& getMessage() { return message; }
-};
+  };
 
-class EvaluationException : public SchnekException
-{
-  private:
+  class EvaluationException : public SchnekException {
+      private:
     std::string message;
-  public:
+
+      public:
     EvaluationException(std::string message_) : SchnekException(), message(message_) {}
     const std::string& getMessage() { return message; }
-};
+  };
 
-class VariableNotInitialisedException : public EvaluationException
-{
-  std::string varName;
-  public:
+  class VariableNotInitialisedException : public EvaluationException {
+    std::string varName;
+
+      public:
     VariableNotInitialisedException(std::string varName_)
-      : EvaluationException("Variable was not initialised: " + varName_), varName(varName_)
-    {}
+        : EvaluationException("Variable was not initialised: " + varName_), varName(varName_) {}
     std::string getVarName() { return varName; }
-};
+  };
 
-
-class DuplicateVariableException : public SchnekException
-{
-  public:
+  class DuplicateVariableException : public SchnekException {
+      public:
     DuplicateVariableException() : SchnekException() {}
-};
+  };
 
-class DuplicateBlockException : public SchnekException
-{
-  public:
+  class DuplicateBlockException : public SchnekException {
+      public:
     DuplicateBlockException() : SchnekException() {}
-};
+  };
 
-class TypeMismatchException : public SchnekException
-{
-  public:
+  class TypeMismatchException : public SchnekException {
+      public:
     TypeMismatchException() : SchnekException() {}
-};
+  };
 
-class ReadOnlyAssignmentException : public SchnekException
-{
-  public:
+  class ReadOnlyAssignmentException : public SchnekException {
+      public:
     ReadOnlyAssignmentException() : SchnekException() {}
-};
+  };
 
+}  // namespace schnek
 
-} // namespace
-
-#endif // SCHNEK_TYPES_HPP_
+#endif  // SCHNEK_TYPES_HPP_

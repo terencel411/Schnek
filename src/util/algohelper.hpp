@@ -29,19 +29,19 @@
 
 namespace schnek {
 
-template<typename T>
-class calcsum
-{
-  private:
+  template <typename T>
+  class calcsum {
+      private:
     T sum;
-  public:
+
+      public:
     calcsum() : sum(0) {}
-    calcsum(const calcsum &csum) : sum(csum.sum) {}
-    
+    calcsum(const calcsum& csum) : sum(csum.sum) {}
+
     void operator()(const T& x) { sum += x; }
     T result() { return sum; }
-};
+  };
 
-} // namespace schnek
+}  // namespace schnek
 
-#endif // SCHNEK_ALGOHELPER_HPP
+#endif  // SCHNEK_ALGOHELPER_HPP

@@ -25,18 +25,17 @@
  */
 
 #include "parser.hpp"
-#include "deckscanner.hpp"
-#include "tokenlist.hpp"
+
 #include "../variables/block.hpp"
 #include "../variables/dependencies.hpp"
-
 #include "deckgrammar.hpp"
+#include "deckscanner.hpp"
+#include "tokenlist.hpp"
 
 using namespace schnek;
 
-struct ParserInternalError : public SchnekException
-{
-    ParserInternalError() : SchnekException() {}
+struct ParserInternalError : public SchnekException {
+  ParserInternalError() : SchnekException() {}
 };
 
 #undef LOGLEVEL
@@ -52,15 +51,14 @@ struct ParserInternalError : public SchnekException
 #undef LOGLEVEL
 #define LOGLEVEL 0
 
-pBlock Parser::parse(std::istream &input, std::string filename)
-{
+pBlock Parser::parse(std::istream &input, std::string filename) {
   DeckScanner scanner(filename);
   scanner.scan(&input);
   const TokenList &tokens = scanner.getTokens();
 
-  yyParser* pParser = ParseAlloc();
-  //FILE *trace = fopen("parsetrace.out", "w");
-  //ParseTrace(trace,"trace: ");
+  yyParser *pParser = ParseAlloc();
+  // FILE *trace = fopen("parsetrace.out", "w");
+  // ParseTrace(trace,"trace: ");
 
   pBlockTree blockTree(new BlockTree());
   ParserContext context(variables, funcReg, blockClasses, blockTree);
@@ -68,24 +66,19 @@ pBlock Parser::parse(std::istream &input, std::string filename)
   std::string rootClass = variables.getRootBlock()->getClassName();
 
   BlockClassDescriptor &blockClassDescr = context.blockClasses->get(rootClass);
-  if (blockClassDescr.hasBlockFactory())
-  {
+  if (blockClassDescr.hasBlockFactory()) {
     pBlock block = blockClassDescr.makeBlock(variables.getRootBlock()->getBlockName());
     block->setContext(context.variables->getCurrentBlock());
     block->setup();
     context.blockTree->addChild(block);
-  }
-  else
-  {
+  } else {
     context.blockTree->moveDown();
   }
 
-  for(Token tok: tokens)
-  {
-    try{
+  for (Token tok : tokens) {
+    try {
       Parse(pParser, tok.getToken(), ParserToken(tok, context));
-    }
-    catch (ParserInternalError & e) {
+    } catch (ParserInternalError &e) {
       throw ParserError("Syntax Error", tok);
     }
   }
@@ -96,7 +89,6 @@ pBlock Parser::parse(std::istream &input, std::string filename)
 
   DependencyMap depMap(variables.getRootBlock());
   depMap.updateAll();
-
 
   return blockTree->getRoot();
 }

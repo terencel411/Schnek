@@ -23,48 +23,47 @@
  * along with Schnek.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #ifndef SCHNEK_GENERIC_STATIC_RANGE_HPP_
 #define SCHNEK_GENERIC_STATIC_RANGE_HPP_
 
-#include "typelist.hpp"
-
 #include <cstddef>
 
+#include "typelist.hpp"
+
 namespace schnek {
-    namespace generic {
-        template<ptrdiff_t l, ptrdiff_t h>
-        struct StaticRange {
-            static constexpr ptrdiff_t lo = l;
-            static constexpr ptrdiff_t hi = h;
-        };
+  namespace generic {
+    template <ptrdiff_t l, ptrdiff_t h>
+    struct StaticRange {
+      static constexpr ptrdiff_t lo = l;
+      static constexpr ptrdiff_t hi = h;
+    };
 
-        template<typename... /* StaticRange */ Types>
-        struct StaticGhostCells {
-            static constexpr int rank = sizeof...(Types);
-            
-            template<ptrdiff_t lo, ptrdiff_t hi>
-            using put = StaticGhostCells<Types..., StaticRange<lo, hi>>;
+    template <typename... /* StaticRange */ Types>
+    struct StaticGhostCells {
+      static constexpr int rank = sizeof...(Types);
 
-            template<size_t count, ptrdiff_t lo, ptrdiff_t hi>
-            struct repeat {
-                typedef typename repeat<count-1, lo, hi>::type::put<lo, hi> type;
-            };
+      template <ptrdiff_t lo, ptrdiff_t hi>
+      using put = StaticGhostCells<Types..., StaticRange<lo, hi>>;
 
-            template<ptrdiff_t lo, ptrdiff_t hi>
-            struct repeat<0, lo, hi> {
-                typedef StaticGhostCells<> type;
-            };
+      template <size_t count, ptrdiff_t lo, ptrdiff_t hi>
+      struct repeat {
+        typedef typename repeat<count - 1, lo, hi>::type::put<lo, hi> type;
+      };
 
-            template<size_t rank>
-            struct get {
-                typedef typename TypeList<Types...>::get<rank>::type type;
-                static constexpr ptrdiff_t lo = type::lo;
-                static constexpr ptrdiff_t hi = type::hi;
-            };
-        };
-        
-    }
-}
+      template <ptrdiff_t lo, ptrdiff_t hi>
+      struct repeat<0, lo, hi> {
+        typedef StaticGhostCells<> type;
+      };
 
-#endif // SCHNEK_GENERIC_STATIC_RANGE_HPP_
+      template <size_t rank>
+      struct get {
+        typedef typename TypeList<Types...>::get<rank>::type type;
+        static constexpr ptrdiff_t lo = type::lo;
+        static constexpr ptrdiff_t hi = type::hi;
+      };
+    };
+
+  }  // namespace generic
+}  // namespace schnek
+
+#endif  // SCHNEK_GENERIC_STATIC_RANGE_HPP_

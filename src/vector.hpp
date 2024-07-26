@@ -31,16 +31,11 @@
 
 namespace schnek {
 
-template<
-  class T,
-  int length,
-  template<int> class CheckingPolicy = ArrayNoArgCheck
->
-class Vector : public Array<T,length,CheckingPolicy>
-{
-  public:
-};
+  template <class T, int length, template <int> class CheckingPolicy = ArrayNoArgCheck>
+  class Vector : public Array<T, length, CheckingPolicy> {
+      public:
+  };
 
-}
+}  // namespace schnek
 
-#endif // SCHNEK_VECTOR_H_
+#endif  // SCHNEK_VECTOR_H_

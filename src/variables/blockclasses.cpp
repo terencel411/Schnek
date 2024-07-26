@@ -28,49 +28,38 @@
 
 using namespace schnek;
 
-BlockClassDescriptor::BlockClassChildAdder&
-  BlockClassDescriptor::BlockClassChildAdder::operator()(std::string child)
-{
+BlockClassDescriptor::BlockClassChildAdder &BlockClassDescriptor::BlockClassChildAdder::operator()(std::string child) {
   descriptor.doAddChild(child);
   return *this;
 }
 
-void BlockClassDescriptor::doAddChild(std::string child)
-{
+void BlockClassDescriptor::doAddChild(std::string child) {
   allowedChildren.insert(child);
 }
 
-BlockClassDescriptor::BlockClassChildAdder BlockClassDescriptor::addChildren(std::string child)
-{
+BlockClassDescriptor::BlockClassChildAdder BlockClassDescriptor::addChildren(std::string child) {
   doAddChild(child);
   return BlockClassDescriptor::BlockClassChildAdder(*this);
 }
 
-bool BlockClassDescriptor::hasChild(std::string child)
-{
-  return allowedChildren.count(child)>0;
+bool BlockClassDescriptor::hasChild(std::string child) {
+  return allowedChildren.count(child) > 0;
 }
 
-
-BlockClassDescriptor &BlockClasses::registerBlock(std::string blockClass)
-{
+BlockClassDescriptor &BlockClasses::registerBlock(std::string blockClass) {
   pBlockClassDescriptor bcs(new BlockClassDescriptor());
   (*classDescriptors)[blockClass] = bcs;
   return *bcs;
 }
 
-BlockClassDescriptor &BlockClasses::get(std::string blockClass)
-{
-  if (classDescriptors->count(blockClass) < 1)
-    return registerBlock(blockClass);
+BlockClassDescriptor &BlockClasses::get(std::string blockClass) {
+  if (classDescriptors->count(blockClass) < 1) return registerBlock(blockClass);
 
   return *((*classDescriptors)[blockClass]);
 }
 
-bool BlockClasses::hasChild(std::string parent, std::string child)
-{
-  if (classDescriptors->count(parent) < 1)
-    throw BlockNotFoundException();
+bool BlockClasses::hasChild(std::string parent, std::string child) {
+  if (classDescriptors->count(parent) < 1) throw BlockNotFoundException();
 
   pBlockClassDescriptor bcs = (*classDescriptors)[parent];
   return bcs->hasChild(child);

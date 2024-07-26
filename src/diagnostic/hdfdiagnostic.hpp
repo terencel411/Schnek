@@ -29,14 +29,14 @@
 #include "../config.hpp"
 #ifdef SCHNEK_HAVE_HDF5
 
-#include "../grid/grid.hpp"
-#include "diagnostic.hpp"
-
 #include <hdf5.h>
 
 #include <memory>
 
-#if defined (H5_HAVE_PARALLEL) && defined (SCHNEK_USE_HDF_PARALLEL)
+#include "../grid/grid.hpp"
+#include "diagnostic.hpp"
+
+#if defined(H5_HAVE_PARALLEL) && defined(SCHNEK_USE_HDF_PARALLEL)
 #include <mpi.h>
 #endif
 
@@ -44,42 +44,41 @@
 
 namespace schnek {
 
-template<typename TYPE>
-struct H5DataType{
-  static const hid_t type;
-};
+  template <typename TYPE>
+  struct H5DataType {
+    static const hid_t type;
+  };
 
+  /**
+   * A container type for grids that are being passed to the HDFGridDiagnostic
+   */
+  template <typename FieldType>
+  struct GridContainer {
+    /// The pointer to the grid
+    FieldType grid;
 
-/**
- * A container type for grids that are being passed to the HDFGridDiagnostic
- */
-template<typename FieldType>
-struct GridContainer
-{
-  /// The pointer to the grid
-  FieldType grid;
+    /// The global minimum coordinate
+    typename FieldType::IndexType global_min;
 
-  /// The global minimum coordinate
-  typename FieldType::IndexType global_min;
+    /// The global maximum coordinate
+    typename FieldType::IndexType global_max;
 
-  /// The global maximum coordinate
-  typename FieldType::IndexType global_max;
+    /// The local minimum coordinate
+    typename FieldType::IndexType local_min;
 
-  /// The local minimum coordinate
-  typename FieldType::IndexType local_min;
+    /// The local maximum coordinate
+    typename FieldType::IndexType local_max;
+  };
 
-  /// The local maximum coordinate
-  typename FieldType::IndexType local_max;
-};
+  /**
+   * HDF5 attributes to a data set
+   *
+   * Attributes can contain numerical values indexed by name
+   */
+  struct HdfAttributes {
+    friend class HdfOStream;
 
-/**
- * HDF5 attributes to a data set
- *
- * Attributes can contain numerical values indexed by name
- */
-struct HdfAttributes {
-  friend class HdfOStream;
-  private:
+      private:
     struct Info {
       hid_t type;
       hsize_t dims;
@@ -88,15 +87,15 @@ struct HdfAttributes {
     typedef std::shared_ptr<Info> pInfo;
 
     std::map<std::string, pInfo> attributes;
-  public:
 
+      public:
     /**
      * Set a value on the dataset's attributes
      *
      * @param name   the name of the attribute
      * @param value  the value to be stored
      */
-    template<typename T>
+    template <typename T>
     void set(std::string name, const T *value, hsize_t dims = 1);
 
     /**
@@ -105,24 +104,24 @@ struct HdfAttributes {
      * @param name   the name of the attribute
      * @param value  the value to be stored
      */
-    template<typename T>
+    template <typename T>
     void set(std::string name, const T &value, hsize_t dims = 1);
-};
+  };
 
-typedef std::shared_ptr<HdfAttributes> pHdfAttributes;
+  typedef std::shared_ptr<HdfAttributes> pHdfAttributes;
 
-/** @brief IO class for handling HDF files
-  *
-  * This is the abstract base class for HDF-IO- classes.
-  * Implements the basic operations on HdfStreams as virtual methods.
-  */
-class HdfStream {
-  protected:
+  /** @brief IO class for handling HDF files
+   *
+   * This is the abstract base class for HDF-IO- classes.
+   * Implements the basic operations on HdfStreams as virtual methods.
+   */
+  class HdfStream {
+      protected:
     /// HDF5 File id
-    hid_t       file_id;
+    hid_t file_id;
 
     /// HDF5 Error status
-    herr_t      status;
+    herr_t status;
 
     /// name of the datablock to be read or written
     std::string blockname;
@@ -137,16 +136,16 @@ class HdfStream {
     bool active;
     bool activeModified;
 
-  public:
+      public:
     /// constructor
     HdfStream();
-    ///copy constructur
-    HdfStream(const HdfStream&);
+    /// copy constructur
+    HdfStream(const HdfStream &);
     /// destructor
     virtual ~HdfStream();
 
     /// open  file
-    virtual int open(const char*)=0;
+    virtual int open(const char *) = 0;
 
     /// close file
     virtual void close();
@@ -161,83 +160,87 @@ class HdfStream {
     void setAttributes(pHdfAttributes attributes_);
 
     /// assign
-    HdfStream& operator = (const HdfStream&);
+    HdfStream &operator=(const HdfStream &);
 
-    void setActive(bool active_) { active = active_; activeModified = true; }
+    void setActive(bool active_) {
+      active = active_;
+      activeModified = true;
+    }
 
-  protected:
+      protected:
     std::string getNextBlockName();
 
-#if defined (H5_HAVE_PARALLEL) && defined (SCHNEK_USE_HDF_PARALLEL)
+#if defined(H5_HAVE_PARALLEL) && defined(SCHNEK_USE_HDF_PARALLEL)
     void makeMPIGroup();
 
     MPI_Comm mpiComm;
     bool commSet;
 #endif
+  };
 
-};
-
-
-/** @brief Input stream for HDF files */
-class HdfIStream : public HdfStream {
-  private:
+  /** @brief Input stream for HDF files */
+  class HdfIStream : public HdfStream {
+      private:
     hid_t dxpl_id;
-  public:
+
+      public:
     /// constructor
     HdfIStream();
 
     /// copy constructor */
-    HdfIStream(const HdfIStream&);
+    HdfIStream(const HdfIStream &);
 
     /// constructor, opens HDF file "fname", selects first dataset
-    HdfIStream(const char* fname);
+    HdfIStream(const char *fname);
 
     /// opens HDF file "fname", selects first dataset
-    int open(const char*);
+    int open(const char *);
 
     /// stream input operator for a schnek::Matrix
-    template<typename FieldType>
+    template <typename FieldType>
     void readGrid(GridContainer<FieldType> &g);
-};
+  };
 
-
-/** @brief output stream for HDF files */
-class HdfOStream : public HdfStream {
-  private:
+  /** @brief output stream for HDF files */
+  class HdfOStream : public HdfStream {
+      private:
     hid_t dxpl_id;
-#if defined (H5_HAVE_PARALLEL) && defined (SCHNEK_USE_HDF_PARALLEL)
+#if defined(H5_HAVE_PARALLEL) && defined(SCHNEK_USE_HDF_PARALLEL)
     MPI_Info mpi_info;
 #endif
     hid_t plist_id;
     bool initialised;
-  public:
+
+      public:
     /// constructor
     HdfOStream();
 
     /// copy constructor
-    HdfOStream(const HdfOStream&);
+    HdfOStream(const HdfOStream &);
 
     /// constructor, opens HDF file "fname"
-    HdfOStream(const char* fname);
+    HdfOStream(const char *fname);
 
     /// open file
-    int open(const char*);
+    int open(const char *);
 
     /// stream output operator for a matrix
-    template<typename FieldType>
+    template <typename FieldType>
     void writeGrid(GridContainer<FieldType> &g);
-};
-/**
- * Abstract diagnostic class for writing Grids into HDF5 data files
- */
-template<typename Type, class DiagnosticType = IntervalDiagnostic >
-class HDFGridDiagnostic : public SimpleDiagnostic<Type, Type, DiagnosticType> {
-  public:
+  };
+  /**
+   * Abstract diagnostic class for writing Grids into HDF5 data files
+   */
+  template <typename Type, class DiagnosticType = IntervalDiagnostic>
+  class HDFGridDiagnostic : public SimpleDiagnostic<Type, Type, DiagnosticType> {
+      public:
     typedef typename Type::IndexType IndexType;
-  protected:
+
+      protected:
     HdfOStream output;
     GridContainer<Type> container;
-  protected:
+
+      protected:
     /// Open the output file
     void open(const std::string &);
     /// Write into the touput file
@@ -266,24 +269,23 @@ class HDFGridDiagnostic : public SimpleDiagnostic<Type, Type, DiagnosticType> {
      *
      * @return  an empty attributes set
      */
-    virtual pHdfAttributes getAttributes() {
-      return std::make_shared<HdfAttributes>();
-    };
-  public:
-    virtual ~HDFGridDiagnostic() {}
-};
+    virtual pHdfAttributes getAttributes() { return std::make_shared<HdfAttributes>(); };
 
-/**
- * Reader for HDF grid data
- *
- * An interface that
- */
-template<typename Type>
-class HDFGridReader : public Block
-{
-  public:
+      public:
+    virtual ~HDFGridDiagnostic() {}
+  };
+
+  /**
+   * Reader for HDF grid data
+   *
+   * An interface that
+   */
+  template <typename Type>
+  class HDFGridReader : public Block {
+      public:
     typedef typename Type::IndexType IndexType;
-  protected:
+
+      protected:
     /// The HDF output stream
     HdfIStream input;
     /// The container for the grid holding additional data
@@ -294,12 +296,14 @@ class HDFGridReader : public Block
     std::string fieldName;
     /// The name of the file to read the data from
     std::string fileName;
-  public:
+
+      public:
     /// Default constructor
     HDFGridReader();
     /// Virtual destructor
     virtual ~HDFGridReader() {}
-  protected:
+
+      protected:
     /// Open the input file
     void open();
 
@@ -337,12 +341,12 @@ class HDFGridReader : public Block
 
     /// Block callback to initialise the parameters
     void initParameters(BlockParameters &blockPars);
-};
+  };
 
-} // namespace schnek
+}  // namespace schnek
 
 #include "hdfdiagnostic.t"
 
 #endif
 
-#endif // SCHNEK_HDFDIAGNOSTIC_HPP_
+#endif  // SCHNEK_HDFDIAGNOSTIC_HPP_

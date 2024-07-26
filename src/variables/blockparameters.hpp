@@ -27,89 +27,81 @@
 #ifndef SCHNEK_BLOCKPARAMETERS_HPP_
 #define SCHNEK_BLOCKPARAMETERS_HPP_
 
-#include "types.hpp"
-#include "variables.hpp"
-#include "expression.hpp"
+#include <map>
+#include <memory>
 
 #include "../grid/array.hpp"
 #include "../util/exceptions.hpp"
-
-#include <memory>
-#include <map>
+#include "expression.hpp"
+#include "types.hpp"
+#include "variables.hpp"
 
 namespace schnek {
 
-class DependencyMap;
-typedef std::shared_ptr<DependencyMap> pDependencyMap;
-class Parameter;
-typedef std::shared_ptr<Parameter> pParameter;
+  class DependencyMap;
+  typedef std::shared_ptr<DependencyMap> pDependencyMap;
+  class Parameter;
+  typedef std::shared_ptr<Parameter> pParameter;
 
-class ParametersGroup
-{
-  private:
+  class ParametersGroup {
+      private:
     typedef std::set<long> ParameterSet;
     ParameterSet parameters;
-  public:
+
+      public:
     void add(pParameter p);
     void add(pVariable v);
     bool isElement(pParameter p);
     bool isElement(pVariable v);
 
-    template<size_t rank, template<size_t> class CheckingPolicy>
-    void addArray(Array<pParameter, rank, CheckingPolicy> &pa)
-    {
-        for (size_t i=0; i<rank; ++i) add(pa[i]);
+    template <size_t rank, template <size_t> class CheckingPolicy>
+    void addArray(Array<pParameter, rank, CheckingPolicy> &pa) {
+      for (size_t i = 0; i < rank; ++i) add(pa[i]);
     }
-
 
     // This method has the side effect of modifying ids to the set containing all the values not
     // contained in the group.
     bool hasElements(std::set<long> &ids);
-};
+  };
 
-typedef std::shared_ptr<ParametersGroup> pParametersGroup;
+  typedef std::shared_ptr<ParametersGroup> pParametersGroup;
 
-
-class Parameter
-{
-  protected:
+  class Parameter {
+      protected:
     std::string varName;
     pVariable variable;
     pParametersGroup allowedDeps;
-  public:
+
+      public:
     Parameter(std::string varName_, pVariable variable_, pParametersGroup allowedDeps_)
-      : varName(varName_), variable(variable_), allowedDeps(allowedDeps_)
-    {}
+        : varName(varName_), variable(variable_), allowedDeps(allowedDeps_) {}
     virtual ~Parameter() {}
 
     bool canEvaluate() { return (variable) && (variable->isInitialised()); }
     pVariable getVariable() { return variable; }
     pParametersGroup getAllowedDeps() { return allowedDeps; }
 
-//    bool depsAllowed(pDependencyMap deps);
+    //    bool depsAllowed(pDependencyMap deps);
 
     virtual void evaluate() = 0;
     virtual void update() = 0;
-};
+  };
 
-template<typename T>
-class ConcreteParameter : public Parameter
-{
-  protected:
+  template <typename T>
+  class ConcreteParameter : public Parameter {
+      protected:
     T *value;
-  public:
+
+      public:
     ConcreteParameter(std::string varName_, pVariable variable_, T *value_, pParametersGroup allowedDeps_)
-      : Parameter(varName_, variable_, allowedDeps_), value(value_) {}
+        : Parameter(varName_, variable_, allowedDeps_), value(value_) {}
 
-    void evaluate()
-    {
-      //std::cout << "Evaluating Parameter " << varName << "\n";
-      if (! variable->isInitialised())
-        throw VariableNotInitialisedException(varName);
+    void evaluate() {
+      // std::cout << "Evaluating Parameter " << varName << "\n";
+      if (!variable->isInitialised()) throw VariableNotInitialisedException(varName);
 
-      if (variable->isReadOnly())
-      {
-//        std::cout << "  read only " << varName << "=" << *value << "\n";
+      if (variable->isReadOnly()) {
+        //        std::cout << "  read only " << varName << "=" << *value << "\n";
         return;
       }
 
@@ -119,64 +111,44 @@ class ConcreteParameter : public Parameter
         *value = boost::get<T>(variable->evaluateExpression());
     }
 
-    void update()
-    {
+    void update() {
       if (variable->isReadOnly()) return;
       *value = boost::get<T>(variable->getValue());
     }
-};
+  };
 
-
-template<typename T>
-class ConstantParameter : public Parameter
-{
-  protected:
-  public:
+  template <typename T>
+  class ConstantParameter : public Parameter {
+      protected:
+      public:
     ConstantParameter(std::string varName_, pVariable variable_, const T &)
-      : Parameter(varName_, variable_, pParametersGroup(new ParametersGroup())) {}
+        : Parameter(varName_, variable_, pParametersGroup(new ParametersGroup())) {}
 
-    void evaluate()
-    {
-      return;
-    }
+    void evaluate() { return; }
 
-    void update()
-    {
-      return;
-    }
-};
+    void update() { return; }
+  };
 
-class BlockParameters
-{
-  private:
+  class BlockParameters {
+      private:
     pBlockVariables block;
     std::map<std::string, pParameter> parameterMap;
-  public:
-    typedef enum {readwrite, readonly} Permissions;
-    void setContext(pBlockVariables context)
-    {
-      block = context;
-    }
 
-    pBlockVariables getContext()
-    {
-      return block;
-    }
+      public:
+    typedef enum { readwrite, readonly } Permissions;
+    void setContext(pBlockVariables context) { block = context; }
 
+    pBlockVariables getContext() { return block; }
 
-    template<typename T>
-    pParameter addParameter(std::string varName,
-                            T* var,
-                            pParametersGroup allowedDeps,
-                            bool hasDefault = false,
-                            const T &defaultValue = T(),
-                            Permissions perm=readwrite)
-    {
+    template <typename T>
+    pParameter addParameter(
+        std::string varName, T *var, pParametersGroup allowedDeps, bool hasDefault = false, const T &defaultValue = T(),
+        Permissions perm = readwrite
+    ) {
       pVariable variable;
-      if (perm==readwrite)
+      if (perm == readwrite)
         variable = pVariable(new Variable(defaultValue, hasDefault, false));
-      else
-      {
+      else {
         typedef std::shared_ptr<Expression<T> > ParExpression;
         ParExpression pexp(new ExternalValue<T>(var));
         if (hasDefault) *var = defaultValue;
@@ -184,30 +156,27 @@ class BlockParameters
       }
       block->addVariable(varName, variable);
 
-      if (varName=="test4") std::cerr << "test4: ID = " << variable->getId();
+      if (varName == "test4") std::cerr << "test4: ID = " << variable->getId();
 
       pParameter par(new ConcreteParameter<T>(varName, variable, var, allowedDeps));
       parameterMap[varName] = par;
       return par;
     }
 
-    template<typename T>
-    pParameter addParameter(std::string varName, T* var, Permissions perm=readwrite)
-    {
+    template <typename T>
+    pParameter addParameter(std::string varName, T *var, Permissions perm = readwrite) {
       pParametersGroup empty(new ParametersGroup());
       return addParameter(varName, var, empty, false, T(), perm);
     }
 
-    template<typename T>
-    pParameter addParameter(std::string varName, T* var, const T &defaultValue, Permissions perm=readwrite)
-    {
+    template <typename T>
+    pParameter addParameter(std::string varName, T *var, const T &defaultValue, Permissions perm = readwrite) {
       pParametersGroup empty(new ParametersGroup());
       return addParameter(varName, var, empty, true, defaultValue, perm);
     }
 
-    template<typename T>
-    pParameter addConstant(std::string varName, const T &value)
-    {
+    template <typename T>
+    pParameter addConstant(std::string varName, const T &value) {
       pVariable variable(new Variable(value, true, true));
       block->addVariable(varName, variable);
 
@@ -216,78 +185,63 @@ class BlockParameters
       return par;
     }
 
-    template<
-      class T,
-      size_t rank,
-      template<size_t> class CheckingPolicy
-    >
+    template <class T, size_t rank, template <size_t> class CheckingPolicy>
     Array<pParameter, rank, CheckingPolicy> addArrayParameter(
-        std::string varName,
-        Array<T, rank, CheckingPolicy> &var,
-        Permissions perm=readwrite,
-        std::string extension = "xyzuvw")
-    {
-        SCHNEK_REQUIRE(rank<=extension.length(), "addArrayParameter: extension string not long enough! Rank = "
-        		+ boost::lexical_cast<std::string>(rank) + ",  extension.length = "+ boost::lexical_cast<std::string>(extension.length())
-				+ " (\"" +extension+"\")");
-        Array<pParameter, rank, CheckingPolicy>  result;
-        for (int i=0; i<rank; ++i)
-          result[i] = addParameter(varName+extension[i], &(var[i]), perm);
-        return result;
+        std::string varName, Array<T, rank, CheckingPolicy> &var, Permissions perm = readwrite,
+        std::string extension = "xyzuvw"
+    ) {
+      SCHNEK_REQUIRE(
+          rank <= extension.length(),
+          "addArrayParameter: extension string not long enough! Rank = " + boost::lexical_cast<std::string>(rank) +
+              ",  extension.length = " + boost::lexical_cast<std::string>(extension.length()) + " (\"" + extension +
+              "\")"
+      );
+      Array<pParameter, rank, CheckingPolicy> result;
+      for (int i = 0; i < rank; ++i) result[i] = addParameter(varName + extension[i], &(var[i]), perm);
+      return result;
     }
 
-    template<
-      class T,
-      size_t rank,
-      template<size_t> class CheckingPolicy
-    >
+    template <class T, size_t rank, template <size_t> class CheckingPolicy>
     Array<pParameter, rank, CheckingPolicy> addArrayParameter(
-        std::string varName,
-        Array<T, rank, CheckingPolicy> &var,
-        Array<T, rank, CheckingPolicy> default_values,
-        Permissions perm=readwrite,
-        std::string extension = "xyzuvw")
-    {
-        SCHNEK_REQUIRE(rank<=extension.length(), "addArrayParameter: extension string not long enough! Rank = "
-        		+ boost::lexical_cast<std::string>(rank) + ",  extension.length = "+ boost::lexical_cast<std::string>(extension.length())
-				+ " (\"" +extension+"\")");
-        Array<pParameter, rank, CheckingPolicy>  result;
-        for (int i=0; i<rank; ++i)
-          result[i] = addParameter(varName+extension[i], &(var[i]), default_values[i], perm);
-        return result;
+        std::string varName, Array<T, rank, CheckingPolicy> &var, Array<T, rank, CheckingPolicy> default_values,
+        Permissions perm = readwrite, std::string extension = "xyzuvw"
+    ) {
+      SCHNEK_REQUIRE(
+          rank <= extension.length(),
+          "addArrayParameter: extension string not long enough! Rank = " + boost::lexical_cast<std::string>(rank) +
+              ",  extension.length = " + boost::lexical_cast<std::string>(extension.length()) + " (\"" + extension +
+              "\")"
+      );
+      Array<pParameter, rank, CheckingPolicy> result;
+      for (int i = 0; i < rank; ++i)
+        result[i] = addParameter(varName + extension[i], &(var[i]), default_values[i], perm);
+      return result;
     }
 
-    template<
-      class T,
-      size_t rank,
-      template<size_t> class CheckingPolicy
-    >
+    template <class T, size_t rank, template <size_t> class CheckingPolicy>
     Array<pParameter, rank, CheckingPolicy> addArrayParameter(
-        std::string varName,
-        Array<T, rank, CheckingPolicy> &var,
-        T default_value,
-        Permissions perm=readwrite,
-        std::string extension = "xyzuvw")
-    {
-        SCHNEK_REQUIRE(rank<=extension.length(), "addArrayParameter: extension string not long enough! Rank = "
-        		+ boost::lexical_cast<std::string>(rank) + ",  extension.length = "+ boost::lexical_cast<std::string>(extension.length())
-				+ " (\"" +extension+"\")");
-        Array<pParameter, rank, CheckingPolicy>  result;
-        for (int i=0; i<rank; ++i)
-          result[i] = addParameter(varName+extension[i], &(var[i]), default_value, perm);
-        return result;
+        std::string varName, Array<T, rank, CheckingPolicy> &var, T default_value, Permissions perm = readwrite,
+        std::string extension = "xyzuvw"
+    ) {
+      SCHNEK_REQUIRE(
+          rank <= extension.length(),
+          "addArrayParameter: extension string not long enough! Rank = " + boost::lexical_cast<std::string>(rank) +
+              ",  extension.length = " + boost::lexical_cast<std::string>(extension.length()) + " (\"" + extension +
+              "\")"
+      );
+      Array<pParameter, rank, CheckingPolicy> result;
+      for (int i = 0; i < rank; ++i) result[i] = addParameter(varName + extension[i], &(var[i]), default_value, perm);
+      return result;
     }
 
-    void evaluate()
-    {
+    void evaluate() {
       typedef std::pair<std::string, pParameter> ParameterPair;
-      for(ParameterPair par: parameterMap)
-      {
+      for (ParameterPair par : parameterMap) {
         par.second->evaluate();
       }
     }
-};
+  };
 
-} //namespace
+}  // namespace schnek
 
-#endif // SCHNEK_BLOCKPARAMETERS_HPP_
+#endif  // SCHNEK_BLOCKPARAMETERS_HPP_

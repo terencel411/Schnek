@@ -27,76 +27,69 @@
 #ifndef SCHNEK_TYPETOOLS_H_
 #define SCHNEK_TYPETOOLS_H_
 
-namespace schnek
-{
+namespace schnek {
 
-struct NullType {};
-struct EmptyType {};
+  struct NullType {};
+  struct EmptyType {};
 
-/** Type to type mapper class.
- *
- *  A method to pass type information in an argument without creating a large
- *  object.
- */
-template<class Type>
-struct Type2Type
-{
+  /** Type to type mapper class.
+   *
+   *  A method to pass type information in an argument without creating a large
+   *  object.
+   */
+  template <class Type>
+  struct Type2Type {
     /** the original type */
     typedef Type OriginalType;
-};
+  };
 
+  ///** Type to type mapper class.
+  // *
+  // *  A method to pass type information in an argument without creating a large
+  // *  object.
+  // */
+  // template<template<class> class Type>
+  // struct Type2Type1
+  //{
+  //    /** the original type */
+  //    typedef Type OriginalType;
+  //};
 
-///** Type to type mapper class.
-// *
-// *  A method to pass type information in an argument without creating a large
-// *  object.
-// */
-//template<template<class> class Type>
-//struct Type2Type1
-//{
-//    /** the original type */
-//    typedef Type OriginalType;
-//};
-
-/** A templated typelist struct
- *
- *  Typelists are used for creating generalized functors, generating
- *  class hierarchies and more
- */
-  template<class H, class T>
-  struct Typelist
-  {
+  /** A templated typelist struct
+   *
+   *  Typelists are used for creating generalized functors, generating
+   *  class hierarchies and more
+   */
+  template <class H, class T>
+  struct Typelist {
     /** The head is an actual type */
     typedef H Head;
     /** The tail is either a typelist itself or NullType*/
     typedef T Tail;
   };
 
-  template<class TList, unsigned int index, class DefaultType> 
+  template <class TList, unsigned int index, class DefaultType>
   struct TypeAtNonStrict;
 
-  template<class Head, class Tail, class DefaultType>
-  struct TypeAtNonStrict<Typelist<Head,Tail>, 0, DefaultType>
-  {
+  template <class Head, class Tail, class DefaultType>
+  struct TypeAtNonStrict<Typelist<Head, Tail>, 0, DefaultType> {
     typedef Head Result;
   };
 
-  template<class DefaultType, unsigned int index>
-  struct TypeAtNonStrict<NullType, index, DefaultType>
-  {
+  template <class DefaultType, unsigned int index>
+  struct TypeAtNonStrict<NullType, index, DefaultType> {
     typedef DefaultType Result;
   };
 
-  template<class Head, class Tail, unsigned int index, class DefaultType>
-  struct TypeAtNonStrict<Typelist<Head,Tail>, index, DefaultType>
-  {
-    typedef typename TypeAtNonStrict<Tail,index-1,DefaultType>::Result Result;
+  template <class Head, class Tail, unsigned int index, class DefaultType>
+  struct TypeAtNonStrict<Typelist<Head, Tail>, index, DefaultType> {
+    typedef typename TypeAtNonStrict<Tail, index - 1, DefaultType>::Result Result;
   };
 
-}
+}  // namespace schnek
 
 #define TYPELIST_0 NullType
 #define TYPELIST_1(T1) schnek::Typelist<T1, schnek::NullType>
 #define TYPELIST_2(T1, T2) schnek::Typelist<T1, TYPELIST_1(T2)>
 
-#endif // SCHNEK_TYPETOOLS_H_
+#endif  // SCHNEK_TYPETOOLS_H_

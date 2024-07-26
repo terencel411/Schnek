@@ -28,16 +28,15 @@
 #define SCHNEK_PARSERCONTEXT_HPP_
 
 #include "../variables/blockclasses.hpp"
-#include "../variables/variables.hpp"
 #include "../variables/function_expression.hpp"
+#include "../variables/variables.hpp"
 
 namespace schnek {
 
-class BlockTree;
-typedef std::shared_ptr<BlockTree> pBlockTree;
+  class BlockTree;
+  typedef std::shared_ptr<BlockTree> pBlockTree;
 
-struct ParserContext
-{
+  struct ParserContext {
     VariableStorage *variables;
     FunctionRegistry *funcReg;
     BlockClasses *blockClasses;
@@ -45,32 +44,21 @@ struct ParserContext
 
     ParserContext() {}
     ParserContext(
-        VariableStorage &variables_,
-        FunctionRegistry &funcReg_,
-        BlockClasses &blockClasses_,
-        pBlockTree blockTree_)
-          : variables(&variables_),
-            funcReg(&funcReg_),
-            blockClasses(&blockClasses_) ,
-            blockTree(blockTree_)
-    {}
+        VariableStorage &variables_, FunctionRegistry &funcReg_, BlockClasses &blockClasses_, pBlockTree blockTree_
+    )
+        : variables(&variables_), funcReg(&funcReg_), blockClasses(&blockClasses_), blockTree(blockTree_) {}
     ParserContext(const ParserContext &con)
-          : variables(con.variables),
-            funcReg(con.funcReg),
-            blockClasses(con.blockClasses) ,
-            blockTree(con.blockTree)
-    {}
+        : variables(con.variables), funcReg(con.funcReg), blockClasses(con.blockClasses), blockTree(con.blockTree) {}
 
-    ParserContext &operator=(const ParserContext &con)
-    {
+    ParserContext &operator=(const ParserContext &con) {
       variables = con.variables;
       funcReg = con.funcReg;
       blockClasses = con.blockClasses;
       blockTree = con.blockTree;
       return *this;
     }
-};
+  };
 
-} //namespace
+}  // namespace schnek
 
-#endif // SCHNEK_PARSERCONTEXT_HPP_
+#endif  // SCHNEK_PARSERCONTEXT_HPP_

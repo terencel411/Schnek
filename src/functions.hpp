@@ -29,30 +29,37 @@
 
 namespace schnek {
 
-template<typename T>
-T min(T a, T b) { return a>b?b:a; }
+  template <typename T>
+  T min(T a, T b) {
+    return a > b ? b : a;
+  }
 
-template<typename T>
-T max(T a, T b) { return a>b?a:b; }
+  template <typename T>
+  T max(T a, T b) {
+    return a > b ? a : b;
+  }
 
-template<typename T>
-int signum0(T x) { return x>0?1:(x<0?-1:0); }
+  template <typename T>
+  int signum0(T x) {
+    return x > 0 ? 1 : (x < 0 ? -1 : 0);
+  }
 
-template<typename T>
-int signum(T x) { return x<0?-1:1; }
+  template <typename T>
+  int signum(T x) {
+    return x < 0 ? -1 : 1;
+  }
 
-double drand();
+  double drand();
 
-int irand(int range);
+  int irand(int range);
 
-template<class ArrayType>
-void crossProduct(ArrayType &result, const ArrayType &a, const ArrayType &b)
-{
-    result[0] = a[1]*b[2] - a[2]*b[1];
-    result[1] = a[2]*b[0] - a[0]*b[2];
-    result[2] = a[0]*b[1] - a[1]*b[0];
-}
+  template <class ArrayType>
+  void crossProduct(ArrayType &result, const ArrayType &a, const ArrayType &b) {
+    result[0] = a[1] * b[2] - a[2] * b[1];
+    result[1] = a[2] * b[0] - a[0] * b[2];
+    result[2] = a[0] * b[1] - a[1] * b[0];
+  }
 
-} // namespace
+}  // namespace schnek
 
-#endif // SCHNEK_FUNCTIONS_H_
+#endif  // SCHNEK_FUNCTIONS_H_

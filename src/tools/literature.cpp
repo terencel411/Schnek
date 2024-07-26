@@ -29,10 +29,8 @@
 
 using namespace schnek;
 
-std::string LiteratureReference::getPublicationTypeString() const
-{
-  switch (publType)
-  {
+std::string LiteratureReference::getPublicationTypeString() const {
+  switch (publType) {
     case article:
       return "article";
       break;
@@ -76,15 +74,12 @@ std::string LiteratureReference::getPublicationTypeString() const
   }
 }
 
-void writeRefField(std::ostream &out, std::string name, std::string value)
-{
+void writeRefField(std::ostream &out, std::string name, std::string value) {
   if (value != "") out << "  " << name << " = {" << value << "}\n";
 }
 
-std::ostream &operator<<(std::ostream &out, const LiteratureReference &lit)
-{
-  out << "@" << lit.getPublicationTypeString() << " {" << lit.getBibKey()
-      << "\n";
+std::ostream &operator<<(std::ostream &out, const LiteratureReference &lit) {
+  out << "@" << lit.getPublicationTypeString() << " {" << lit.getBibKey() << "\n";
   writeRefField(out, "address", lit.getAddress());
   writeRefField(out, "annote", lit.getAnnote());
   writeRefField(out, "author", lit.getAuthor());
@@ -117,30 +112,22 @@ std::ostream &operator<<(std::ostream &out, const LiteratureReference &lit)
 }
 
 LiteratureManager::LiteratureManager()
-  : title("Algorithms and Methods"),
-    subtitle("The following algorithms and methods have been used during this simulation run.")
-{
-  LiteratureArticle schnek("Schmitz2018",
-                           "Schmitz, Holger",
-                           "Schnek: A {C}++ library for the development of parallel simulation codes on regular grids",
-                           "Computer Physics Communications",
-                           "2018",
-                           "226",
-                           "151--164");
+    : title("Algorithms and Methods"),
+      subtitle("The following algorithms and methods have been used during this simulation run.") {
+  LiteratureArticle schnek(
+      "Schmitz2018", "Schmitz, Holger",
+      "Schnek: A {C}++ library for the development of parallel simulation codes on regular grids",
+      "Computer Physics Communications", "2018", "226", "151--164"
+  );
   schnek.setUrl("https://doi.org/10.1016/j.cpc.2017.12.023");
   addReference("Parallel simulation framework based on the Schnek Library", schnek);
 }
 
-void LiteratureManager::addReference(std::string description,
-    const LiteratureReference &reference)
-{
+void LiteratureManager::addReference(std::string description, const LiteratureReference &reference) {
   std::string bibKey = reference.getBibKey();
-  if (records.count(bibKey) > 0)
-  {
+  if (records.count(bibKey) > 0) {
     records[bibKey].first.insert(description);
-  }
-  else
-  {
+  } else {
     LitRecord rec;
     rec.first.insert(description);
     rec.second = reference;
@@ -148,67 +135,53 @@ void LiteratureManager::addReference(std::string description,
   }
 }
 
-void LiteratureManager::writeInformation(std::ostream &out, std::string bibfile)
-{
-  out << "\\documentclass{article}\n" << "\\begin{document}\n"
-      << "\\section*{"<< title <<"}\n"
+void LiteratureManager::writeInformation(std::ostream &out, std::string bibfile) {
+  out << "\\documentclass{article}\n"
+      << "\\begin{document}\n"
+      << "\\section*{" << title << "}\n"
       << subtitle << "\n\\begin{itemize}";
-  for(Records::value_type rec: records)
-  {
+  for (Records::value_type rec : records) {
     out << "\\item ";
-    for(std::string desc: rec.second.first)
-      out << desc << "\n";
+    for (std::string desc : rec.second.first) out << desc << "\n";
     out << "\\cite{" << rec.first << "}\n";
   }
-  out << "\\end{itemize}\n" << "\\bibliographystyle{acm}\n" << "\\bibliography{"
-      << bibfile << "}\n" << "\\end{document}\n";
+  out << "\\end{itemize}\n"
+      << "\\bibliographystyle{acm}\n"
+      << "\\bibliography{" << bibfile << "}\n"
+      << "\\end{document}\n";
 }
 
-void LiteratureManager::writeBibTex(std::ostream &out)
-{
-  for(Records::value_type rec: records)
-  {
+void LiteratureManager::writeBibTex(std::ostream &out) {
+  for (Records::value_type rec : records) {
     out << rec.second.second << std::endl;
   }
 }
 
-std::ostream& schnek::operator<<(std::ostream &out,
-    const schnek::LiteratureReference &ref)
-{
+std::ostream &schnek::operator<<(std::ostream &out, const schnek::LiteratureReference &ref) {
   out << "@" << ref.getPublicationTypeString() << "{" << ref.getBibKey();
   if (ref.getAuthor() != "") out << ",\n  author={" << ref.getAuthor() << "}";
   if (ref.getTitle() != "") out << ",\n  title={" << ref.getTitle() << "}";
-  if (ref.getJournal() != "") out << ",\n  journal={" << ref.getJournal()
-      << "}";
-  if (ref.getBooktitle() != "") out << ",\n  booktitle={" << ref.getBooktitle()
-      << "}";
-  if (ref.getEdition() != "") out << ",\n  edition={" << ref.getEdition()
-      << "}";
+  if (ref.getJournal() != "") out << ",\n  journal={" << ref.getJournal() << "}";
+  if (ref.getBooktitle() != "") out << ",\n  booktitle={" << ref.getBooktitle() << "}";
+  if (ref.getEdition() != "") out << ",\n  edition={" << ref.getEdition() << "}";
   if (ref.getVolume() != "") out << ",\n  volume={" << ref.getVolume() << "}";
-  if (ref.getChapter() != "") out << ",\n  chapter={" << ref.getChapter()
-      << "}";
+  if (ref.getChapter() != "") out << ",\n  chapter={" << ref.getChapter() << "}";
   if (ref.getNumber() != "") out << ",\n  number={" << ref.getNumber() << "}";
   if (ref.getMonth() != "") out << ",\n  month={" << ref.getMonth() << "}";
   if (ref.getYear() != "") out << ",\n  year={" << ref.getYear() << "}";
   if (ref.getPages() != "") out << ",\n  pages={" << ref.getPages() << "}";
   if (ref.getEditor() != "") out << ",\n  editor={" << ref.getEditor() << "}";
   if (ref.getSeries() != "") out << ",\n  series={" << ref.getSeries() << "}";
-  if (ref.getInstitution() != "") out << ",\n  institution={"
-      << ref.getInstitution() << "}";
-  if (ref.getOrganization() != "") out << ",\n  organization={"
-      << ref.getOrganization() << "}";
+  if (ref.getInstitution() != "") out << ",\n  institution={" << ref.getInstitution() << "}";
+  if (ref.getOrganization() != "") out << ",\n  organization={" << ref.getOrganization() << "}";
   if (ref.getSchool() != "") out << ",\n  school={" << ref.getSchool() << "}";
-  if (ref.getPublisher() != "") out << ",\n  publisher={" << ref.getPublisher()
-      << "}";
-  if (ref.getAddress() != "") out << ",\n  address={" << ref.getAddress()
-      << "}";
+  if (ref.getPublisher() != "") out << ",\n  publisher={" << ref.getPublisher() << "}";
+  if (ref.getAddress() != "") out << ",\n  address={" << ref.getAddress() << "}";
 
   if (ref.getAnnote() != "") out << ",\n  annote={" << ref.getAnnote() << "}";
-  if (ref.getCrossref() != "") out << ",\n  crossref={" << ref.getCrossref()
-      << "}";
+  if (ref.getCrossref() != "") out << ",\n  crossref={" << ref.getCrossref() << "}";
   if (ref.getEprint() != "") out << ",\n  eprint={" << ref.getEprint() << "}";
-  if (ref.getHowpublished() != "") out << ",\n  howpublished={"
-      << ref.getHowpublished() << "}";
+  if (ref.getHowpublished() != "") out << ",\n  howpublished={" << ref.getHowpublished() << "}";
 
   if (ref.getKey() != "") out << ",\n  key={" << ref.getKey() << "}";
   if (ref.getNote() != "") out << ",\n  note={" << ref.getNote() << "}";
@@ -218,5 +191,4 @@ std::ostream& schnek::operator<<(std::ostream &out,
 
   out << "\n}\n\n";
   return out;
-
 }

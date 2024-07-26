@@ -27,8 +27,8 @@
 #ifndef SCHNEK_MPISUBDIVISION_HPP
 #define SCHNEK_MPISUBDIVISION_HPP
 
-#include "domainsubdivision.hpp"
 #include "../config.hpp"
+#include "domainsubdivision.hpp"
 
 #ifdef SCHNEK_HAVE_MPI
 
@@ -36,23 +36,23 @@
 
 namespace schnek {
 
-/** @brief a boundary class for multiple processor runs
- *
- * Is designed to be exchanged via the MPI protocol.
- * Here splitting is performed in both spatial directions.
- */
-template<class GridType>
-class MPICartSubdivision : public DomainSubdivision<GridType>
-{
-  public:
+  /** @brief a boundary class for multiple processor runs
+   *
+   * Is designed to be exchanged via the MPI protocol.
+   * Here splitting is performed in both spatial directions.
+   */
+  template <class GridType>
+  class MPICartSubdivision : public DomainSubdivision<GridType> {
+      public:
     typedef typename DomainSubdivision<GridType>::LimitType LimitType;
     typedef typename GridType::value_type value_type;
     typedef typename DomainSubdivision<GridType>::DomainType DomainType;
     typedef typename DomainSubdivision<GridType>::BoundaryType BoundaryType;
     typedef typename DomainSubdivision<GridType>::BufferType BufferType;
 
-    enum {Rank = GridType::Rank};
-  protected:
+    enum { Rank = GridType::Rank };
+
+      protected:
     /// The number of processes
     int ComSize;
 
@@ -62,10 +62,10 @@ class MPICartSubdivision : public DomainSubdivision<GridType>
     /// The Comm object referring to the cartesian process grid
     MPI_Comm comm;
 
-    LimitType prevcoord; ///< The ranks of the neighbour processes towards the lower boundary
-    LimitType nextcoord; ///< The ranks of the neighbour processes towards the higher boundary
+    LimitType prevcoord;  ///< The ranks of the neighbour processes towards the lower boundary
+    LimitType nextcoord;  ///< The ranks of the neighbour processes towards the higher boundary
 
-    ///dimensions
+    /// dimensions
     int dims[Rank];
     /// The cartesian coordinates of this process
     int mycoord[Rank];
@@ -75,23 +75,24 @@ class MPICartSubdivision : public DomainSubdivision<GridType>
      */
     int exchSize[Rank];
 
-    value_type *sendarr[Rank]; ///< send buffers for exchanging data
-    value_type *recvarr[Rank]; ///< receive buffers for exchanging data
+    value_type *sendarr[Rank];  ///< send buffers for exchanging data
+    value_type *recvarr[Rank];  ///< receive buffers for exchanging data
 
     /// The size of the scalar fields when reducing
     int scalarSize;
 
     DomainType globalDomain;
-  public:
+
+      public:
     using DomainSubdivision<GridType>::init;
     using DomainSubdivision<GridType>::exchange;
-    ///default constructor
+    /// default constructor
     MPICartSubdivision();
 
     /// Virtual destructor deleting all the allocated arrays
     ~MPICartSubdivision();
 
-    ///initialize
+    /// initialize
     void init(const LimitType &low, const LimitType &high, int delta) override;
 
     /// Return the global domain size excluding ghost cells
@@ -142,7 +143,7 @@ class MPICartSubdivision : public DomainSubdivision<GridType>
     int sumReduce(int val) const override;
 
     /// The process with the rank zero is designated master process
-    bool master() const override { return ComRank==0; }
+    bool master() const override { return ComRank == 0; }
 
     /// Returns the comm rank as given by mpi
     int procnum() const override { return ComRank; }
@@ -150,7 +151,7 @@ class MPICartSubdivision : public DomainSubdivision<GridType>
     /// Return the total number of processes
     int procCount() const override { return ComSize; }
 
-    ///returns an ID, which consists of the Dimensions and coordinates
+    /// returns an ID, which consists of the Dimensions and coordinates
     int getUniqueId() const override;
 
     /** Returns true if this process is on the lower bound of the
@@ -163,7 +164,7 @@ class MPICartSubdivision : public DomainSubdivision<GridType>
      * @return A boolean indicating if this process is on the lower boud of the
      * global domain
      */
-    bool isBoundLo(size_t dim) override { return mycoord[dim]==0; }
+    bool isBoundLo(size_t dim) override { return mycoord[dim] == 0; }
 
     /** Returns true if this process is on the upper bound of the
      * global domain.
@@ -175,22 +176,18 @@ class MPICartSubdivision : public DomainSubdivision<GridType>
      * @return A boolean indicating if this process is on the upper boud of the
      * global domain
      */
-    bool isBoundHi(size_t dim) override { return mycoord[dim]==dims[dim]-1; }
-};
+    bool isBoundHi(size_t dim) override { return mycoord[dim] == dims[dim] - 1; }
+  };
 
-template<typename value_type>
-struct MpiValueType
-{
+  template <typename value_type>
+  struct MpiValueType {
     static const MPI_Datatype value;
-};
+  };
 
-} // namespace schnek
-
+}  // namespace schnek
 
 #include "mpisubdivision.t"
 
-#endif // HAVE_MPI
+#endif  // HAVE_MPI
 
-#endif // SCHNEK_MPISUBDIVISION_HPP
-
-
+#endif  // SCHNEK_MPISUBDIVISION_HPP

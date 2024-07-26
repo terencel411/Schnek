@@ -27,42 +27,38 @@
 #ifndef SCHNEK_OPERATORS_HPP_
 #define SCHNEK_OPERATORS_HPP_
 
-#include "expression.hpp"
-#include "../util/logger.hpp"
-
-#include <memory>
 #include <cmath>
+#include <memory>
+
+#include "../util/logger.hpp"
+#include "expression.hpp"
 
 #undef LOGLEVEL
 #define LOGLEVEL 0
 
 namespace schnek {
-namespace expression {
+  namespace expression {
 
-  template<class vtype>
-  struct OperatorId
-  {
+    template <class vtype>
+    struct OperatorId {
       static vtype eval(vtype val);
-  };
+    };
 
-  template<class vtype>
-  struct OperatorNeg
-  {
+    template <class vtype>
+    struct OperatorNeg {
       static vtype eval(vtype val);
-  };
+    };
 
-  template<class vtype>
-  struct OperatorInv
-  {
+    template <class vtype>
+    struct OperatorInv {
       static vtype eval(vtype val);
-  };
+    };
 
-  template<class vtype>
-  struct OperatorSubtract;
+    template <class vtype>
+    struct OperatorSubtract;
 
-  template<class vtype>
-  struct OperatorAdd
-  {
+    template <class vtype>
+    struct OperatorAdd {
       enum { isPositive = true };
       typedef OperatorAdd<vtype> Positive;
       typedef OperatorSubtract<vtype> Negative;
@@ -70,11 +66,10 @@ namespace expression {
 
       static vtype eval(vtype val1, vtype val2);
       static typename Expression<vtype>::pExpression negate(typename Expression<vtype>::pExpression val);
-  };
+    };
 
-  template<class vtype>
-  struct OperatorSubtract
-  {
+    template <class vtype>
+    struct OperatorSubtract {
       enum { isPositive = false };
       typedef OperatorAdd<vtype> Positive;
       typedef OperatorSubtract<vtype> Negative;
@@ -82,14 +77,13 @@ namespace expression {
 
       static vtype eval(vtype val1, vtype val2);
       static typename Expression<vtype>::pExpression negate(typename Expression<vtype>::pExpression val);
-  };
+    };
 
-  template<class vtype>
-  struct OperatorDivide;
+    template <class vtype>
+    struct OperatorDivide;
 
-  template<class vtype>
-  struct OperatorMultiply
-  {
+    template <class vtype>
+    struct OperatorMultiply {
       enum { isPositive = true };
       typedef OperatorMultiply<vtype> Positive;
       typedef OperatorDivide<vtype> Negative;
@@ -97,11 +91,10 @@ namespace expression {
 
       static vtype eval(vtype val1, vtype val2);
       static typename Expression<vtype>::pExpression negate(typename Expression<vtype>::pExpression val);
-  };
+    };
 
-  template<class vtype>
-  struct OperatorDivide
-  {
+    template <class vtype>
+    struct OperatorDivide {
       enum { isPositive = false };
       typedef OperatorMultiply<vtype> Positive;
       typedef OperatorDivide<vtype> Negative;
@@ -109,11 +102,10 @@ namespace expression {
 
       static vtype eval(vtype val1, vtype val2);
       static typename Expression<vtype>::pExpression negate(typename Expression<vtype>::pExpression val);
-  };
+    };
 
-  template<class vtype>
-  struct OperatorExponent
-  {
+    template <class vtype>
+    struct OperatorExponent {
       enum { isPositive = true };
       typedef OperatorExponent<vtype> Positive;
       typedef OperatorExponent<vtype> Negative;
@@ -121,118 +113,118 @@ namespace expression {
 
       static vtype eval(vtype val1, vtype val2);
       static typename Expression<vtype>::pExpression negate(typename Expression<vtype>::pExpression val);
-  };
+    };
 
-  template<class vtype>
-  vtype OperatorId<vtype>::eval(vtype val)
-  {
+    template <class vtype>
+    vtype OperatorId<vtype>::eval(vtype val) {
       SCHNEK_TRACE_LOG(5, "OperatorId<vtype>::eval(" << val << ")")
       return val;
-  }
+    }
 
-  template<class vtype>
-  vtype OperatorNeg<vtype>::eval(vtype val)
-  {
+    template <class vtype>
+    vtype OperatorNeg<vtype>::eval(vtype val) {
       SCHNEK_TRACE_LOG(5, "OperatorNeg<vtype>::eval(" << val << ")")
       return -val;
-  }
+    }
 
-  template<class vtype>
-  vtype OperatorInv<vtype>::eval(vtype val)
-  {
+    template <class vtype>
+    vtype OperatorInv<vtype>::eval(vtype val) {
       SCHNEK_TRACE_LOG(5, "OperatorInv<vtype>::eval(" << val << ")")
-      return 1/val;
-  }
+      return 1 / val;
+    }
 
-  template<class vtype>
-  vtype OperatorAdd<vtype>::eval(vtype val1, vtype val2)
-  {
+    template <class vtype>
+    vtype OperatorAdd<vtype>::eval(vtype val1, vtype val2) {
       SCHNEK_TRACE_LOG(5, "OperatorAdd<vtype>::eval(" << val1 << ", " << val2 << ")")
       return val1 + val2;
-  }
+    }
 
-  template<class vtype>
-  vtype OperatorSubtract<vtype>::eval(vtype val1, vtype val2)
-  {
+    template <class vtype>
+    vtype OperatorSubtract<vtype>::eval(vtype val1, vtype val2) {
       SCHNEK_TRACE_LOG(5, "OperatorSubtract<vtype>::eval(" << val1 << ", " << val2 << ")")
       return val1 - val2;
-  }
+    }
 
-  template<class vtype>
-  vtype OperatorMultiply<vtype>::eval(vtype val1, vtype val2)
-  {
+    template <class vtype>
+    vtype OperatorMultiply<vtype>::eval(vtype val1, vtype val2) {
       SCHNEK_TRACE_LOG(5, "OperatorMultiply<vtype>::eval(" << val1 << ", " << val2 << ")")
       return val1 * val2;
-  }
+    }
 
-  template<class vtype>
-  vtype OperatorDivide<vtype>::eval(vtype val1, vtype val2)
-  {
+    template <class vtype>
+    vtype OperatorDivide<vtype>::eval(vtype val1, vtype val2) {
       SCHNEK_TRACE_LOG(5, "OperatorDivide<vtype>::eval(" << val1 << ", " << val2 << ")")
       return val1 / val2;
-  }
+    }
 
-  template<class vtype>
-  vtype OperatorExponent<vtype>::eval(vtype val1, vtype val2)
-  {
+    template <class vtype>
+    vtype OperatorExponent<vtype>::eval(vtype val1, vtype val2) {
       SCHNEK_TRACE_LOG(5, "OperatorExponent<vtype>::eval(" << val1 << ", " << val2 << ")")
-      return pow(val1,val2);
-  }
+      return pow(val1, val2);
+    }
 
-
-  template<class vtype>
-  typename Expression<vtype>::pExpression OperatorAdd<vtype>::negate(typename Expression<vtype>::pExpression val)
-  {
+    template <class vtype>
+    typename Expression<vtype>::pExpression OperatorAdd<vtype>::negate(typename Expression<vtype>::pExpression val) {
       return std::make_shared<UnaryOp<OperatorNeg<vtype>, vtype> >(val);
-  }
+    }
 
-  template<class vtype>
-  typename Expression<vtype>::pExpression OperatorSubtract<vtype>::negate(typename Expression<vtype>::pExpression val)
-  {
+    template <class vtype>
+    typename Expression<vtype>::pExpression OperatorSubtract<vtype>::negate(typename Expression<vtype>::pExpression val
+    ) {
       return std::make_shared<UnaryOp<OperatorNeg<vtype>, vtype> >(val);
-  }
+    }
 
-  template<class vtype>
-  typename Expression<vtype>::pExpression OperatorMultiply<vtype>::negate(typename Expression<vtype>::pExpression val)
-  {
+    template <class vtype>
+    typename Expression<vtype>::pExpression OperatorMultiply<vtype>::negate(typename Expression<vtype>::pExpression val
+    ) {
       return std::make_shared<UnaryOp<OperatorInv<vtype>, vtype> >(val);
-  }
+    }
 
-  template<class vtype>
-  typename Expression<vtype>::pExpression OperatorDivide<vtype>::negate(typename Expression<vtype>::pExpression val)
-  {
+    template <class vtype>
+    typename Expression<vtype>::pExpression OperatorDivide<vtype>::negate(typename Expression<vtype>::pExpression val) {
       return std::make_shared<UnaryOp<OperatorInv<vtype>, vtype> >(val);
-  }
+    }
 
-  template<class vtype>
-  typename Expression<vtype>::pExpression OperatorExponent<vtype>::negate(typename Expression<vtype>::pExpression val)
-  {
+    template <class vtype>
+    typename Expression<vtype>::pExpression OperatorExponent<vtype>::negate(typename Expression<vtype>::pExpression val
+    ) {
       return val;
-  }
+    }
 
+    template <>
+    inline std::string OperatorNeg<std::string>::eval(std::string) {
+      return "";
+    }
 
-  template<>
-  inline std::string OperatorNeg<std::string>::eval(std::string) { return ""; }
+    template <>
+    inline std::string OperatorInv<std::string>::eval(std::string) {
+      return "";
+    }
 
-  template<>
-  inline std::string OperatorInv<std::string>::eval(std::string) { return ""; }
+    template <>
+    inline std::string OperatorSubtract<std::string>::eval(std::string, std::string) {
+      return "";
+    }
 
-  template<>
-  inline std::string OperatorSubtract<std::string>::eval(std::string, std::string) { return ""; }
+    template <>
+    inline std::string OperatorMultiply<std::string>::eval(std::string, std::string) {
+      return "";
+    }
 
-  template<>
-  inline std::string OperatorMultiply<std::string>::eval(std::string, std::string) { return ""; }
+    template <>
+    inline std::string OperatorDivide<std::string>::eval(std::string, std::string) {
+      return "";
+    }
 
-  template<>
-  inline std::string OperatorDivide<std::string>::eval(std::string, std::string) { return ""; }
+    template <>
+    inline std::string OperatorExponent<std::string>::eval(std::string, std::string) {
+      return "";
+    }
 
-  template<>
-  inline std::string OperatorExponent<std::string>::eval(std::string, std::string) { return ""; }
-
-} // namespace expression
-} // namespace schnek
+  }  // namespace expression
+}  // namespace schnek
 
 #undef LOGLEVEL
 #define LOGLEVEL 0
 
-#endif // SCHNEK_OPERATORS_HPP_
+#endif  // SCHNEK_OPERATORS_HPP_

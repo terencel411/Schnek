@@ -35,39 +35,39 @@
 #ifndef SCHNEK_DOMAINSUBDIVISION_HPP
 #define SCHNEK_DOMAINSUBDIVISION_HPP
 
-#include "boundary.hpp"
-
 #include <memory>
+
+#include "boundary.hpp"
 
 namespace schnek {
 
-/** @brief Interface for wrapping and exchanging boundaries .
- *
- *  This interface is used to exchange the boundaries of grids
- *  between processes. Any implementation should treat the fields as periodic.
- *  The boundary conditions can be appplied afterwards.
- */
-template<class GridType>
-class DomainSubdivision {
-  public:
-    enum {Rank = GridType::Rank};
+  /** @brief Interface for wrapping and exchanging boundaries .
+   *
+   *  This interface is used to exchange the boundaries of grids
+   *  between processes. Any implementation should treat the fields as periodic.
+   *  The boundary conditions can be appplied afterwards.
+   */
+  template <class GridType>
+  class DomainSubdivision {
+      public:
+    enum { Rank = GridType::Rank };
 
     typedef typename GridType::IndexType LimitType;
     typedef typename GridType::value_type value_type;
     typedef typename GridType::CheckingPolicyType CheckingPolicyType;
     typedef typename GridType::StoragePolicyType StoragePolicyType;
 
-    //typedef Grid<unsigned char, 1, GridAssertCheck, LazyArrayGridStorage> BufferType;
+    // typedef Grid<unsigned char, 1, GridAssertCheck, LazyArrayGridStorage> BufferType;
     typedef Grid<unsigned char, 1, GridAssertCheck> BufferType;
 
     typedef Range<int, Rank> DomainType;
     typedef Boundary<Rank> BoundaryType;
     typedef std::shared_ptr<BoundaryType> pBoundaryType;
 
-  protected:
+      protected:
     pBoundaryType bounds;
-  public:
 
+      public:
     /// Default constructor
     DomainSubdivision() {}
 
@@ -90,26 +90,19 @@ class DomainSubdivision {
     /** Convenience method.
      *  Initialise the boundary with the extent of a grid.
      */
-    void init(const DomainType &domain, int delta)
-    {
-      init(domain.getLo(), domain.getHi(), delta);
-    }
+    void init(const DomainType &domain, int delta) { init(domain.getLo(), domain.getHi(), delta); }
 
     /** Convenience method.
      *  Initialise the boundary with the extent of the grid.
      */
-    void init(const GridType &grid, int delta)
-    {
-      init(grid.getLo(), grid.getHi(), delta);
-    }
+    void init(const GridType &grid, int delta) { init(grid.getLo(), grid.getHi(), delta); }
 
     /** Convenience method.
      *  Initialise the boundary with the extent of the grid.
      */
-    void init(const LimitType &size, int delta)
-    {
+    void init(const LimitType &size, int delta) {
       LimitType sizem(size);
-      for (size_t i=0; i<Rank; ++i) --sizem[i];
+      for (size_t i = 0; i < Rank; ++i) --sizem[i];
       init(LimitType(0), sizem, delta);
     }
 
@@ -119,43 +112,38 @@ class DomainSubdivision {
     /// Return the local domain size
     const DomainType &getDomain() const { return bounds->getDomain(); }
     /// Return the minimum of the local domain
-    const LimitType &getLo() const {return bounds->getDomain().getLo();}
+    const LimitType &getLo() const { return bounds->getDomain().getLo(); }
     /// Return the maximum of the local domain
-    const LimitType &getHi() const {return bounds->getDomain().getHi();}
+    const LimitType &getHi() const { return bounds->getDomain().getHi(); }
 
     /// Return the local inner domain size
     DomainType getInnerDomain() const { return bounds->getInnerDomain(); }
     /// Return the minimum of the local inner domain
-    LimitType getInnerLo() const {return bounds->getInnerDomain().getLo();}
+    LimitType getInnerLo() const { return bounds->getInnerDomain().getLo(); }
     /// Return the maximum of the local inner domain
-    LimitType getInnerHi() const {return bounds->getInnerDomain().getHi();}
-
+    LimitType getInnerHi() const { return bounds->getInnerDomain().getHi(); }
 
     /// Return the local inner physical extent
-    template<typename T, template<size_t> class CheckingPolicy>
-    Range<T, Rank, CheckingPolicy> getInnerExtent(const Range<T, Rank, CheckingPolicy> &globalExtent) const
-    {
+    template <typename T, template <size_t> class CheckingPolicy>
+    Range<T, Rank, CheckingPolicy> getInnerExtent(const Range<T, Rank, CheckingPolicy> &globalExtent) const {
       const DomainType &globalGridSize = this->getGlobalDomain();
       typename Range<T, Rank, CheckingPolicy>::LimitType localDomainMin, localDomainMax;
-      for (size_t i=0; i<Rank; ++i)
-      {
+      for (size_t i = 0; i < Rank; ++i) {
         const T &lo = globalExtent.getLo()[i];
-        T dx = (globalExtent.getHi()[i]-lo) / (T)(globalGridSize.getHi()[i] - globalGridSize.getLo()[i] + 1);
-        localDomainMin[i] = lo + this->getInnerLo()[i]*dx;
-        localDomainMax[i] = lo + (this->getInnerHi()[i] + 1)*dx;
+        T dx = (globalExtent.getHi()[i] - lo) / (T)(globalGridSize.getHi()[i] - globalGridSize.getLo()[i] + 1);
+        localDomainMin[i] = lo + this->getInnerLo()[i] * dx;
+        localDomainMax[i] = lo + (this->getInnerHi()[i] + 1) * dx;
       }
-      return Range<T, Rank, CheckingPolicy>(localDomainMin,localDomainMax);
+      return Range<T, Rank, CheckingPolicy>(localDomainMin, localDomainMax);
     }
 
     /** Return the local inner physical extent
      *
      * Convenience method. This assumes the lower bound of the global extent is 0.0
      */
-    template<typename T, template<size_t> class CheckingPolicy>
-    Range<T, Rank, CheckingPolicy> getInnerExtent(const Array<T, Rank, CheckingPolicy> &globalExtent) const
-    {
-      return this->getInnerExtent(
-          Range<T, Rank, CheckingPolicy>(Array<T, Rank, CheckingPolicy>(0), globalExtent));
+    template <typename T, template <size_t> class CheckingPolicy>
+    Range<T, Rank, CheckingPolicy> getInnerExtent(const Array<T, Rank, CheckingPolicy> &globalExtent) const {
+      return this->getInnerExtent(Range<T, Rank, CheckingPolicy>(Array<T, Rank, CheckingPolicy>(0), globalExtent));
     }
 
     /** @brief Exchange the boundaries of a field function
@@ -194,7 +182,6 @@ class DomainSubdivision {
     /// Return the minimum of a single value over all the processes
     virtual int minReduce(int) const = 0;
 
-
     /// Return true if this is the master process and false otherwise
     virtual bool master() const = 0;
 
@@ -226,31 +213,31 @@ class DomainSubdivision {
     virtual bool isBoundHi(size_t dim) = 0;
 
     void exchange(GridType &grid) {
-      for (size_t i=0; i<Rank; ++i) exchange(grid,i);
+      for (size_t i = 0; i < Rank; ++i) exchange(grid, i);
     }
 
     void accumulate(GridType &grid) {
-      for (size_t i=0; i<Rank; ++i) accumulate(grid,i);
+      for (size_t i = 0; i < Rank; ++i) accumulate(grid, i);
     }
-};
+  };
 
-template<class GridType>
-class SerialSubdivision : public DomainSubdivision<GridType>
-{
-  public:
+  template <class GridType>
+  class SerialSubdivision : public DomainSubdivision<GridType> {
+      public:
     typedef typename Boundary<GridType::Rank>::LimitType LimitType;
     typedef typename GridType::value_type value_type;
     typedef typename DomainSubdivision<GridType>::DomainType DomainType;
     typedef typename DomainSubdivision<GridType>::BoundaryType BoundaryType;
     typedef typename DomainSubdivision<GridType>::BufferType BufferType;
 
-  private:
+      private:
     /// The positions of the lower corner of the local piece of the grid
     LimitType Low;
 
     /// The positions of the upper corner of the local piece of the grid
     LimitType High;
-  public:
+
+      public:
     using DomainSubdivision<GridType>::init;
     using DomainSubdivision<GridType>::exchange;
 
@@ -316,7 +303,7 @@ class SerialSubdivision : public DomainSubdivision<GridType>
     /// Return the total number of processes
     int procCount() const { return 1; }
 
-    ///returns an ID, which consists of the Dimensions and coordinates
+    /// returns an ID, which consists of the Dimensions and coordinates
     int getUniqueId() const { return 0; }
 
     /** Returns true if this process is on the lower bound of the
@@ -342,15 +329,12 @@ class SerialSubdivision : public DomainSubdivision<GridType>
      * global domain
      */
     bool isBoundHi(size_t) { return true; }
+  };
 
-};
+  // DomainSubdivision
 
-
-//DomainSubdivision
-
-} // namespace schnek
+}  // namespace schnek
 
 #include "domainsubdivision.t"
 
-#endif // SCHNEK_DOMAINSUBDIVISION_HPP
-
+#endif  // SCHNEK_DOMAINSUBDIVISION_HPP

@@ -24,20 +24,20 @@
  *
  */
 
-#include <sstream>
 #include "exceptions.hpp"
+
+#include <sstream>
 
 using namespace schnek;
 
-ScheckException::ScheckException(const std::string& file, long line,
-             const std::string& function,
-             const std::string& message_) {
+ScheckException::ScheckException(
+    const std::string& file, long line, const std::string& function, const std::string& message_
+) {
   std::ostringstream msg_stream;
-  msg_stream << function << std::endl
-      << file << "(" << line << "): " << message_ << std::endl;
+  msg_stream << function << std::endl << file << "(" << line << "): " << message_ << std::endl;
   message = msg_stream.str();
 }
 
-const char* ScheckException::what() const throw () {
-    return message.c_str();
+const char* ScheckException::what() const throw() {
+  return message.c_str();
 }

@@ -31,14 +31,8 @@
 
 namespace schnek {
 
-void equalFactors
-  (
-    int number,
-    int nfact,
-    std::vector<int> &factors,
-    std::vector<int> &weights
-  );
+  void equalFactors(int number, int nfact, std::vector<int> &factors, std::vector<int> &weights);
 
-} // namespace schnek
+}  // namespace schnek
 
-#endif // SCHNEK_FACTOR_HPP_
+#endif  // SCHNEK_FACTOR_HPP_

@@ -24,70 +24,55 @@
  *
  */
 
-
 #ifndef SCHNEK_DATABUFFER_HPP_
 #define SCHNEK_DATABUFFER_HPP_
 
 #include "../grid/grid.hpp"
-#include "../grid/gridstorage.hpp"
 #include "../grid/gridcheck.hpp"
+#include "../grid/gridstorage.hpp"
 
 namespace schnek {
-template<class T>
-class DataBuffer
-{
-  public:
-    //typedef Grid<unsigned char, 1, GridAssertCheck, LazyArrayGridStorage> BufferType;
+  template <class T>
+  class DataBuffer {
+      public:
+    // typedef Grid<unsigned char, 1, GridAssertCheck, LazyArrayGridStorage> BufferType;
     typedef Grid<unsigned char, 1, GridAssertCheck> BufferType;
-  private:
+
+      private:
     BufferType buffer;
-  public:
-    class iterator : public std::iterator<std::forward_iterator_tag, T>
-     {
-       private:
-         friend class DataBuffer;
-         unsigned char *data;
 
-         iterator(unsigned char *data_) : data(data_) {}
+      public:
+    class iterator : public std::iterator<std::forward_iterator_tag, T> {
+        private:
+      friend class DataBuffer;
+      unsigned char* data;
 
-       public:
-         iterator() : data(NULL) {}
+      iterator(unsigned char* data_) : data(data_) {}
 
-         iterator(const iterator &it) { data = it.data; }
+        public:
+      iterator() : data(NULL) {}
 
-         iterator& operator++()
-         {
-           data += sizeof(T);
-           return *this;
-         }
+      iterator(const iterator& it) { data = it.data; }
 
-         iterator operator++(int)
-         {
-           iterator tmp(*this);
-           operator++();
-           return tmp;
-         }
+      iterator& operator++() {
+        data += sizeof(T);
+        return *this;
+      }
 
-         bool operator==(const iterator& rhs)
-         {
-           return (data == rhs.data);
-         }
+      iterator operator++(int) {
+        iterator tmp(*this);
+        operator++();
+        return tmp;
+      }
 
-         bool operator!=(const iterator& rhs)
-         {
-           return (data != rhs.data);
-         }
+      bool operator==(const iterator& rhs) { return (data == rhs.data); }
 
-         T& operator*()
-         {
-           return *((T*)(data));
-         }
+      bool operator!=(const iterator& rhs) { return (data != rhs.data); }
 
-         T* operator->()
-         {
-           return (T*)(data);
-         }
-     };
+      T& operator*() { return *((T*)(data)); }
+
+      T* operator->() { return (T*)(data); }
+    };
 
     /** Make the buffer from some data. ContainerType is expected to
      * contain pointers (or iterators) to T.
@@ -95,27 +80,17 @@ class DataBuffer
      * @param first
      * @param last
      */
-    template<class ContainerType>
-    void makeBuffer(ContainerType &container);
+    template <class ContainerType>
+    void makeBuffer(ContainerType& container);
 
-    BufferType &getBuffer()
-    {
-      return buffer;
-    }
+    BufferType& getBuffer() { return buffer; }
 
-    iterator begin()
-    {
-      return iterator(buffer.getRawData());
-    }
+    iterator begin() { return iterator(buffer.getRawData()); }
 
-    iterator end()
-    {
-      return iterator(buffer.getRawData() + buffer.getSize());
-    }
+    iterator end() { return iterator(buffer.getRawData() + buffer.getSize()); }
+  };
 
-};
-
-} // namespace schnek
+}  // namespace schnek
 
 #include "databuffer.t"
 

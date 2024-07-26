@@ -25,38 +25,33 @@
  */
 
 #include "blockparameters.hpp"
+
 #include "dependencies.hpp"
 
 using namespace schnek;
 
-void ParametersGroup::add(pParameter p)
-{
+void ParametersGroup::add(pParameter p) {
   parameters.insert(p->getVariable()->getId());
 }
 
-void ParametersGroup::add(pVariable v)
-{
+void ParametersGroup::add(pVariable v) {
   parameters.insert(v->getId());
 }
 
-bool ParametersGroup::isElement(pParameter p)
-{
+bool ParametersGroup::isElement(pParameter p) {
   return parameters.count(p->getVariable()->getId()) > 0;
 }
 
-bool ParametersGroup::isElement(pVariable v)
-{
+bool ParametersGroup::isElement(pVariable v) {
   return parameters.count(v->getId()) > 0;
 }
 
-bool ParametersGroup::hasElements(std::set<long> &ids)
-{
+bool ParametersGroup::hasElements(std::set<long> &ids) {
   ids.erase(parameters.begin(), parameters.end());
   return ids.empty();
 }
 
-//bool Parameter::depsAllowed(pDependencyMap deps)
+// bool Parameter::depsAllowed(pDependencyMap deps)
 //{
-//  return deps->hasRoots(variable, allowedDeps);
-//}
-
+//   return deps->hasRoots(variable, allowedDeps);
+// }

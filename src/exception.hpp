@@ -30,7 +30,6 @@
 /** The base class for Schnek exceptions
  *
  */
-class SchnekException
-{};
+class SchnekException {};
 
-#endif // SCHNEK_EXCEPTION_HPP_
+#endif  // SCHNEK_EXCEPTION_HPP_

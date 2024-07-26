@@ -27,8 +27,8 @@
 #ifndef SCHNEK_DEPENDENCIES_HPP_
 #define SCHNEK_DEPENDENCIES_HPP_
 
-#include "variables.hpp"
 #include "blockparameters.hpp"
+#include "variables.hpp"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -37,32 +37,30 @@
 
 #pragma GCC diagnostic pop
 
-#include <memory>
-#include <map>
-#include <set>
 #include <list>
+#include <map>
+#include <memory>
+#include <set>
 
 namespace schnek {
 
-class DependencyUpdater;
+  class DependencyUpdater;
 
-/** DependencyMap contains a directed graph whose edges are oriented from the
- *  independent to the dependent variables.
- *
- */
-class DependencyMap
-{
-  private:
+  /** DependencyMap contains a directed graph whose edges are oriented from the
+   *  independent to the dependent variables.
+   *
+   */
+  class DependencyMap {
+      private:
     typedef std::set<long> DependencySet;
-    struct VarInfo
-    {
+    struct VarInfo {
       pVariable v;
       DependencySet dependsOn;
       DependencySet modifies;
       int counter;
       VarInfo() {}
       VarInfo(pVariable v_, DependencySet dependsOn_, DependencySet modifies_)
-        : v(v_), dependsOn(dependsOn_), modifies(modifies_), counter(0) {
+          : v(v_), dependsOn(dependsOn_), modifies(modifies_), counter(0) {
         assert(v);
       }
     };
@@ -70,7 +68,7 @@ class DependencyMap
     typedef std::map<long, VarInfo> DepMap;
 
     /// This is used internally. The pointers are to VarInfo objects stored in the dependencies map.
-    typedef std::map<long, VarInfo*> RefDepMap;
+    typedef std::map<long, VarInfo *> RefDepMap;
     typedef std::shared_ptr<RefDepMap> pRefDepMap;
 
     typedef std::set<pVariable> VariableSet;
@@ -92,20 +90,19 @@ class DependencyMap
     pRefDepMap makeUpdateFollowers(const VariableSet &independentVars, pRefDepMap reverseDeps);
     void makeUpdateOrder(pRefDepMap deps, VariableList &updateList);
 
-  public:
+      public:
     DependencyMap(const pBlockVariables vars);
     void recreate() { constructMap(blockVars); }
     pBlockVariables getBlockVariables();
     void updateAll();
 
-//    bool hasRoots(pVariable v, pParametersGroup roots);
-};
+    //    bool hasRoots(pVariable v, pParametersGroup roots);
+  };
 
-typedef std::shared_ptr<DependencyMap> pDependencyMap;
+  typedef std::shared_ptr<DependencyMap> pDependencyMap;
 
-class DependencyUpdater
-{
-  private:
+  class DependencyUpdater {
+      private:
     typedef std::set<pParameter> ParameterSet;
     typedef std::set<pVariable> VariableSet;
     typedef std::list<pVariable> VariableList;
@@ -117,38 +114,39 @@ class DependencyUpdater
 
     pDependencyMap dependencies;
     bool isValid;
-  public:
+
+      public:
     DependencyUpdater(pDependencyMap dependencies_);
     void addIndependent(pParameter v);
     void addDependent(pParameter v);
     void clearDependent();
 
-    template<size_t rank, template<size_t> class CheckingPolicy>
-    void addIndependentArray(Array<pParameter, rank, CheckingPolicy> v)
-    { for (size_t i=0; i<rank; ++i) addIndependent(v[i]); }
+    template <size_t rank, template <size_t> class CheckingPolicy>
+    void addIndependentArray(Array<pParameter, rank, CheckingPolicy> v) {
+      for (size_t i = 0; i < rank; ++i) addIndependent(v[i]);
+    }
 
-    template<size_t rank, template<size_t> class CheckingPolicy>
-    void addDependentArray(Array<pParameter, rank, CheckingPolicy> v)
-    { for (size_t i=0; i<rank; ++i) addDependent(v[i]); }
+    template <size_t rank, template <size_t> class CheckingPolicy>
+    void addDependentArray(Array<pParameter, rank, CheckingPolicy> v) {
+      for (size_t i = 0; i < rank; ++i) addDependent(v[i]);
+    }
 
     /** Updates the dependent variables and all the variables needed to evaluate them.
      *
      *  This method is inline because it is potentially speed critical.
      */
-    void update()
-    {
+    void update() {
       if (!isValid) {
         dependencies->makeUpdateList(independentVars, dependentVars, updateList);
         isValid = true;
       }
-      for(pVariable v: updateList) v->evaluateExpression();
-      for(pParameter p: dependentParameters) p->update();
+      for (pVariable v : updateList) v->evaluateExpression();
+      for (pParameter p : dependentParameters) p->update();
     }
-};
+  };
 
-typedef std::shared_ptr<DependencyUpdater> pDependencyUpdater;
+  typedef std::shared_ptr<DependencyUpdater> pDependencyUpdater;
 
-} // namespace
+}  // namespace schnek
 
-
-#endif // SCHNEK_DEPENDENCIES_HPP_
+#endif  // SCHNEK_DEPENDENCIES_HPP_

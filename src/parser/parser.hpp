@@ -28,42 +28,40 @@
 #define SCHNEK_PARSER_HPP_
 
 #include <iostream>
-#include "parsersettings.hpp"
+
 #include "../variables/blockclasses.hpp"
-#include "../variables/variables.hpp"
 #include "../variables/function_expression.hpp"
+#include "../variables/variables.hpp"
+#include "parsersettings.hpp"
 
 namespace schnek {
 
-class Parser {
-  private:
+  class Parser {
+      private:
     VariableStorage variables;
     FunctionRegistry funcReg;
     BlockClasses blockClasses;
-  public:
+
+      public:
     Parser(std::string name, std::string classname, const BlockClasses &blockClasses_)
-      : variables(name, classname), funcReg(), blockClasses(blockClasses_)
-    {}
+        : variables(name, classname), funcReg(), blockClasses(blockClasses_) {}
 
     Parser(const VariableStorage &variables_, const FunctionRegistry &funcReg_)
-      : variables(variables_), funcReg(funcReg_), blockClasses(false)
-    {}
+        : variables(variables_), funcReg(funcReg_), blockClasses(false) {}
 
     Parser(const VariableStorage &variables_, const FunctionRegistry &funcReg_, const BlockClasses &blockClasses_)
-      : variables(variables_), funcReg(funcReg_), blockClasses(blockClasses_)
-    {}
+        : variables(variables_), funcReg(funcReg_), blockClasses(blockClasses_) {}
 
     Parser(const ParserSettings &settings)
-      : variables(settings.variables), funcReg(settings.funcReg), blockClasses(settings.blockClasses)
-    {}
+        : variables(settings.variables), funcReg(settings.funcReg), blockClasses(settings.blockClasses) {}
 
     FunctionRegistry &getFunctionRegistry() { return funcReg; }
     VariableStorage &getVariableStorage() { return variables; }
     BlockClasses &getBlockClasses() { return blockClasses; }
 
     pBlock parse(std::istream &input, std::string filename = "Setup File");
-};
+  };
 
-} // namespace
+}  // namespace schnek
 
-#endif // SCHNEK_PARSER_HPP_
+#endif  // SCHNEK_PARSER_HPP_

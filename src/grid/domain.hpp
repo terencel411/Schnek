@@ -27,155 +27,154 @@
 #ifndef SCHNEK_DOMAIN_H_
 #define SCHNEK_DOMAIN_H_
 
-#include "range.hpp"
-
-#include <memory>
-#include <list>
 #include <iterator>
+#include <list>
+#include <memory>
+
+#include "range.hpp"
 
 namespace schnek {
 
-/*
-/** RecDomain is a rectangular domain that is not bound to any concrete grid data structure.
- *
- *  The rectangular domain is defined by a minimum and maximum. An iterator is provided that
- *  traverses the domain and returns the positions.
- *
-template<
-  int rank,
-  template<int> class CheckingPolicy = ArrayNoArgCheck
->
-class RecDomain : public Range<int, rank, CheckingPolicy>
-{
-  public:
-    typedef typename Range<int, rank, CheckingPolicy>::LimitType LimitType;
-    /// Construct with rectangle minimum and maximum
-    RecDomain(const LimitType &min, const LimitType &max)
-    : Range<int, rank, CheckingPolicy>(min, max) {}
+  /*
+  /** RecDomain is a rectangular domain that is not bound to any concrete grid data structure.
+   *
+   *  The rectangular domain is defined by a minimum and maximum. An iterator is provided that
+   *  traverses the domain and returns the positions.
+   *
+  template<
+    int rank,
+    template<int> class CheckingPolicy = ArrayNoArgCheck
+  >
+  class RecDomain : public Range<int, rank, CheckingPolicy>
+  {
+    public:
+      typedef typename Range<int, rank, CheckingPolicy>::LimitType LimitType;
+      /// Construct with rectangle minimum and maximum
+      RecDomain(const LimitType &min, const LimitType &max)
+      : Range<int, rank, CheckingPolicy>(min, max) {}
 
-    /// Copy constructor
-    RecDomain(const RecDomain &domain) : Range<int, rank, CheckingPolicy>(domain) {}
+      /// Copy constructor
+      RecDomain(const RecDomain &domain) : Range<int, rank, CheckingPolicy>(domain) {}
 
-    /// Assignment operator
-    RecDomain &operator=(const RecDomain &domain)
-    {
-      Range<int, rank, CheckingPolicy>::operator=(domain);
-      return *this;
-    }
+      /// Assignment operator
+      RecDomain &operator=(const RecDomain &domain)
+      {
+        Range<int, rank, CheckingPolicy>::operator=(domain);
+        return *this;
+      }
 
-    /** Forward iterator over the rectangular domain
-     *  Implements operator* and getPos which both return the current iterator position
-     *
-    class iterator : public std::iterator<std::forward_iterator_tag, LimitType> {
-      private:
-        friend class RecDomain;
-        /// Current iterator position
-        LimitType pos;
-        /// Reference to the rectangular domain
-        const RecDomain &domain;
-        /// True if the iterator has reached the end
-        bool atEnd;
+      /** Forward iterator over the rectangular domain
+       *  Implements operator* and getPos which both return the current iterator position
+       *
+      class iterator : public std::iterator<std::forward_iterator_tag, LimitType> {
+        private:
+          friend class RecDomain;
+          /// Current iterator position
+          LimitType pos;
+          /// Reference to the rectangular domain
+          const RecDomain &domain;
+          /// True if the iterator has reached the end
+          bool atEnd;
 
-        /// Constructor called by RecDomain to create the iterator
-        iterator(const RecDomain &domain_, const LimitType &pos_, bool atEnd_=false)
-        : pos(pos_), domain(domain_), atEnd(atEnd_) {}
-        /// Default constructor is declared private for now. (Need to implement assignment first)
-        iterator();
+          /// Constructor called by RecDomain to create the iterator
+          iterator(const RecDomain &domain_, const LimitType &pos_, bool atEnd_=false)
+          : pos(pos_), domain(domain_), atEnd(atEnd_) {}
+          /// Default constructor is declared private for now. (Need to implement assignment first)
+          iterator();
 
-        /// Increments the iterator by one position.
-        void increment()
-        {
-          int d = rank;
-          while (d>0)
+          /// Increments the iterator by one position.
+          void increment()
           {
-            --d;
-            if (++pos[d] > domain.getHi()[d])
+            int d = rank;
+            while (d>0)
             {
-              pos[d] = domain.getLo()[d];
+              --d;
+              if (++pos[d] > domain.getHi()[d])
+              {
+                pos[d] = domain.getLo()[d];
+              }
+              else
+                return;
             }
-            else
-              return;
+            atEnd = true;
           }
-          atEnd = true;
-        }
-      public:
-        /// Copy constructor
-        iterator(const iterator &it) : pos(it.pos), domain(it.domain), atEnd(it.atEnd) {}
+        public:
+          /// Copy constructor
+          iterator(const iterator &it) : pos(it.pos), domain(it.domain), atEnd(it.atEnd) {}
 
-        /// Prefix increment. Increments the iterator by one position.
-        iterator &operator++()
-        {
-          increment();
-          return *this;
-        }
-        /// Postfix increment. Increments the iterator by one position.
-        const iterator operator++(int)
-        {
-          iterator it(*this);
-          increment();
-          return it;
-        }
-        /// Equality test
-        bool operator==(const iterator &it)
-        {
-          return (atEnd==it.atEnd) && (pos==it.pos);
-        }
+          /// Prefix increment. Increments the iterator by one position.
+          iterator &operator++()
+          {
+            increment();
+            return *this;
+          }
+          /// Postfix increment. Increments the iterator by one position.
+          const iterator operator++(int)
+          {
+            iterator it(*this);
+            increment();
+            return it;
+          }
+          /// Equality test
+          bool operator==(const iterator &it)
+          {
+            return (atEnd==it.atEnd) && (pos==it.pos);
+          }
 
-        /// Equality test
-        bool operator!=(const iterator &it) { return !(operator==(it)); }
+          /// Equality test
+          bool operator!=(const iterator &it) { return !(operator==(it)); }
 
-        /// Returns the current iterator position
-        const LimitType& operator*() { return pos; }
+          /// Returns the current iterator position
+          const LimitType& operator*() { return pos; }
 
-        /// Returns the current iterator position
-        const LimitType& getPos() { return pos; }
-    };
+          /// Returns the current iterator position
+          const LimitType& getPos() { return pos; }
+      };
 
-    /// Creates an iterator pointing to the beginning of the rectangle
-    iterator begin() {
-      return iterator(*this, this->getLo());
-    }
+      /// Creates an iterator pointing to the beginning of the rectangle
+      iterator begin() {
+        return iterator(*this, this->getLo());
+      }
 
-    /// Creates an iterator pointing to a position after the end of the rectangle
-    iterator end() {
-      return iterator(*this, this->getLo(), true);
-    }
-};
+      /// Creates an iterator pointing to a position after the end of the rectangle
+      iterator end() {
+        return iterator(*this, this->getLo(), true);
+      }
+  };
 
-*/
+  */
 
-//typedef std::shared_ptr<RecDomain> pRecDomain;
-//
-// /** MultiRecDomain contains a list of RecDomain rectangular domains.
-// *
-// *  New domains can be added by supplying the rectangular domain bounds.
-// */
-//template<int rank>
-//class MultiRecDomain {
-//  private:
-//    /// The list of rectangular domains
-//    std::list<pRecDomain> domains;
-//
-//  public:
-//    /// Default constructor
-//    MultiRecDomain() {}
-//
-//    /// Copy constructor
-//    MultiRecDomain(const MultiRecDomain &dom)
-//    : domains(dom.domains) {}
-//
-//    /// Add a new rectangular domain by supplying the domain bounds.
-//    const Domain &addDomain(const IndexType &min_, const IndexType &max_)
-//    {
-//      pDomain ndom(new Domain(min_, max_));
-//      domains.push_back(ndom);
-//      return *ndom;
-//    }
-//};
-//
-//typedef std::shared_ptr<MultiRecDomain> pMultiRecDomain;
+  // typedef std::shared_ptr<RecDomain> pRecDomain;
+  //
+  //  /** MultiRecDomain contains a list of RecDomain rectangular domains.
+  //  *
+  //  *  New domains can be added by supplying the rectangular domain bounds.
+  //  */
+  // template<int rank>
+  // class MultiRecDomain {
+  //   private:
+  //     /// The list of rectangular domains
+  //     std::list<pRecDomain> domains;
+  //
+  //   public:
+  //     /// Default constructor
+  //     MultiRecDomain() {}
+  //
+  //     /// Copy constructor
+  //     MultiRecDomain(const MultiRecDomain &dom)
+  //     : domains(dom.domains) {}
+  //
+  //     /// Add a new rectangular domain by supplying the domain bounds.
+  //     const Domain &addDomain(const IndexType &min_, const IndexType &max_)
+  //     {
+  //       pDomain ndom(new Domain(min_, max_));
+  //       domains.push_back(ndom);
+  //       return *ndom;
+  //     }
+  // };
+  //
+  // typedef std::shared_ptr<MultiRecDomain> pMultiRecDomain;
 
-} // namespace schnek
+}  // namespace schnek
 
-
-#endif // SCHNEK_DOMAIN_H_
+#endif  // SCHNEK_DOMAIN_H_

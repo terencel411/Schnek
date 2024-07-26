@@ -25,142 +25,104 @@
  */
 
 namespace schnek {
-        
-template<
-  size_t rank,
-  template<size_t> class CheckingPolicy
->
-Boundary<rank,CheckingPolicy>::Boundary() : size(), delta(0)
-{}
 
-template<
-  size_t rank,
-  template<size_t> class CheckingPolicy
->
-Boundary<rank,CheckingPolicy>::Boundary(const LimitType &low, const LimitType &high, int delta_)
-        : size(low, high), delta(delta_)
-{}
+  template <size_t rank, template <size_t> class CheckingPolicy>
+  Boundary<rank, CheckingPolicy>::Boundary() : size(), delta(0) {}
 
-template<
-  size_t rank,
-  template<size_t> class CheckingPolicy
->
-Boundary<rank,CheckingPolicy>::Boundary(DomainType &size_, int delta_)
-        : size(size_), delta(delta_)
-{}
+  template <size_t rank, template <size_t> class CheckingPolicy>
+  Boundary<rank, CheckingPolicy>::Boundary(const LimitType &low, const LimitType &high, int delta_)
+      : size(low, high), delta(delta_) {}
 
-template<
-  size_t rank,
-  template<size_t> class CheckingPolicy
->
-typename Boundary<rank,CheckingPolicy>::DomainType
-        Boundary<rank,CheckingPolicy>::getGhostDomain(size_t dim, bound b)
-{
-  typename DomainType::LimitType boundsLo = size.getLo();
-  typename DomainType::LimitType boundsHi = size.getHi();
+  template <size_t rank, template <size_t> class CheckingPolicy>
+  Boundary<rank, CheckingPolicy>::Boundary(DomainType &size_, int delta_) : size(size_), delta(delta_) {}
 
-  switch (b)
-  {
-    case Min:
-      boundsHi[dim] = boundsLo[dim] + delta - 1;
-      break;
-    case Max:
-    default:
-      boundsLo[dim] = boundsHi[dim] - delta + 1;
-      break;
+  template <size_t rank, template <size_t> class CheckingPolicy>
+  typename Boundary<rank, CheckingPolicy>::DomainType Boundary<rank, CheckingPolicy>::getGhostDomain(
+      size_t dim, bound b
+  ) {
+    typename DomainType::LimitType boundsLo = size.getLo();
+    typename DomainType::LimitType boundsHi = size.getHi();
+
+    switch (b) {
+      case Min:
+        boundsHi[dim] = boundsLo[dim] + delta - 1;
+        break;
+      case Max:
+      default:
+        boundsLo[dim] = boundsHi[dim] - delta + 1;
+        break;
+    }
+    return DomainType(boundsLo, boundsHi);
   }
-  return DomainType(boundsLo, boundsHi);
-}
 
-template<
-  size_t rank,
-  template<size_t> class CheckingPolicy
->
-typename Boundary<rank,CheckingPolicy>::DomainType
-        Boundary<rank,CheckingPolicy>::getGhostSourceDomain(size_t dim, bound b)
-{
-  typename DomainType::LimitType boundsLo = size.getLo();
-  typename DomainType::LimitType boundsHi = size.getHi();
+  template <size_t rank, template <size_t> class CheckingPolicy>
+  typename Boundary<rank, CheckingPolicy>::DomainType Boundary<rank, CheckingPolicy>::getGhostSourceDomain(
+      size_t dim, bound b
+  ) {
+    typename DomainType::LimitType boundsLo = size.getLo();
+    typename DomainType::LimitType boundsHi = size.getHi();
 
-  switch (b)
-  {
-    case Min:
-      boundsLo[dim] = boundsLo[dim] + delta;
-      boundsHi[dim] = boundsLo[dim] + delta - 1;
-      break;
-    case Max:
-    default:
-      boundsHi[dim] = boundsHi[dim] - delta;
-      boundsLo[dim] = boundsHi[dim] - delta + 1;
-      break;
+    switch (b) {
+      case Min:
+        boundsLo[dim] = boundsLo[dim] + delta;
+        boundsHi[dim] = boundsLo[dim] + delta - 1;
+        break;
+      case Max:
+      default:
+        boundsHi[dim] = boundsHi[dim] - delta;
+        boundsLo[dim] = boundsHi[dim] - delta + 1;
+        break;
+    }
+    return DomainType(boundsLo, boundsHi);
   }
-  return DomainType(boundsLo, boundsHi);
-}
 
-
-template<
-  size_t rank,
-  template<size_t> class CheckingPolicy
->
-typename Boundary<rank,CheckingPolicy>::DomainType
-        Boundary<rank,CheckingPolicy>::getBoundaryDomain(size_t dim, bound b, bool stagger)
-{
-  DomainType bounds = size;
-  switch (b)
-  {
-    case Min:
-      bounds.getHi()[dim] = bounds.getLo()[dim] + delta - 1 - int(stagger);
-      break;
-    case Max:
-    default:
-      bounds.getLo()[dim] = bounds.getHi()[dim] - delta + 1;
-      break;
+  template <size_t rank, template <size_t> class CheckingPolicy>
+  typename Boundary<rank, CheckingPolicy>::DomainType Boundary<rank, CheckingPolicy>::getBoundaryDomain(
+      size_t dim, bound b, bool stagger
+  ) {
+    DomainType bounds = size;
+    switch (b) {
+      case Min:
+        bounds.getHi()[dim] = bounds.getLo()[dim] + delta - 1 - int(stagger);
+        break;
+      case Max:
+      default:
+        bounds.getLo()[dim] = bounds.getHi()[dim] - delta + 1;
+        break;
+    }
+    return bounds;
   }
-  return bounds;
-}
 
-template<
-  size_t rank,
-  template<size_t> class CheckingPolicy
->
-typename Boundary<rank,CheckingPolicy>::DomainType
-    Boundary<rank,CheckingPolicy>::getInnerDomain()
-{
-  typename DomainType::LimitType lo = size.getLo();
-  typename DomainType::LimitType hi = size.getHi();
-  for (size_t d=0; d<rank; ++d)
-  {
-    lo[d] += delta;
-    hi[d] -= delta;
+  template <size_t rank, template <size_t> class CheckingPolicy>
+  typename Boundary<rank, CheckingPolicy>::DomainType Boundary<rank, CheckingPolicy>::getInnerDomain() {
+    typename DomainType::LimitType lo = size.getLo();
+    typename DomainType::LimitType hi = size.getHi();
+    for (size_t d = 0; d < rank; ++d) {
+      lo[d] += delta;
+      hi[d] -= delta;
+    }
+    return DomainType(lo, hi);
   }
-  return DomainType(lo,hi);
-}
-        
-template<
-  size_t rank,
-  template<size_t> class CheckingPolicy
->
-template<class GridType>
-SubGrid<GridType, CheckingPolicy> Boundary<rank,CheckingPolicy>::getGhostBoundary(size_t dim, bound b, GridType &grid)
-{
-        DomainType bounds = getGhostDomain(dim, b);
-        return SubGrid<GridType, CheckingPolicy>(bounds.getLo(), bounds.getHi(), grid);
-}
 
-template<
-  size_t rank,
-  template<size_t> class CheckingPolicy
->
-template<
-  typename T,
-  template<size_t> class CheckingPolicy2,
-  template<typename, size_t> class StoragePolicy
->
-SubGrid<Field<T,rank,CheckingPolicy2, StoragePolicy>, CheckingPolicy>
-  Boundary<rank,CheckingPolicy>::getGhostBoundary(size_t dim, bound b, Field<T,rank,CheckingPolicy2,StoragePolicy> &field)
-{
-        DomainType bounds = getBoundaryDomain(dim, b, field.getStagger()[dim]);
-        return SubGrid<Field<T,rank,CheckingPolicy2, StoragePolicy>, CheckingPolicy>(bounds.getLo(), bounds.getHi(), field);
-}
+  template <size_t rank, template <size_t> class CheckingPolicy>
+  template <class GridType>
+  SubGrid<GridType, CheckingPolicy> Boundary<rank, CheckingPolicy>::getGhostBoundary(
+      size_t dim, bound b, GridType &grid
+  ) {
+    DomainType bounds = getGhostDomain(dim, b);
+    return SubGrid<GridType, CheckingPolicy>(bounds.getLo(), bounds.getHi(), grid);
+  }
 
-} // namespace schnek
+  template <size_t rank, template <size_t> class CheckingPolicy>
+  template <typename T, template <size_t> class CheckingPolicy2, template <typename, size_t> class StoragePolicy>
+  SubGrid<Field<T, rank, CheckingPolicy2, StoragePolicy>, CheckingPolicy>
+  Boundary<rank, CheckingPolicy>::getGhostBoundary(
+      size_t dim, bound b, Field<T, rank, CheckingPolicy2, StoragePolicy> &field
+  ) {
+    DomainType bounds = getBoundaryDomain(dim, b, field.getStagger()[dim]);
+    return SubGrid<Field<T, rank, CheckingPolicy2, StoragePolicy>, CheckingPolicy>(
+        bounds.getLo(), bounds.getHi(), field
+    );
+  }
+
+}  // namespace schnek

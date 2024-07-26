@@ -27,14 +27,14 @@
 #ifndef SCHNEK_VARIABLES_HPP_
 #define SCHNEK_VARIABLES_HPP_
 
-#include "types.hpp"
-#include "../exception.hpp"
-#include "../util/unique.hpp"
-
 #include <list>
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
+
+#include "../exception.hpp"
+#include "../util/unique.hpp"
+#include "types.hpp"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -45,25 +45,24 @@
 
 namespace schnek {
 
-class BlockVariables;
-typedef std::shared_ptr<BlockVariables> pBlockVariables;
-typedef std::list<pBlockVariables> BlockVariablesList;
+  class BlockVariables;
+  typedef std::shared_ptr<BlockVariables> pBlockVariables;
+  typedef std::list<pBlockVariables> BlockVariablesList;
 
-/** This stores a variable to be used in the simulation.
- *
- * A variable can be either a fixed value or an expression. The two types ValueVariant
- * and ExpressionType are boost::variants that can contain the variables or expressions
- * of different return types.
- */
-class Variable
-{
-  public:
+  /** This stores a variable to be used in the simulation.
+   *
+   * A variable can be either a fixed value or an expression. The two types ValueVariant
+   * and ExpressionType are boost::variants that can contain the variables or expressions
+   * of different return types.
+   */
+  class Variable {
+      public:
     /// Enum specifying which type the variable returns
-    enum VariableTypeInfo {int_type, float_type, string_type};
+    enum VariableTypeInfo { int_type, float_type, string_type };
 
     typedef ExpressionVariant ExpressionType;
 
-  private:
+      private:
     /// A boost::variant that holds expressions with different return type
     ExpressionType expression;
     /// A boost::variant that holds the basic constant values
@@ -77,8 +76,9 @@ class Variable
     /// readonly is true if the variable represents a read only variable which cannot be modified by the input deck
     bool readonly;
     /// a unique identifier that is copied with the copy operator and copy constructor
-    std::shared_ptr< Unique<Variable> > uniqueId;
-  public:
+    std::shared_ptr<Unique<Variable> > uniqueId;
+
+      public:
     /// construct with an integer
     Variable(int value, bool initialised_ = true, bool readonly_ = false);
     /// construct with a float
@@ -100,22 +100,22 @@ class Variable
     Variable &operator=(const Variable &var);
 
     /// returns the type of the variable
-    VariableTypeInfo getType() {return type;}
+    VariableTypeInfo getType() { return type; }
     /// returns the fixed value of the variable
-    ValueVariant getValue() {return var;}
+    ValueVariant getValue() { return var; }
     /// returns the expression kept in the variable
-    const ExpressionVariant &getExpression() {return expression;}
+    const ExpressionVariant &getExpression() { return expression; }
     /// evaluetes the expression kept in the variable and returns the value
     const ValueVariant &evaluateExpression();
 
     /// returns true if the value of the variable is constant and does not depend on non-constant variables
-    bool isConstant() {return fixed;}
+    bool isConstant() { return fixed; }
 
     /// returns true if the value of the variable is a read only variable
-    bool isReadOnly() {return readonly;}
+    bool isReadOnly() { return readonly; }
 
     /// returns true if the value of the variable has been initialised
-    bool isInitialised() {return initialised;}
+    bool isInitialised() { return initialised; }
 
     /* Returns the id of the variable
      *
@@ -129,24 +129,26 @@ class Variable
     long getId() { return uniqueId->getId(); }
 
     /// returns the value of the variable
-    const ValueVariant &evaluate() { if (!isConstant()) evaluateExpression(); return var; }
-};
+    const ValueVariant &evaluate() {
+      if (!isConstant()) evaluateExpression();
+      return var;
+    }
+  };
 
-typedef std::shared_ptr<Variable> pVariable;
-typedef std::list<pVariable> VariableList;
-typedef std::map<std::string, pVariable> VariableMap;
+  typedef std::shared_ptr<Variable> pVariable;
+  typedef std::list<pVariable> VariableList;
+  typedef std::map<std::string, pVariable> VariableMap;
 
-/** Contains all the variables within a block together and is part of the block hierarchy
- *
- * The children are those blocks contained within the block, the parent is the surrounding block.
- * When searching for a variable, first the block itself is searched, then the parent blocks
- * successively all the way to the root.
- *
- * When a query contains a . the name is expanded to a block path
- */
-class BlockVariables
-{
-  private:
+  /** Contains all the variables within a block together and is part of the block hierarchy
+   *
+   * The children are those blocks contained within the block, the parent is the surrounding block.
+   * When searching for a variable, first the block itself is searched, then the parent blocks
+   * successively all the way to the root.
+   *
+   * When a query contains a . the name is expanded to a block path
+   */
+  class BlockVariables {
+      private:
     /// the unique name of this block
     std::string name;
     /// the classname of this block
@@ -176,11 +178,11 @@ class BlockVariables
      * Uses the same search pattern as the exists method.
      */
     pVariable getVariable(std::list<std::string> path, bool upward);
-  public:
+
+      public:
     /// Costruct using the block's name and class name
     BlockVariables(std::string name_, std::string className_, pBlockVariables parent_)
-        : name(name_), className(className_), parent(parent_)
-    {}
+        : name(name_), className(className_), parent(parent_) {}
 
     /// returns true if the variable exists
     bool exists(std::string name);
@@ -209,29 +211,28 @@ class BlockVariables
     /// returns the parent (enclosing) block of this block
     pBlockVariables getParent() { return parent; }
     /// returns the children of the block
-    const BlockVariablesList& getChildren() { return children; }
+    const BlockVariablesList &getChildren() { return children; }
 
     /// returns the variables stored in the block
-    const VariableMap& getVariables() { return vars; }
-};
+    const VariableMap &getVariables() { return vars; }
+  };
 
-/** VariableStorage holds the blocks and variables in a tree structure
- *  The class contains a cursor that will follow the last inserted block. The
- *  cursor is used when constructing the structure from the input deck.
- */
-class VariableStorage
-{
-  private:
+  /** VariableStorage holds the blocks and variables in a tree structure
+   *  The class contains a cursor that will follow the last inserted block. The
+   *  cursor is used when constructing the structure from the input deck.
+   */
+  class VariableStorage {
+      private:
     /// The root block
     pBlockVariables root;
     /// The current block
     pBlockVariables cursor;
-  public:
+
+      public:
     VariableStorage() {}
     /// Construct with the name and classname of the root block
     VariableStorage(std::string name, std::string classname);
-    VariableStorage(const VariableStorage& storage)
-      : root(storage.root), cursor(storage.cursor) {}
+    VariableStorage(const VariableStorage &storage) : root(storage.root), cursor(storage.cursor) {}
 
     /// reset the cursor to the root block
     void resetCursor();
@@ -260,8 +261,8 @@ class VariableStorage
     pBlockVariables getRootBlock() { return root; }
     /// Returns the current block given by the cursor
     pBlockVariables getCurrentBlock() { return cursor; }
-};
+  };
 
-} // namespace
+}  // namespace schnek
 
-#endif // SCHNEK_VARIABLES_HPP_
+#endif  // SCHNEK_VARIABLES_HPP_

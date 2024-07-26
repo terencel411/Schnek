@@ -1,0 +1,23 @@
+source_files=$(find src/ -name "*.hpp" -or -name "*.cpp" -or -name "*.t")
+
+success=0
+
+echo "Linting source files"
+
+for f in $source_files
+do
+  clang-format -style=file:.clang-format -n -Werror $f > /dev/null 2>&1 
+  ret=$?
+  if [ $ret -ne 0 ]; then
+    echo "File $f is not formatted correctly"
+    success=1
+  fi
+done
+
+if [ $success -eq 0 ]; then
+  echo "All checks passed!"
+  exit 0
+else
+  echo "Check failed!"
+  exit 1
+fi

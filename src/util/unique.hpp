@@ -29,23 +29,22 @@
 
 #include <boost/utility.hpp>
 
-namespace schnek
-{
+namespace schnek {
 
-  template<class T>
-  class Unique : public boost::noncopyable
-  {
-    private:
-      static long runningId;
-      long Id;
-    public:
-      Unique() : Id(runningId++) {}
-      long getId() const { return Id; }
+  template <class T>
+  class Unique : public boost::noncopyable {
+      private:
+    static long runningId;
+    long Id;
+
+      public:
+    Unique() : Id(runningId++) {}
+    long getId() const { return Id; }
   };
 
-  template<class T>
+  template <class T>
   long Unique<T>::runningId = 0;
 
-} // namespace
+}  // namespace schnek
 
-#endif // SCHNEK_UNIQUE_HPP_
+#endif  // SCHNEK_UNIQUE_HPP_

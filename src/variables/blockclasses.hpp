@@ -27,89 +27,83 @@
 #ifndef SCHNEK_BLOCKCLASSES_HPP_
 #define SCHNEK_BLOCKCLASSES_HPP_
 
-#include <set>
 #include <map>
-#include <string>
 #include <memory>
+#include <set>
+#include <string>
 
-#include "block.hpp"
 #include "../exception.hpp"
+#include "block.hpp"
 
 namespace schnek {
 
-class BlockNotFoundException : public SchnekException
-{
-  public:
+  class BlockNotFoundException : public SchnekException {
+      public:
     BlockNotFoundException() : SchnekException() {}
-};
+  };
 
-class BlockFactory
-{
-  public:
+  class BlockFactory {
+      public:
     virtual ~BlockFactory() {}
     virtual pBlock makeBlock(const std::string &name) = 0;
-};
-typedef std::shared_ptr<BlockFactory> pBlockFactory;
+  };
+  typedef std::shared_ptr<BlockFactory> pBlockFactory;
 
-template<class B>
-class GenericBlockFactory : public BlockFactory
-{
-  public:
-    pBlock makeBlock(const std::string &name)
-    {
+  template <class B>
+  class GenericBlockFactory : public BlockFactory {
+      public:
+    pBlock makeBlock(const std::string &name) {
       pBlock pb(new B);
       pb->setName(name);
       return pb;
     }
-};
+  };
 
-class BlockClassDescriptor
-{
-  private:
+  class BlockClassDescriptor {
+      private:
     std::set<std::string> allowedChildren;
     pBlockFactory blockFactory;
 
     void doAddChild(std::string child);
-  public:
-    class BlockClassChildAdder
-    {
-      private:
-       friend class BlockClassDescriptor;
-       BlockClassDescriptor &descriptor;
-       BlockClassChildAdder(BlockClassDescriptor &descriptor_) : descriptor(descriptor_) {}
+
       public:
-       BlockClassChildAdder(const BlockClassChildAdder &adder) : descriptor(adder.descriptor) {}
-       BlockClassChildAdder &operator()(std::string child);
+    class BlockClassChildAdder {
+        private:
+      friend class BlockClassDescriptor;
+      BlockClassDescriptor &descriptor;
+      BlockClassChildAdder(BlockClassDescriptor &descriptor_) : descriptor(descriptor_) {}
+
+        public:
+      BlockClassChildAdder(const BlockClassChildAdder &adder) : descriptor(adder.descriptor) {}
+      BlockClassChildAdder &operator()(std::string child);
     };
     friend class BlockClassDescriptor::BlockClassChildAdder;
 
-
-  public:
+      public:
     BlockClassChildAdder addChildren(std::string child);
     bool hasChild(std::string child);
 
-    template<class B> void setClass()
-    {
-        pBlockFactory bf(new GenericBlockFactory<B>());
-        blockFactory = bf;
+    template <class B>
+    void setClass() {
+      pBlockFactory bf(new GenericBlockFactory<B>());
+      blockFactory = bf;
     }
 
     bool hasBlockFactory() { return (bool)blockFactory; }
     pBlock makeBlock(const std::string &name) { return blockFactory->makeBlock(name); }
-};
+  };
 
-typedef std::shared_ptr<BlockClassDescriptor> pBlockClassDescriptor;
+  typedef std::shared_ptr<BlockClassDescriptor> pBlockClassDescriptor;
 
-class BlockClasses
-{
-  private:
+  class BlockClasses {
+      private:
     typedef std::map<std::string, pBlockClassDescriptor> BlockClassDescriptors;
     std::shared_ptr<BlockClassDescriptors> classDescriptors;
     bool restr;
-  public:
 
+      public:
     BlockClasses(bool restr_ = true) : classDescriptors(new BlockClassDescriptors), restr(restr_) {}
-    BlockClasses(const BlockClasses& blockClasses)
+    BlockClasses(const BlockClasses &blockClasses)
         : classDescriptors(blockClasses.classDescriptors), restr(blockClasses.restr) {}
 
     BlockClassDescriptor &registerBlock(std::string blockClass);
@@ -117,9 +111,9 @@ class BlockClasses
     BlockClassDescriptor &get(std::string blockClass);
 
     bool hasChild(std::string parent, std::string child);
-    bool restrictBlocks() {return restr;}
-};
+    bool restrictBlocks() { return restr; }
+  };
 
-} // namespace
+}  // namespace schnek
 
-#endif // SCHNEK_BLOCKCLASSES_HPP_
+#endif  // SCHNEK_BLOCKCLASSES_HPP_
