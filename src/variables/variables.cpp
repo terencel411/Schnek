@@ -24,87 +24,79 @@
  *
  */
 
-#include "types.hpp"
 #include "variables.hpp"
-#include "expression.hpp"
-#include "../exception.hpp"
-#include <boost/algorithm/string/split.hpp>
+
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+
+#include "../exception.hpp"
+#include "expression.hpp"
+#include "types.hpp"
 
 using namespace schnek;
-
 
 // -------------------------------------------------------------
 // Variable
 // -------------------------------------------------------------
 
-
 Variable::Variable(int value, bool initialised_, bool readonly_)
-  : var(value),
-    type(int_type),
-    fixed(true),
-    initialised(initialised_),
-    readonly(readonly_),
-    uniqueId(new Unique<Variable>())
-{}
+    : var(value),
+      type(int_type),
+      fixed(true),
+      initialised(initialised_),
+      readonly(readonly_),
+      uniqueId(new Unique<Variable>()) {}
 
 Variable::Variable(double value, bool initialised_, bool readonly_)
-  : var(value),
-    type(float_type),
-    fixed(true),
-    initialised(initialised_),
-    readonly(readonly_),
-    uniqueId(new Unique<Variable>())
-{}
+    : var(value),
+      type(float_type),
+      fixed(true),
+      initialised(initialised_),
+      readonly(readonly_),
+      uniqueId(new Unique<Variable>()) {}
 
 Variable::Variable(std::string value, bool initialised_, bool readonly_)
-  : var(value),
-    type(string_type),
-    fixed(true),
-    initialised(initialised_),
-    readonly(readonly_),
-    uniqueId(new Unique<Variable>())
-{}
+    : var(value),
+      type(string_type),
+      fixed(true),
+      initialised(initialised_),
+      readonly(readonly_),
+      uniqueId(new Unique<Variable>()) {}
 
 Variable::Variable(pIntExpression expr, bool initialised_, bool readonly_)
-  : expression(expr),
-    type(int_type),
-    fixed(false),
-    initialised(initialised_),
-    readonly(readonly_),
-    uniqueId(new Unique<Variable>())
-{}
+    : expression(expr),
+      type(int_type),
+      fixed(false),
+      initialised(initialised_),
+      readonly(readonly_),
+      uniqueId(new Unique<Variable>()) {}
 
 Variable::Variable(pFloatExpression expr, bool initialised_, bool readonly_)
-  : expression(expr),
-    type(float_type),
-    fixed(false),
-    initialised(initialised_),
-    readonly(readonly_),
-    uniqueId(new Unique<Variable>())
-{}
+    : expression(expr),
+      type(float_type),
+      fixed(false),
+      initialised(initialised_),
+      readonly(readonly_),
+      uniqueId(new Unique<Variable>()) {}
 
 Variable::Variable(pStringExpression expr, bool initialised_, bool readonly_)
-  : expression(expr),
-    type(string_type),
-    fixed(false),
-    initialised(initialised_),
-    readonly(readonly_),
-    uniqueId(new Unique<Variable>())
-{}
+    : expression(expr),
+      type(string_type),
+      fixed(false),
+      initialised(initialised_),
+      readonly(readonly_),
+      uniqueId(new Unique<Variable>()) {}
 
 Variable::Variable(const Variable &var)
-  : expression(var.expression),
-    var(var.var),
-    type(var.type),
-    fixed(var.fixed),
-    initialised(var.initialised),
-    readonly(var.readonly),
-    uniqueId(var.uniqueId)
-{}
+    : expression(var.expression),
+      var(var.var),
+      type(var.type),
+      fixed(var.fixed),
+      initialised(var.initialised),
+      readonly(var.readonly),
+      uniqueId(var.uniqueId) {}
 
-Variable &Variable::operator=(const Variable &rhs)
-{
+Variable &Variable::operator=(const Variable &rhs) {
   if (type != rhs.type) throw TypeMismatchException();
   if (readonly) throw ReadOnlyAssignmentException();
   var = rhs.var;
@@ -115,9 +107,7 @@ Variable &Variable::operator=(const Variable &rhs)
   return *this;
 }
 
-
-const ValueVariant &Variable::evaluateExpression()
-{
+const ValueVariant &Variable::evaluateExpression() {
   ExpressionEvaluator<ValueVariant> eval;
   var = boost::apply_visitor(eval, expression);
   return var;
@@ -127,122 +117,98 @@ const ValueVariant &Variable::evaluateExpression()
 // BlockVariables
 // -------------------------------------------------------------
 
-
-bool BlockVariables::exists(std::list<std::string> path, bool upward)
-{
+bool BlockVariables::exists(std::list<std::string> path, bool upward) {
   std::string name = path.front();
-  if (path.size()>1)
-  {
-    if (childrenByName.count(name)>0)
-    {
+  if (path.size() > 1) {
+    if (childrenByName.count(name) > 0) {
       path.pop_front();
       // if the child exists, we are forced to go down into the tree
       // the upward=false ensures that the search will not come back
       // up the hierarchy
       return childrenByName[name]->exists(path, false);
     }
+  } else {
+    if (vars.count(name) > 0) return true;
   }
-  else
-  {
-    if (vars.count(name)>0) return true;
-  }
-  if (upward && (parent.get()==0)) return parent->exists(path, true);
+  if (upward && (parent.get() == 0)) return parent->exists(path, true);
 
   return false;
 }
 
-bool BlockVariables::exists(std::string name)
-{
+bool BlockVariables::exists(std::string name) {
   std::list<std::string> path;
   boost::split(path, name, boost::is_any_of("."));
   return exists(path, true);
 }
 
-pVariable BlockVariables::getVariable(std::list<std::string> path, bool upward)
-{
-  //std::cout << "BlockVariables " << getBlockName() << "(" << getClassName() << ")" << std::endl;
+pVariable BlockVariables::getVariable(std::list<std::string> path, bool upward) {
+  // std::cout << "BlockVariables " << getBlockName() << "(" << getClassName() << ")" << std::endl;
   std::string name = path.front();
-  if (path.size()>1)
-  {
-    //std::cout << "  -- Going into path " << name << std::endl;
-    if (childrenByName.count(name)>0)
-    {
+  if (path.size() > 1) {
+    // std::cout << "  -- Going into path " << name << std::endl;
+    if (childrenByName.count(name) > 0) {
       path.pop_front();
       // if the child exists, we are forced to go down into the tree
       // the upward=false ensures that the search will not come back
       // up the hierarchy
       return childrenByName[name]->getVariable(path, false);
     }
-  }
-  else
-  {
-    //std::cout << "  -- Checking Variable " << name << std::endl;
-    if (vars.count(name)>0) return vars[name];
+  } else {
+    // std::cout << "  -- Checking Variable " << name << std::endl;
+    if (vars.count(name) > 0) return vars[name];
   }
 
   if (upward && parent) return parent->getVariable(path, true);
 
-  throw VariableNotFoundException("Could not find Block variable "+path.back());
+  throw VariableNotFoundException("Could not find Block variable " + path.back());
 }
 
-pVariable BlockVariables::getVariable(std::string name)
-{
+pVariable BlockVariables::getVariable(std::string name) {
   std::list<std::string> path;
   boost::split(path, name, boost::is_any_of(":"));
   return getVariable(path, true);
 }
 
-bool BlockVariables::addVariable(std::string name, pVariable variable)
-{
-  if (vars.count(name)>0) return false;
+bool BlockVariables::addVariable(std::string name, pVariable variable) {
+  if (vars.count(name) > 0) return false;
   vars[name] = variable;
   return true;
 }
 
-bool BlockVariables::addChild(pBlockVariables child)
-{
-  if (childrenByName.count(child->getBlockName())>0) return false;
+bool BlockVariables::addChild(pBlockVariables child) {
+  if (childrenByName.count(child->getBlockName()) > 0) return false;
   childrenByName[child->getBlockName()] = child;
   childrenByClassName[child->getClassName()].push_back(child);
   children.push_back(child);
   return true;
 }
 
-
 // -------------------------------------------------------------
 // VariableStorage
 // -------------------------------------------------------------
 
-
-VariableStorage::VariableStorage(std::string name, std::string classname)
-{
+VariableStorage::VariableStorage(std::string name, std::string classname) {
   pBlockVariables bV(new BlockVariables(name, classname, pBlockVariables()));
   root = bV;
   cursor = root;
 }
 
-void VariableStorage::resetCursor()
-{
+void VariableStorage::resetCursor() {
   cursor = root;
 }
 
-void VariableStorage::cursorUp()
-{
+void VariableStorage::cursorUp() {
   cursor = cursor->getParent();
   if (cursor == 0) cursor = root;
 }
 
-void VariableStorage::addVariable(std::string name, pVariable variable)
-{
-  if (!cursor->addVariable(name, variable))
-    throw DuplicateVariableException();
+void VariableStorage::addVariable(std::string name, pVariable variable) {
+  if (!cursor->addVariable(name, variable)) throw DuplicateVariableException();
 }
 
-pBlockVariables VariableStorage::createBlock(std::string name, std::string classname)
-{
-  pBlockVariables new_block(new BlockVariables(name,classname,cursor));
-  if (!cursor->addChild(new_block))
-    throw DuplicateBlockException();
+pBlockVariables VariableStorage::createBlock(std::string name, std::string classname) {
+  pBlockVariables new_block(new BlockVariables(name, classname, cursor));
+  if (!cursor->addChild(new_block)) throw DuplicateBlockException();
   cursor = new_block;
   return new_block;
 }

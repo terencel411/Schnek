@@ -29,23 +29,22 @@
 
 namespace schnek {
 
-/** Calculate the average of the values provided.
- *
- * InputIterator::value_type must support
- * - zero initialisation
- * - += operator
- * - division by a double
- *
- * @param begin An iterator pointing to the start of the value range
- * @param end An iterator pointing behind the end of the value range
- * @return The average of all the values in the range
- */
-template<class InputIterator>
-typename InputIterator::value_type mean(InputIterator begin, InputIterator end);
+  /** Calculate the average of the values provided.
+   *
+   * InputIterator::value_type must support
+   * - zero initialisation
+   * - += operator
+   * - division by a double
+   *
+   * @param begin An iterator pointing to the start of the value range
+   * @param end An iterator pointing behind the end of the value range
+   * @return The average of all the values in the range
+   */
+  template<class InputIterator>
+  typename InputIterator::value_type mean(InputIterator begin, InputIterator end);
 
 #include "algo.t"
 
-}
+}  // namespace schnek
 
-
-#endif // SCHNEK_ALGO_H_
+#endif  // SCHNEK_ALGO_H_

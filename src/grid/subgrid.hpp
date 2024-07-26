@@ -32,198 +32,167 @@
 
 namespace schnek {
 
-template<
-  typename T,
-  size_t rank,
-  class BaseGrid
->
-class SubGridStorage {
-  public:
-    typedef Array<int,rank> IndexType;
-    typedef BaseGrid BaseGridType;
-    typedef Range<int, rank> DomainType;
-  protected:
-    BaseGridType *baseGrid;
-    DomainType domain;
-    IndexType dims;
+  template<typename T, size_t rank, class BaseGrid>
+  class SubGridStorage {
+    public:
+      typedef Array<int, rank> IndexType;
+      typedef BaseGrid BaseGridType;
+      typedef Range<int, rank> DomainType;
 
-  public:
+    protected:
+      BaseGridType *baseGrid;
+      DomainType domain;
+      IndexType dims;
 
-    class storage_iterator {
-      protected:
-        typename DomainType::iterator it;
-        BaseGridType *baseGrid;
-        T* element;
-        storage_iterator(typename DomainType::iterator it_, BaseGridType *baseGrid_)
-          : it(it_), baseGrid(baseGrid_), element(&baseGrid->get(*it)) {}
+    public:
+      class storage_iterator {
+        protected:
+          typename DomainType::iterator it;
+          BaseGridType *baseGrid;
+          T *element;
+          storage_iterator(typename DomainType::iterator it_, BaseGridType *baseGrid_)
+              : it(it_), baseGrid(baseGrid_), element(&baseGrid->get(*it)) {}
 
-        friend class SubGridStorage;
+          friend class SubGridStorage;
 
-      public:
-        T& operator*() { return *element;}
-        storage_iterator &operator++()
-        {
-          ++it;
-          element = &baseGrid->get(*it);
-          return *this;
-        }
-        bool operator==(const storage_iterator &SI)
-        { return (it==SI.it) && (baseGrid == SI.baseGrid); }
+        public:
+          T &operator*() { return *element; }
+          storage_iterator &operator++() {
+            ++it;
+            element = &baseGrid->get(*it);
+            return *this;
+          }
+          bool operator==(const storage_iterator &SI) { return (it == SI.it) && (baseGrid == SI.baseGrid); }
 
-        bool operator!=(const storage_iterator &SI)
-        { return (it!=SI.it) || (baseGrid != SI.baseGrid); }
-    };
+          bool operator!=(const storage_iterator &SI) { return (it != SI.it) || (baseGrid != SI.baseGrid); }
+      };
 
-    class const_storage_iterator {
-      protected:
-        typename DomainType::iterator it;
-        const BaseGridType *baseGrid;
-        const T* element;
-        const_storage_iterator(typename DomainType::iterator it_, BaseGridType *baseGrid_)
-          : it(it_), baseGrid(baseGrid_), element(&baseGrid->get(*it)) {}
+      class const_storage_iterator {
+        protected:
+          typename DomainType::iterator it;
+          const BaseGridType *baseGrid;
+          const T *element;
+          const_storage_iterator(typename DomainType::iterator it_, BaseGridType *baseGrid_)
+              : it(it_), baseGrid(baseGrid_), element(&baseGrid->get(*it)) {}
 
-        friend class SubGridStorage;
+          friend class SubGridStorage;
 
-      public:
-        const T& operator*() { return *element;}
-        const_storage_iterator &operator++()
-        {
-          ++it;
-          element = &baseGrid->get(*it);
-          return *this;
-        }
-        bool operator==(const const_storage_iterator &SI)
-        { return (it==SI.it) && (baseGrid == SI.baseGrid); }
-        bool operator!=(const const_storage_iterator &SI)
-        { return (it!=SI.it) || (baseGrid != SI.baseGrid); }
-    };
+        public:
+          const T &operator*() { return *element; }
+          const_storage_iterator &operator++() {
+            ++it;
+            element = &baseGrid->get(*it);
+            return *this;
+          }
+          bool operator==(const const_storage_iterator &SI) { return (it == SI.it) && (baseGrid == SI.baseGrid); }
+          bool operator!=(const const_storage_iterator &SI) { return (it != SI.it) || (baseGrid != SI.baseGrid); }
+      };
 
-    SubGridStorage();
+      SubGridStorage();
 
-    SubGridStorage(const IndexType &low_, const IndexType &high_);
+      SubGridStorage(const IndexType &low_, const IndexType &high_);
 
-    void resize(const IndexType &low_, const IndexType &high_);
+      void resize(const IndexType &low_, const IndexType &high_);
 
-    SCHNEK_INLINE T &get(const IndexType &index)
-    {
-      //typename BaseGrid::CheckingPolicy<rank>::check(index, domain.getLo(), domain.getHi());
-      return baseGrid->get(baseGrid->check(index, domain.getLo(), domain.getHi()));
-    }
+      SCHNEK_INLINE T &get(const IndexType &index) {
+        // typename BaseGrid::CheckingPolicy<rank>::check(index, domain.getLo(), domain.getHi());
+        return baseGrid->get(baseGrid->check(index, domain.getLo(), domain.getHi()));
+      }
 
-    SCHNEK_INLINE const T &get(const IndexType &index) const
-    {
-      //typename BaseGrid::CheckingPolicy<rank>::check(index, domain.getLo(), domain.getHi());
-      return baseGrid->get(baseGrid->check(index, domain.getLo(), domain.getHi()));
-    }
+      SCHNEK_INLINE const T &get(const IndexType &index) const {
+        // typename BaseGrid::CheckingPolicy<rank>::check(index, domain.getLo(), domain.getHi());
+        return baseGrid->get(baseGrid->check(index, domain.getLo(), domain.getHi()));
+      }
 
-    /** */
-    const IndexType& getLo() const { return domain.getLo(); }
-    /** */
-    const IndexType& getHi() const { return domain.getHi(); }
-    /** */
-    const IndexType& getDims() const { return dims; }
+      /** */
+      const IndexType &getLo() const { return domain.getLo(); }
+      /** */
+      const IndexType &getHi() const { return domain.getHi(); }
+      /** */
+      const IndexType &getDims() const { return dims; }
 
-    /** */
-    int getLo(int k) const { return domain.getLo()[k]; }
-    /** */
-    int getHi(int k) const { return domain.getHi()[k]; }
-    /** */
-    int getDims(int k) const { return dims[k]; }
+      /** */
+      int getLo(int k) const { return domain.getLo()[k]; }
+      /** */
+      int getHi(int k) const { return domain.getHi()[k]; }
+      /** */
+      int getDims(int k) const { return dims[k]; }
 
-    storage_iterator begin() { return storage_iterator(domain.begin(), baseGrid); }
-    storage_iterator end() { return storage_iterator(domain.end(), baseGrid); }
+      storage_iterator begin() { return storage_iterator(domain.begin(), baseGrid); }
+      storage_iterator end() { return storage_iterator(domain.end(), baseGrid); }
 
-    const_storage_iterator cbegin() const { return const_storage_iterator(domain.cbegin(), baseGrid); }
-    const_storage_iterator cend() const { return const_storage_iterator(domain.cend(), baseGrid); }
+      const_storage_iterator cbegin() const { return const_storage_iterator(domain.cbegin(), baseGrid); }
+      const_storage_iterator cend() const { return const_storage_iterator(domain.cend(), baseGrid); }
 
-    void setBaseGrid(BaseGridType &baseGrid_) { baseGrid = &baseGrid_; }
+      void setBaseGrid(BaseGridType &baseGrid_) { baseGrid = &baseGrid_; }
+  };
 
-};
-
-template<
-  class BaseGrid,
-  template<size_t> class CheckingPolicy = GridNoArgCheck
->
-class SubGrid
-  : public internal::GridBase
-    <
-      typename BaseGrid::value_type,
-      BaseGrid::Rank,
-      CheckingPolicy<BaseGrid::Rank>,
-      SubGridStorage<
-        typename BaseGrid::value_type,
-        BaseGrid::Rank,
-        BaseGrid
-      >
-    >
-{
-  private:
-    typedef internal::GridBase
-        <
+  template<class BaseGrid, template<size_t> class CheckingPolicy = GridNoArgCheck>
+  class SubGrid : public internal::GridBase<
+                      typename BaseGrid::value_type,
+                      BaseGrid::Rank,
+                      CheckingPolicy<BaseGrid::Rank>,
+                      SubGridStorage<typename BaseGrid::value_type, BaseGrid::Rank, BaseGrid> > {
+    private:
+      typedef internal::GridBase<
           typename BaseGrid::value_type,
           BaseGrid::Rank,
           CheckingPolicy<BaseGrid::Rank>,
-          SubGridStorage<
-            typename BaseGrid::value_type,
-            BaseGrid::Rank,
-            BaseGrid
-          >
-        > ParentType;
+          SubGridStorage<typename BaseGrid::value_type, BaseGrid::Rank, BaseGrid> >
+          ParentType;
 
-  public:
-    enum {Rank = BaseGrid::Rank};
-    typedef typename BaseGrid::value_type value_type;
-    typedef Array<int,Rank> IndexType;
-    typedef Range<int,Rank> RangeType;
-    typedef BaseGrid BaseGridType;
-    /** default constructor creates an empty grid */
-    SubGrid();
+    public:
+      enum { Rank = BaseGrid::Rank };
+      typedef typename BaseGrid::value_type value_type;
+      typedef Array<int, Rank> IndexType;
+      typedef Range<int, Rank> RangeType;
+      typedef BaseGrid BaseGridType;
+      /** default constructor creates an empty grid */
+      SubGrid();
 
-    /** constructor, which builds Grid of size size[0] x ... x size[rank-1]
-     *
-     *  Example:
-     *  \begin{verbatim}
-     *  Grid<double,2>::IndexType size=(512,512);
-     *  Grid<double,2> m(size);
-     *  \end{verbatim}
-     *
-     *  The ranges then extend from 0 to size[i]-1
-     */
-    SubGrid(const IndexType &size, BaseGridType &baseGrid_);
+      /** constructor, which builds Grid of size size[0] x ... x size[rank-1]
+       *
+       *  Example:
+       *  \begin{verbatim}
+       *  Grid<double,2>::IndexType size=(512,512);
+       *  Grid<double,2> m(size);
+       *  \end{verbatim}
+       *
+       *  The ranges then extend from 0 to size[i]-1
+       */
+      SubGrid(const IndexType &size, BaseGridType &baseGrid_);
 
-    /** constructor, which builds Grid with lower indices low[0],...,low[rank-1]
-     *  and upper indices high[0],...,high[rank-1]
-     *
-     *  Example:
-     *  \begin{verbatim}
-     *  Grid<double,2>::IndexType low(-5,-10);
-     *  Grid<double,2>::IndexType high(15,36);
-     *  Grid<double,2> m(low,high);
-     *  \end{verbatim}
-     *
-     *  The ranges then extend from low[i] to high[i]
-     */
-    SubGrid(const IndexType &low, const IndexType &high, BaseGridType &baseGrid_);
+      /** constructor, which builds Grid with lower indices low[0],...,low[rank-1]
+       *  and upper indices high[0],...,high[rank-1]
+       *
+       *  Example:
+       *  \begin{verbatim}
+       *  Grid<double,2>::IndexType low(-5,-10);
+       *  Grid<double,2>::IndexType high(15,36);
+       *  Grid<double,2> m(low,high);
+       *  \end{verbatim}
+       *
+       *  The ranges then extend from low[i] to high[i]
+       */
+      SubGrid(const IndexType &low, const IndexType &high, BaseGridType &baseGrid_);
 
-    /** constructor, which builds Grid spanning the range given by range
-     *
-     *  Example:
-     *  \begin{verbatim}
-     *  Grid<double,2>::IndexType low(-5,-10);
-     *  Grid<double,2>::IndexType high(15,36);
-     *  Grid<double,2>::RangeType range(low,high);
-     *  Grid<double,2> m(range);
-     *  \end{verbatim}
-     *
-     *  The ranges then extends from low[i] to high[i]
-     */
-    SubGrid(const RangeType &range, BaseGridType &baseGrid_);
+      /** constructor, which builds Grid spanning the range given by range
+       *
+       *  Example:
+       *  \begin{verbatim}
+       *  Grid<double,2>::IndexType low(-5,-10);
+       *  Grid<double,2>::IndexType high(15,36);
+       *  Grid<double,2>::RangeType range(low,high);
+       *  Grid<double,2> m(range);
+       *  \end{verbatim}
+       *
+       *  The ranges then extends from low[i] to high[i]
+       */
+      SubGrid(const RangeType &range, BaseGridType &baseGrid_);
+  };
 
-};
-
-
-} // namespace schnek
+}  // namespace schnek
 
 #include "subgrid.t"
 
-#endif // SCHNEK_SUBGRID_HPP_
+#endif  // SCHNEK_SUBGRID_HPP_

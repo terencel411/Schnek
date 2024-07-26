@@ -25,17 +25,16 @@
  */
 
 #include "block.hpp"
+
 #include "blockdata.hpp"
 
 using namespace schnek;
 
-
 BlockTree::BlockTree() : root(), cursor(), depth() {}
 
-void BlockTree::addChild(pBlock child)
-{
-  //std::cout << "BlockTree::addChild(" << child->getId() << ")\n";
-  //if (cursor) std::cout << "  - have cursor " << cursor->getId() << ")\n";
+void BlockTree::addChild(pBlock child) {
+  // std::cout << "BlockTree::addChild(" << child->getId() << ")\n";
+  // if (cursor) std::cout << "  - have cursor " << cursor->getId() << ")\n";
 
   if (cursor) {
     cursor->addChild(child);
@@ -46,96 +45,75 @@ void BlockTree::addChild(pBlock child)
   depth.push(0);
 }
 
-void BlockTree::moveDown()
-{
-  //std::cout << "BlockTree::moveDown()\n";
-  if (depth.size() >0) ++(depth.top());
+void BlockTree::moveDown() {
+  // std::cout << "BlockTree::moveDown()\n";
+  if (depth.size() > 0) ++(depth.top());
 }
 
-void BlockTree::moveUp()
-{
-  //std::cout << "BlockTree::moveUp()\n";
-  // if (cursor) std::cout << "  - have cursor " << cursor->getId() << ")\n";
+void BlockTree::moveUp() {
+  // std::cout << "BlockTree::moveUp()\n";
+  //  if (cursor) std::cout << "  - have cursor " << cursor->getId() << ")\n";
 
   if (depth.size() == 0) return;
-  if (0 == depth.top())
-  {
-    //std::cout << "  to parent\n";
+  if (0 == depth.top()) {
+    // std::cout << "  to parent\n";
     cursor = cursor->getParent();
-    //if (cursor) std::cout << "  - have parent cursor " << cursor->getId() << ")\n";
+    // if (cursor) std::cout << "  - have parent cursor " << cursor->getId() << ")\n";
     depth.pop();
-  }
-  else
-  {
+  } else {
     --(depth.top());
   }
 }
 
-
-void Block::evaluateParameters()
-{
+void Block::evaluateParameters() {
   blockParameters.evaluate();
-  for(pBlock child: children)
-  {
+  for (pBlock child : children) {
     child->evaluateParameters();
   }
 }
 
-void Block::setup()
-{
-  //std::cout << "Block::setup() " << getId() << "  " << this << std::endl;
+void Block::setup() {
+  // std::cout << "Block::setup() " << getId() << "  " << this << std::endl;
   this->initParameters(blockParameters);
-  for(pBlock child: children)
-  {
+  for (pBlock child : children) {
     child->setup();
   }
 }
 
-void Block::addChild(pBlock child)
-{
-  //std::cout << "Block("<< getId() <<")::addChild("<< child->getId() <<")\n";
+void Block::addChild(pBlock child) {
+  // std::cout << "Block("<< getId() <<")::addChild("<< child->getId() <<")\n";
   children.push_back(child);
 }
 
-
-void Block::registerHierarchy()
-{
+void Block::registerHierarchy() {
   this->registerData();
-  for(pBlock child: children)
-  {
+  for (pBlock child : children) {
     child->registerHierarchy();
   }
 }
 
-void Block::preInitHierarchy()
-{
+void Block::preInitHierarchy() {
   this->preInit();
-  for(pBlock child: children)
-  {
+  for (pBlock child : children) {
     child->preInitHierarchy();
   }
 }
 
-void Block::initHierarchy()
-{
+void Block::initHierarchy() {
   this->init();
-  for(pBlock child: children)
-  {
+  for (pBlock child : children) {
     child->initHierarchy();
   }
 }
 
-void Block::postInitHierarchy()
-{
+void Block::postInitHierarchy() {
   this->postInit();
-  for(pBlock child: children)
-  {
+  for (pBlock child : children) {
     child->postInitHierarchy();
   }
 }
 
-void Block::initAll()
-{
+void Block::initAll() {
   Block *b = this;
   while (b->parent) b = &(*parent);
 
@@ -145,4 +123,3 @@ void Block::initAll()
   b->initHierarchy();
   b->postInitHierarchy();
 }
-

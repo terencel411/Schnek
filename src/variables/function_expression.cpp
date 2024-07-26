@@ -26,32 +26,36 @@
 
 #include "function_expression.hpp"
 
-#include <boost/math/special_functions/gamma.hpp>
-#include <boost/math/special_functions/digamma.hpp>
-#include <boost/math/special_functions/bessel.hpp>
-
-#include <cmath>
 #include <algorithm>
-
+#include <boost/math/special_functions/bessel.hpp>
+#include <boost/math/special_functions/digamma.hpp>
+#include <boost/math/special_functions/gamma.hpp>
+#include <cmath>
 
 namespace schnek {
   namespace internal {
-    double min(double a, double b) { return std::min(a,b); }
-    double max(double a, double b) { return std::max(a,b); }
-    double minI(int a, int b) { return std::min(a,b); }
-    double maxI(int a, int b) { return std::max(a,b); }
-    double normal(double x, double sigma, double m)
-    {
-      double y = (x-m)/sigma;
-      return exp(-y*y/2.0);
+    double min(double a, double b) {
+      return std::min(a, b);
     }
-  }
-}
+    double max(double a, double b) {
+      return std::max(a, b);
+    }
+    double minI(int a, int b) {
+      return std::min(a, b);
+    }
+    double maxI(int a, int b) {
+      return std::max(a, b);
+    }
+    double normal(double x, double sigma, double m) {
+      double y = (x - m) / sigma;
+      return exp(-y * y / 2.0);
+    }
+  }  // namespace internal
+}  // namespace schnek
 
 using namespace schnek;
 
-void schnek::registerCMath(FunctionRegistry &freg)
-{
+void schnek::registerCMath(FunctionRegistry &freg) {
   freg.registerFunction("cos", static_cast<double (*)(double)>(cos));
   freg.registerFunction("sin", static_cast<double (*)(double)>(sin));
   freg.registerFunction("tan", static_cast<double (*)(double)>(tan));
@@ -69,10 +73,10 @@ void schnek::registerCMath(FunctionRegistry &freg)
   freg.registerFunction("log", static_cast<double (*)(double)>(log));
   freg.registerFunction("log10", static_cast<double (*)(double)>(log10));
 
-//  The function frexp and modf take pointers as arguments and have side effects
-//  This behaviour is not supported
-//  freg.registerFunction("frexp", frexp);
-//  freg.registerFunction("modf", modf);
+  //  The function frexp and modf take pointers as arguments and have side effects
+  //  This behaviour is not supported
+  //  freg.registerFunction("frexp", frexp);
+  //  freg.registerFunction("modf", modf);
 
   freg.registerFunction("pow", static_cast<double (*)(double, double)>(pow));
   freg.registerFunction("sqrt", static_cast<double (*)(double)>(sqrt));
@@ -83,17 +87,14 @@ void schnek::registerCMath(FunctionRegistry &freg)
   freg.registerFunction("fmod", static_cast<double (*)(double, double)>(fmod));
 }
 
-void schnek::registerUtilityFunctions(FunctionRegistry &freg)
-{
+void schnek::registerUtilityFunctions(FunctionRegistry &freg) {
   freg.registerFunction("min", schnek::internal::min);
   freg.registerFunction("max", schnek::internal::max);
   freg.registerFunction("minI", schnek::internal::minI);
   freg.registerFunction("maxI", schnek::internal::maxI);
 }
 
-
-void schnek::registerSpecialFunctions(FunctionRegistry &freg)
-{
+void schnek::registerSpecialFunctions(FunctionRegistry &freg) {
   freg.registerFunction("gamma", static_cast<double (*)(double)>(boost::math::tgamma));
   freg.registerFunction("lgamma", static_cast<double (*)(double)>(boost::math::lgamma));
   freg.registerFunction("digamma", static_cast<double (*)(double)>(boost::math::digamma));
@@ -104,9 +105,7 @@ void schnek::registerSpecialFunctions(FunctionRegistry &freg)
   freg.registerFunction("normal", schnek::internal::normal);
 }
 
-
-void schnek::registerAllFunctions(FunctionRegistry &freg)
-{
+void schnek::registerAllFunctions(FunctionRegistry &freg) {
   schnek::registerCMath(freg);
   schnek::registerUtilityFunctions(freg);
   schnek::registerSpecialFunctions(freg);

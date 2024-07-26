@@ -27,39 +27,29 @@
 #ifndef SCHNEK_PARSERSETTINGS_HPP_
 #define SCHNEK_PARSERSETTINGS_HPP_
 
-#include "../variables/variables.hpp"
-#include "../variables/function_expression.hpp"
 #include "../variables/blockclasses.hpp"
+#include "../variables/function_expression.hpp"
+#include "../variables/variables.hpp"
 
 namespace schnek {
 
-struct ParserSettings
-{
-    VariableStorage variables;
-    FunctionRegistry funcReg;
-    BlockClasses blockClasses;
+  struct ParserSettings {
+      VariableStorage variables;
+      FunctionRegistry funcReg;
+      BlockClasses blockClasses;
 
-    ParserSettings(std::string name, std::string classname)
-      :variables(name, classname)
-    {}
+      ParserSettings(std::string name, std::string classname) : variables(name, classname) {}
 
-    template<typename func>
-    void registerFunction(std::string fname, func f)
-    {
-      funcReg.registerFunction(fname, f);
-    }
+      template<typename func>
+      void registerFunction(std::string fname, func f) {
+        funcReg.registerFunction(fname, f);
+      }
 
-    BlockClassDescriptor &addBlockClass(std::string blockClass)
-    {
-      return blockClasses.registerBlock(blockClass);
-    }
+      BlockClassDescriptor &addBlockClass(std::string blockClass) { return blockClasses.registerBlock(blockClass); }
 
-    BlockClassDescriptor &getBlock(std::string blockClass)
-    {
-      return blockClasses(blockClass);
-    }
-};
+      BlockClassDescriptor &getBlock(std::string blockClass) { return blockClasses(blockClass); }
+  };
 
-} // namespace
+}  // namespace schnek
 
-#endif // SCHNEK_PARSERSETTINGS_HPP_
+#endif  // SCHNEK_PARSERSETTINGS_HPP_

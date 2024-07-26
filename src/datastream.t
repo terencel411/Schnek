@@ -24,161 +24,106 @@
  *
  */
 
-template<
-  class T, 
-  size_t length, 
-  template<size_t> class CheckingPolicy
->
-std::ostream &operator<<(std::ostream &out, const schnek::Array<T,length,CheckingPolicy> &arr)
-{
-  if (length==0) return out;
+template<class T, size_t length, template<size_t> class CheckingPolicy>
+std::ostream &operator<<(std::ostream &out, const schnek::Array<T, length, CheckingPolicy> &arr) {
+  if (length == 0) return out;
   out << arr[0];
-  for (size_t i=1; i<length; ++i) out << " " << arr[i];
+  for (size_t i = 1; i < length; ++i) out << " " << arr[i];
   return out;
 }
 
-template<
-  typename T,
-  template<size_t> class CheckingPolicy,
-  template<typename, size_t> class StoragePolicy
->
-std::ostream &operator<<(
-  std::ostream& out, 
-  const schnek::Grid<T, 1, CheckingPolicy, StoragePolicy>&M)
-{
+template<typename T, template<size_t> class CheckingPolicy, template<typename, size_t> class StoragePolicy>
+std::ostream &operator<<(std::ostream &out, const schnek::Grid<T, 1, CheckingPolicy, StoragePolicy> &M) {
   typedef typename schnek::Grid<T, 1, CheckingPolicy, StoragePolicy>::IndexType IndexType;
-  
+
   const IndexType &low = M.getLo();
   const IndexType &high = M.getHi();
-  
-  if ( !(low<=high) ) return out;
+
+  if (!(low <= high)) return out;
   out << M(low[0]);
-  for (int i=low[0]+1; i<=high[0]; ++i) out << " " << M(i);
+  for (int i = low[0] + 1; i <= high[0]; ++i) out << " " << M(i);
   return out;
 }
 
-
-template<
-  typename T,
-  template<size_t> class CheckingPolicy,
-  template<typename, size_t> class StoragePolicy
->
-std::ostream &operator<<(
-  std::ostream& out, 
-  const schnek::Grid<T, 2, CheckingPolicy, StoragePolicy> &M
-)
-{
+template<typename T, template<size_t> class CheckingPolicy, template<typename, size_t> class StoragePolicy>
+std::ostream &operator<<(std::ostream &out, const schnek::Grid<T, 2, CheckingPolicy, StoragePolicy> &M) {
   typedef typename schnek::Grid<T, 2, CheckingPolicy, StoragePolicy>::IndexType IndexType;
-  
+
   const IndexType &low = M.getLo();
   const IndexType &high = M.getHi();
-  
-  if ( !(low<=high) ) return out;
-  for (int j=low[1]; j<=high[1]; ++j)
-  {
-    out << M(low[0],j);
-    for (int i=low[0]+1; i<=high[0]; ++i) out << " " << M(i,j);
+
+  if (!(low <= high)) return out;
+  for (int j = low[1]; j <= high[1]; ++j) {
+    out << M(low[0], j);
+    for (int i = low[0] + 1; i <= high[0]; ++i) out << " " << M(i, j);
     out << std::endl;
   }
-  
+
   return out;
 }
 
-template<
-  typename T,
-  template<size_t> class CheckingPolicy,
-  template<typename, size_t> class StoragePolicy
->
-std::ostream &operator<<(
-  std::ostream& out, 
-  const schnek::Grid<T, 3, CheckingPolicy, StoragePolicy> &M
-)
-{
+template<typename T, template<size_t> class CheckingPolicy, template<typename, size_t> class StoragePolicy>
+std::ostream &operator<<(std::ostream &out, const schnek::Grid<T, 3, CheckingPolicy, StoragePolicy> &M) {
   typedef typename schnek::Grid<T, 3, CheckingPolicy, StoragePolicy>::IndexType IndexType;
-  
+
   const IndexType &low = M.getLo();
   const IndexType &high = M.getHi();
-  
-  if ( !(low<=high) ) return out;
-  for (int k=low[2]; k<=high[2]; ++k)
-  {
-    for (int j=low[1]; j<=high[1]; ++j)
-    {
-      out << M(low[0],j,k);
-      for (int i=low[0]+1; i<=high[0]; ++i) out << " " << M(i,j,k);
+
+  if (!(low <= high)) return out;
+  for (int k = low[2]; k <= high[2]; ++k) {
+    for (int j = low[1]; j <= high[1]; ++j) {
+      out << M(low[0], j, k);
+      for (int i = low[0] + 1; i <= high[0]; ++i) out << " " << M(i, j, k);
       out << std::endl;
     }
     out << std::endl;
   }
-  
+
   return out;
 }
 
-template<
-  typename T,
-  template<size_t> class CheckingPolicy,
-  template<typename, size_t> class StoragePolicy
->
-std::ostream &operator<<(
-  std::ostream& out, 
-  const schnek::Grid<T, 4, CheckingPolicy, StoragePolicy> &M
-)
-{
+template<typename T, template<size_t> class CheckingPolicy, template<typename, size_t> class StoragePolicy>
+std::ostream &operator<<(std::ostream &out, const schnek::Grid<T, 4, CheckingPolicy, StoragePolicy> &M) {
   typedef typename schnek::Grid<T, 4, CheckingPolicy, StoragePolicy>::IndexType IndexType;
-  
+
   const IndexType &low = M.getLo();
   const IndexType &high = M.getHi();
-  
-  if ( !(low<=high) ) return out;
-  for (int l=low[3]; l<=high[3]; ++l)
-  {
-    for (int k=low[2]; k<=high[2]; ++k)
-    {
-      for (int j=low[1]; j<=high[1]; ++j)
-      {
-        out << M(low[0],j,k,l);
-        for (int i=low[0]+1; i<=high[0]; ++i) out << " " << M(i,j,k,l);
+
+  if (!(low <= high)) return out;
+  for (int l = low[3]; l <= high[3]; ++l) {
+    for (int k = low[2]; k <= high[2]; ++k) {
+      for (int j = low[1]; j <= high[1]; ++j) {
+        out << M(low[0], j, k, l);
+        for (int i = low[0] + 1; i <= high[0]; ++i) out << " " << M(i, j, k, l);
         out << std::endl;
       }
       out << std::endl;
     }
   }
-  
+
   return out;
 }
 
-template<
-  typename T,
-  template<size_t> class CheckingPolicy,
-  template<typename, size_t> class StoragePolicy
->
-std::ostream &operator<<(
-  std::ostream& out, 
-  const schnek::Grid<T, 5, CheckingPolicy, StoragePolicy> &M
-)
-{
+template<typename T, template<size_t> class CheckingPolicy, template<typename, size_t> class StoragePolicy>
+std::ostream &operator<<(std::ostream &out, const schnek::Grid<T, 5, CheckingPolicy, StoragePolicy> &M) {
   typedef typename schnek::Grid<T, 5, CheckingPolicy, StoragePolicy>::IndexType IndexType;
-  
+
   const IndexType &low = M.getLo();
   const IndexType &high = M.getHi();
-  
-  if ( !(low<=high) ) return out;
-  for (int m=low[4]; m<=high[4]; ++m)
-  {
-    for (int l=low[3]; l<=high[3]; ++l)
-    {
-      for (int k=low[2]; k<=high[2]; ++k)
-      {
-        for (int j=low[1]; j<=high[1]; ++j)
-        {
-          out << M(low[0],j,k,l,m);
-          for (int i=low[0]+1; i<=high[0]; ++i) out << " " << M(i,j,k,l,m);
+
+  if (!(low <= high)) return out;
+  for (int m = low[4]; m <= high[4]; ++m) {
+    for (int l = low[3]; l <= high[3]; ++l) {
+      for (int k = low[2]; k <= high[2]; ++k) {
+        for (int j = low[1]; j <= high[1]; ++j) {
+          out << M(low[0], j, k, l, m);
+          for (int i = low[0] + 1; i <= high[0]; ++i) out << " " << M(i, j, k, l, m);
           out << std::endl;
         }
         out << std::endl;
       }
     }
   }
-    
+
   return out;
 }

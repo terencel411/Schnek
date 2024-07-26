@@ -28,7 +28,6 @@
 
 using namespace schnek;
 
-
 #ifdef SCHNEK_HAVE_MPI
 
 /* **************************************************************

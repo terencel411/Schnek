@@ -28,92 +28,86 @@
 
 namespace schnek {
 
-template<class GridType>
-SerialSubdivision<GridType>::SerialSubdivision()
-{}
+  template<class GridType>
+  SerialSubdivision<GridType>::SerialSubdivision() {}
 
-template<class GridType>
-SerialSubdivision<GridType>::~SerialSubdivision()
-{}
+  template<class GridType>
+  SerialSubdivision<GridType>::~SerialSubdivision() {}
 
-template<class GridType>
-void SerialSubdivision<GridType>::init(const LimitType &low, const LimitType &high, int delta)
-{
-  this->bounds = std::make_shared<BoundaryType>(low, high, delta);
-}
+  template<class GridType>
+  void SerialSubdivision<GridType>::init(const LimitType &low, const LimitType &high, int delta) {
+    this->bounds = std::make_shared<BoundaryType>(low, high, delta);
+  }
 
-template<class GridType>
-void SerialSubdivision<GridType>::exchange(GridType &grid, size_t dim)
-{
-  DomainType loGhost = this->bounds->getGhostDomain(dim, BoundaryType::Min);
-  DomainType hiGhost = this->bounds->getGhostDomain(dim, BoundaryType::Max);
-  DomainType loSource = this->bounds->getGhostSourceDomain(dim, BoundaryType::Min);
-  DomainType hiSource = this->bounds->getGhostSourceDomain(dim, BoundaryType::Max);
+  template<class GridType>
+  void SerialSubdivision<GridType>::exchange(GridType &grid, size_t dim) {
+    DomainType loGhost = this->bounds->getGhostDomain(dim, BoundaryType::Min);
+    DomainType hiGhost = this->bounds->getGhostDomain(dim, BoundaryType::Max);
+    DomainType loSource = this->bounds->getGhostSourceDomain(dim, BoundaryType::Min);
+    DomainType hiSource = this->bounds->getGhostSourceDomain(dim, BoundaryType::Max);
 
-  {
-    typename DomainType::iterator loIt = loGhost.begin();
-    typename DomainType::iterator hiIt = hiSource.begin();
-    typename DomainType::iterator loEnd = loGhost.end();
-
-    while (loIt != loEnd)
     {
-      grid[*loIt] = grid[*hiIt];
-      ++loIt; ++hiIt;
+      typename DomainType::iterator loIt = loGhost.begin();
+      typename DomainType::iterator hiIt = hiSource.begin();
+      typename DomainType::iterator loEnd = loGhost.end();
+
+      while (loIt != loEnd) {
+        grid[*loIt] = grid[*hiIt];
+        ++loIt;
+        ++hiIt;
+      }
+    }
+
+    {
+      typename DomainType::iterator loIt = loSource.begin();
+      typename DomainType::iterator hiIt = hiGhost.begin();
+      typename DomainType::iterator loEnd = loSource.end();
+
+      while (loIt != loEnd) {
+        grid[*hiIt] = grid[*loIt];
+        ++loIt;
+        ++hiIt;
+      }
     }
   }
 
-  {
-    typename DomainType::iterator loIt = loSource.begin();
-    typename DomainType::iterator hiIt = hiGhost.begin();
-    typename DomainType::iterator loEnd = loSource.end();
+  template<class GridType>
+  void SerialSubdivision<GridType>::accumulate(GridType &grid, size_t dim) {
+    DomainType loGhost = this->bounds->getGhostDomain(dim, BoundaryType::Min);
+    DomainType hiGhost = this->bounds->getGhostDomain(dim, BoundaryType::Max);
+    DomainType loSource = this->bounds->getGhostSourceDomain(dim, BoundaryType::Min);
+    DomainType hiSource = this->bounds->getGhostSourceDomain(dim, BoundaryType::Max);
 
-    while (loIt != loEnd)
     {
-      grid[*hiIt] = grid[*loIt];
-      ++loIt; ++hiIt;
+      typename DomainType::iterator loIt = loGhost.begin();
+      typename DomainType::iterator hiIt = hiSource.begin();
+      typename DomainType::iterator loEnd = loGhost.end();
+
+      while (loIt != loEnd) {
+        grid[*loIt] += grid[*hiIt];
+        grid[*hiIt] = grid[*loIt];
+        ++loIt;
+        ++hiIt;
+      }
+    }
+
+    {
+      typename DomainType::iterator loIt = loSource.begin();
+      typename DomainType::iterator hiIt = hiGhost.begin();
+      typename DomainType::iterator loEnd = loSource.end();
+
+      while (loIt != loEnd) {
+        grid[*hiIt] += grid[*loIt];
+        grid[*loIt] = grid[*hiIt];
+        ++loIt;
+        ++hiIt;
+      }
     }
   }
-}
 
-template<class GridType>
-void SerialSubdivision<GridType>::accumulate(GridType &grid, size_t dim)
-{
-  DomainType loGhost = this->bounds->getGhostDomain(dim, BoundaryType::Min);
-  DomainType hiGhost = this->bounds->getGhostDomain(dim, BoundaryType::Max);
-  DomainType loSource = this->bounds->getGhostSourceDomain(dim, BoundaryType::Min);
-  DomainType hiSource = this->bounds->getGhostSourceDomain(dim, BoundaryType::Max);
-
-  {
-    typename DomainType::iterator loIt = loGhost.begin();
-    typename DomainType::iterator hiIt = hiSource.begin();
-    typename DomainType::iterator loEnd = loGhost.end();
-
-    while (loIt != loEnd)
-    {
-      grid[*loIt] += grid[*hiIt];
-      grid[*hiIt] = grid[*loIt];
-      ++loIt; ++hiIt;
-    }
+  template<class GridType>
+  void SerialSubdivision<GridType>::exchangeData(size_t, int, BufferType &in, BufferType &out) {
+    out = in;
   }
 
-  {
-    typename DomainType::iterator loIt = loSource.begin();
-    typename DomainType::iterator hiIt = hiGhost.begin();
-    typename DomainType::iterator loEnd = loSource.end();
-
-    while (loIt != loEnd)
-    {
-      grid[*hiIt] += grid[*loIt];
-      grid[*loIt] = grid[*hiIt];
-      ++loIt; ++hiIt;
-    }
-  }
-}
-
-template<class GridType>
-void SerialSubdivision<GridType>::exchangeData(size_t, int, BufferType &in, BufferType &out)
-{
-  out = in;
-}
-
-} // namespace schnek
+}  // namespace schnek

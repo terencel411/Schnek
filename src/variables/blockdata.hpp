@@ -23,74 +23,66 @@
  * along with Schnek.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef SCHNEK_BLOCKDATA_HPP_
 #define SCHNEK_BLOCKDATA_HPP_
 
-#include "../util/singleton.hpp"
-#include "../util/logger.hpp"
 #include <map>
 #include <string>
+
+#include "../util/logger.hpp"
+#include "../util/singleton.hpp"
+#include "types.hpp"
 
 #undef LOGLEVEL
 #define LOGLEVEL 0
 
-namespace schnek
-{
+namespace schnek {
 
-template<typename T>
-class BlockData : public Singleton<BlockData<T> >
-{
-  private:
-    typedef std::map<std::string, T*> DataMap;
-    typedef std::shared_ptr<DataMap> pDataMap;
-    typedef std::map<long, pDataMap> BlockDataMap;
+  template<typename T>
+  class BlockData : public Singleton<BlockData<T> > {
+    private:
+      typedef std::map<std::string, T*> DataMap;
+      typedef std::shared_ptr<DataMap> pDataMap;
+      typedef std::map<long, pDataMap> BlockDataMap;
 
-    BlockDataMap blockDataMap;
+      BlockDataMap blockDataMap;
 
-  public:
-    void add(long blockId, std::string key, T &data);
-    T* get(long blockId, std::string key);
-    bool exists(long blockId, std::string key);
-};
+    public:
+      void add(long blockId, std::string key, T& data);
+      T* get(long blockId, std::string key);
+      bool exists(long blockId, std::string key);
+  };
 
+  template<typename T>
+  void BlockData<T>::add(long blockId, std::string key, T& data) {
+    SCHNEK_TRACE_LOG(2, "BlockData<T>::add(" << blockId << ", " << key << ")")
+    if (0 == blockDataMap.count(blockId)) {
+      pDataMap pdm(new DataMap());
+      blockDataMap[blockId] = pdm;
+    }
 
-template<typename T>
-void BlockData<T>::add(long blockId, std::string key, T &data)
-{
-  SCHNEK_TRACE_LOG(2, "BlockData<T>::add(" <<blockId << ", " << key << ")")
-  if (0 == blockDataMap.count(blockId))
-  {
-    pDataMap pdm(new DataMap());
-    blockDataMap[blockId] = pdm;
+    (*blockDataMap[blockId])[key] = &data;
   }
 
-  (*blockDataMap[blockId])[key] = &data;
-}
+  template<typename T>
+  T* BlockData<T>::get(long blockId, std::string key) {
+    SCHNEK_TRACE_LOG(2, "BlockData<T>::get(" << blockId << ", " << key << ")")
 
-template<typename T>
-T* BlockData<T>::get(long blockId, std::string key)
-{
-  SCHNEK_TRACE_LOG(2, "BlockData<T>::get(" <<blockId << ", " << key << ")")
+    if (0 == blockDataMap.count(blockId))
+      throw VariableNotFoundException("Could not find Block that holds variable " + key);
+    if (0 == blockDataMap[blockId]->count(key)) throw VariableNotFoundException("Could not find Block variable " + key);
 
-  if (0 == blockDataMap.count(blockId))
-    throw VariableNotFoundException("Could not find Block that holds variable "+key);
-  if (0 == blockDataMap[blockId]->count(key))
-    throw VariableNotFoundException("Could not find Block variable "+key);
+    return (*blockDataMap[blockId])[key];
+  }
 
-  return (*blockDataMap[blockId])[key];
-}
+  template<typename T>
+  bool BlockData<T>::exists(long blockId, std::string key) {
+    SCHNEK_TRACE_LOG(2, "BlockData<T>::exists(" << blockId << ", " << key << ")")
+    if (0 == blockDataMap.count(blockId)) return false;
+    return (blockDataMap[blockId]->count(key) > 0);
+  }
 
-template<typename T>
-bool BlockData<T>::exists(long blockId, std::string key)
-{
-  SCHNEK_TRACE_LOG(2, "BlockData<T>::exists(" <<blockId << ", " << key << ")")
-  if (0 == blockDataMap.count(blockId)) return false;
-  return (blockDataMap[blockId]->count(key) > 0);
-}
+}  // namespace schnek
 
-} //namespace
-
-
-#endif // SCHNEK_BLOCKDATA_HPP_
-
+#endif  // SCHNEK_BLOCKDATA_HPP_

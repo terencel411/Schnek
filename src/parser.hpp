@@ -24,10 +24,10 @@
  *
  */
 
-#include "parser/parsersettings.hpp"
-#include "parser/parser.hpp"
-#include "parser/parsercontext.hpp"
-#include "parser/parsertoken.hpp"
 #include "parser/deckgrammar.hpp"
 #include "parser/deckscanner.hpp"
+#include "parser/parser.hpp"
+#include "parser/parsercontext.hpp"
+#include "parser/parsersettings.hpp"
+#include "parser/parsertoken.hpp"
 #include "parser/tokenlist.hpp"

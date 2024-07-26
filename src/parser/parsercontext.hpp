@@ -28,49 +28,37 @@
 #define SCHNEK_PARSERCONTEXT_HPP_
 
 #include "../variables/blockclasses.hpp"
-#include "../variables/variables.hpp"
 #include "../variables/function_expression.hpp"
+#include "../variables/variables.hpp"
 
 namespace schnek {
 
-class BlockTree;
-typedef std::shared_ptr<BlockTree> pBlockTree;
+  class BlockTree;
+  typedef std::shared_ptr<BlockTree> pBlockTree;
 
-struct ParserContext
-{
-    VariableStorage *variables;
-    FunctionRegistry *funcReg;
-    BlockClasses *blockClasses;
-    pBlockTree blockTree;
+  struct ParserContext {
+      VariableStorage *variables;
+      FunctionRegistry *funcReg;
+      BlockClasses *blockClasses;
+      pBlockTree blockTree;
 
-    ParserContext() {}
-    ParserContext(
-        VariableStorage &variables_,
-        FunctionRegistry &funcReg_,
-        BlockClasses &blockClasses_,
-        pBlockTree blockTree_)
-          : variables(&variables_),
-            funcReg(&funcReg_),
-            blockClasses(&blockClasses_) ,
-            blockTree(blockTree_)
-    {}
-    ParserContext(const ParserContext &con)
-          : variables(con.variables),
-            funcReg(con.funcReg),
-            blockClasses(con.blockClasses) ,
-            blockTree(con.blockTree)
-    {}
+      ParserContext() {}
+      ParserContext(
+          VariableStorage &variables_, FunctionRegistry &funcReg_, BlockClasses &blockClasses_, pBlockTree blockTree_
+      )
+          : variables(&variables_), funcReg(&funcReg_), blockClasses(&blockClasses_), blockTree(blockTree_) {}
+      ParserContext(const ParserContext &con)
+          : variables(con.variables), funcReg(con.funcReg), blockClasses(con.blockClasses), blockTree(con.blockTree) {}
 
-    ParserContext &operator=(const ParserContext &con)
-    {
-      variables = con.variables;
-      funcReg = con.funcReg;
-      blockClasses = con.blockClasses;
-      blockTree = con.blockTree;
-      return *this;
-    }
-};
+      ParserContext &operator=(const ParserContext &con) {
+        variables = con.variables;
+        funcReg = con.funcReg;
+        blockClasses = con.blockClasses;
+        blockTree = con.blockTree;
+        return *this;
+      }
+  };
 
-} //namespace
+}  // namespace schnek
 
-#endif // SCHNEK_PARSERCONTEXT_HPP_
+#endif  // SCHNEK_PARSERCONTEXT_HPP_

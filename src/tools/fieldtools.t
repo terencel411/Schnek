@@ -26,63 +26,63 @@
 
 #include "../grid/range.hpp"
 
-namespace schnek
-{
+namespace schnek {
 
-template<
-  typename T,
-  size_t rank,
-  template<size_t> class GridCheckingPolicy,
-  template<size_t> class ArrayCheckingPolicy,
-  template<typename, size_t> class StoragePolicy
->
-void fill_field(
-    Field<T, rank, GridCheckingPolicy, StoragePolicy> &field,
-    Array<double, rank, ArrayCheckingPolicy> &coords,
-    T &value,
-    DependencyUpdater &updater)
-{
-  Range<int, rank> domain(field.getLo(), field.getHi());
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class GridCheckingPolicy,
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
+  void fill_field(
+      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field,
+      Array<double, rank, ArrayCheckingPolicy> &coords,
+      T &value,
+      DependencyUpdater &updater
+  ) {
+    Range<int, rank> domain(field.getLo(), field.getHi());
 
-  typename Range<int, rank>::iterator it = domain.begin();
-  typename Range<int, rank>::iterator end = domain.end();
-  while (it != end)
-  {
-    const typename Range<int, rank>::LimitType &pos=*it;
-//    std::cerr << " fill_field (";
-//    for (size_t i=0; i<rank; ++i)
-//      std::cerr << " " << pos[i];
-//    std::cerr << ") (";
-    for (size_t i=0; i<rank; ++i) {
-      coords[i] = field.indexToPosition(i,pos[i]);
-//      std::cerr << " " << coords[i];
+    typename Range<int, rank>::iterator it = domain.begin();
+    typename Range<int, rank>::iterator end = domain.end();
+    while (it != end) {
+      const typename Range<int, rank>::LimitType &pos = *it;
+      //    std::cerr << " fill_field (";
+      //    for (size_t i=0; i<rank; ++i)
+      //      std::cerr << " " << pos[i];
+      //    std::cerr << ") (";
+      for (size_t i = 0; i < rank; ++i) {
+        coords[i] = field.indexToPosition(i, pos[i]);
+        //      std::cerr << " " << coords[i];
+      }
+      //    std::cerr << ")" << std::endl;
+      updater.update();
+      field.get(pos) = value;
+      ++it;
     }
-//    std::cerr << ")" << std::endl;
-    updater.update();
-    field.get(pos) = value;
-    ++it;
   }
 
-}
+  template<
+      typename T,
+      size_t rank,
+      template<size_t>
+      class GridCheckingPolicy,
+      template<size_t>
+      class ArrayCheckingPolicy,
+      template<typename, size_t>
+      class StoragePolicy>
+  void fill_field(
+      Field<T, rank, GridCheckingPolicy, StoragePolicy> &field,
+      Array<double, rank, ArrayCheckingPolicy> &coords,
+      T &value,
+      DependencyUpdater &updater,
+      pParameter dependent
+  ) {
+    updater.clearDependent();
+    updater.addDependent(dependent);
+    fill_field(field, coords, value, updater);
+  }
 
-template<
-  typename T,
-  size_t rank,
-  template<size_t> class GridCheckingPolicy,
-  template<size_t> class ArrayCheckingPolicy,
-  template<typename, size_t> class StoragePolicy
->
-void fill_field(
-    Field<T, rank, GridCheckingPolicy, StoragePolicy> &field,
-    Array<double, rank, ArrayCheckingPolicy> &coords,
-    T &value,
-    DependencyUpdater &updater,
-    pParameter dependent)
-{
-  updater.clearDependent();
-  updater.addDependent(dependent);
-  fill_field(field, coords, value, updater);
-}
-
-}
-
+}  // namespace schnek

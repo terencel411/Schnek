@@ -31,14 +31,14 @@
 namespace schnek::generic {
   template<size_t val>
   struct size_to_type {
-    static constexpr size_t value = val;
+      static constexpr size_t value = val;
   };
 
   template<int val>
   struct int_to_type {
-    static constexpr int value = val;
+      static constexpr int value = val;
   };
 
-} // namespace schnek::generic
+}  // namespace schnek::generic
 
-#endif // SCHNEK_GENERIC_TYPE_UTIL_HPP_
+#endif  // SCHNEK_GENERIC_TYPE_UTIL_HPP_

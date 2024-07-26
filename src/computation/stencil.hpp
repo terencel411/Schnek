@@ -26,42 +26,42 @@
 #ifndef SCHNEK_COMPUTATION_STENCIL_HPP_
 #define SCHNEK_COMPUTATION_STENCIL_HPP_
 
-#include <cstddef>
 #include <array>
+#include <cstddef>
 
 namespace schnek {
-    namespace computation {
-        template<size_t rank, int... Values>
-        struct StaticIndex {
-            static constexpr size_t size = rank;
-            static constexpr std::array<int, rank> values = {Values...};
-        };
+  namespace computation {
+    template<size_t rank, int... Values>
+    struct StaticIndex {
+        static constexpr size_t size = rank;
+        static constexpr std::array<int, rank> values = {Values...};
+    };
+
+    /**
+     * A stencil
+     *
+     * This is a stencil. It is a list of values that can be accessed by index.
+     *
+     * @tparam Values The values in the stencil
+     */
+    template<size_t rank, typename... Values>
+    struct Stencil {
+        /**
+         * The number of values in the stencil
+         */
+        static constexpr std::size_t size = sizeof...(Values);
 
         /**
-         * A stencil
-         * 
-         * This is a stencil. It is a list of values that can be accessed by index.
-         * 
-         * @tparam Values The values in the stencil
+         * Get the value at the given index
+         *
+         * @tparam index The index of the value to get
          */
-        template<size_t rank, typename... Values>
-        struct Stencil {
-            /**
-             * The number of values in the stencil
-             */
-            static constexpr std::size_t size = sizeof...(Values);
-                        
-            /**
-             * Get the value at the given index
-             * 
-             * @tparam index The index of the value to get
-             */
-            template<size_t index>
-            static constexpr std::array<int, rank> value() {
-                return TypeList<int, Values...>::get<;
-            }
-        };
-    }
-}
+        template<size_t index>
+        static constexpr std::array<int, rank> value() {
+          return TypeList<int, Values...>::get < ;
+        }
+    };
+  }  // namespace computation
+}  // namespace schnek
 
-#endif // SCHNEK_COMPUTATION_STENCIL_HPP_
+#endif  // SCHNEK_COMPUTATION_STENCIL_HPP_

@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+find src/ -type f | xargs clang-format -style=file:.clang-format -i

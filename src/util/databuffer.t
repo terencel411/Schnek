@@ -23,33 +23,25 @@
  *
  */
 
+namespace schnek {
 
-namespace schnek
-{
+  template<class T>
+  template<class ContainerType>
+  void DataBuffer<T>::makeBuffer(ContainerType &container) {
+    static const int dsize = sizeof(T);
+    BufferType::IndexType sz(container.size());
+    for (int i = 0; i < BufferType::Rank; ++i) sz[i] *= dsize;
+    buffer.resize(sz);
 
+    int pos = 0;
 
-template<class T>
-template<class ContainerType>
-void DataBuffer<T>::makeBuffer(ContainerType &container)
-{
-  static const int dsize = sizeof(T);
-  BufferType::IndexType sz(container.size());
-  for (int i=0; i<BufferType::Rank; ++i) sz[i] *= dsize;
-  buffer.resize(sz);
-
-  int pos = 0;
-
-  for (typename ContainerType::iterator it = container.begin(); it != container.end(); ++it)
-  {
-    // Dereference twice and then take address of because container could
-    // contain iterators and not pointers.
-    unsigned char *data = &buffer(pos);
-    memcpy(data, &(**it), dsize);
-    pos += dsize;
+    for (typename ContainerType::iterator it = container.begin(); it != container.end(); ++it) {
+      // Dereference twice and then take address of because container could
+      // contain iterators and not pointers.
+      unsigned char *data = &buffer(pos);
+      memcpy(data, &(**it), dsize);
+      pos += dsize;
+    }
   }
-}
 
-
-}
-
-
+}  // namespace schnek

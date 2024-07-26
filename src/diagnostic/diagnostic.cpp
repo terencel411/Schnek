@@ -24,8 +24,10 @@
  *
  */
 
-#include <sstream>
 #include "diagnostic.hpp"
+
+#include <sstream>
+
 #include "../util/logger.hpp"
 
 #undef LOGLEVEL
@@ -33,33 +35,26 @@
 
 using namespace schnek;
 
-DiagnosticInterface::DiagnosticInterface() :
-  fname(""), append(false)
-{
-}
+DiagnosticInterface::DiagnosticInterface() : fname(""), append(false) {}
 
-void DiagnosticInterface::initParameters(BlockParameters &blockPars)
-{
+void DiagnosticInterface::initParameters(BlockParameters &blockPars) {
   Block::initParameters(blockPars);
 
   blockPars.addParameter("file", &fname);
   blockPars.addParameter("append", &append, 0);
 }
 
-bool DiagnosticInterface::appending()
-{
+bool DiagnosticInterface::appending() {
   return bool(append);
 }
 
-std::string DiagnosticInterface::parsedFileName(int rank, int timeCounter)
-{
-
+std::string DiagnosticInterface::parsedFileName(int rank, int timeCounter) {
   std::string parsed = fname;
   std::string comrank = boost::lexical_cast<std::string>(rank);
   std::string tstep = boost::lexical_cast<std::string>(timeCounter);
-  if (timeCounter<0) tstep = "final";
+  if (timeCounter < 0) tstep = "final";
 
-  SCHNEK_TRACE_LOG(2, "DiagnosticInterface::parsedFileName " << rank << " " << comrank << " "<< timeCounter)
+  SCHNEK_TRACE_LOG(2, "DiagnosticInterface::parsedFileName " << rank << " " << comrank << " " << timeCounter)
   size_t pos;
 
 #if !defined(H5_HAVE_PARALLEL) || !defined(SCHNEK_USE_HDF_PARALLEL)
@@ -73,14 +68,12 @@ std::string DiagnosticInterface::parsedFileName(int rank, int timeCounter)
   return parsed;
 }
 
-std::string DiagnosticInterface::parsedFileName(int rank, double physicalTime)
-{
-
+std::string DiagnosticInterface::parsedFileName(int rank, double physicalTime) {
   std::string parsed = fname;
   std::string comrank = boost::lexical_cast<std::string>(rank);
   std::string time = boost::lexical_cast<std::string>(physicalTime);
 
-  SCHNEK_TRACE_LOG(2, "DiagnosticInterface::parsedFileName " << rank << " " << comrank << " "<< timeCounter)
+  SCHNEK_TRACE_LOG(2, "DiagnosticInterface::parsedFileName " << rank << " " << comrank << " " << timeCounter)
   size_t pos;
 
 #if !defined(H5_HAVE_PARALLEL) || !defined(SCHNEK_USE_HDF_PARALLEL)
@@ -94,27 +87,23 @@ std::string DiagnosticInterface::parsedFileName(int rank, double physicalTime)
   return parsed;
 }
 
-IntervalDiagnostic::IntervalDiagnostic() : interval(100)
-{
+IntervalDiagnostic::IntervalDiagnostic() : interval(100) {
   DiagnosticManager::instance().addIntervalDiagnostic(this);
 }
 
-void IntervalDiagnostic::execute(bool master, int rank, int timeCounter)
-{
+void IntervalDiagnostic::execute(bool master, int rank, int timeCounter) {
   SCHNEK_TRACE_LOG(2, "IntervalDiagnostic::execute" << fname << " " << rank)
   if (singleOut() && !master) return;
 
   if ((0 == timeCounter) && appending()) open(fname);
-  if ((timeCounter < 0) || ((timeCounter % interval) == 0))
-  {
+  if ((timeCounter < 0) || ((timeCounter % interval) == 0)) {
     if (!appending()) open(parsedFileName(rank, timeCounter));
     write();
     if (!appending()) close();
   }
 }
 
-void IntervalDiagnostic::initParameters(BlockParameters &blockPars)
-{
+void IntervalDiagnostic::initParameters(BlockParameters &blockPars) {
   DiagnosticInterface::initParameters(blockPars);
   blockPars.addParameter("interval", &interval, 100);
 }
@@ -123,20 +112,17 @@ int IntervalDiagnostic::getInterval() {
   return interval;
 }
 
-DeltaTimeDiagnostic::DeltaTimeDiagnostic() : deltaTime(1.0), nextOutput(0.0), count(0)
-{
+DeltaTimeDiagnostic::DeltaTimeDiagnostic() : deltaTime(1.0), nextOutput(0.0), count(0) {
   DiagnosticManager::instance().addDeltaTimeDiagnostic(this);
 }
 
-void DeltaTimeDiagnostic::execute(bool master, int rank, double physicalTime)
-{
+void DeltaTimeDiagnostic::execute(bool master, int rank, double physicalTime) {
   SCHNEK_TRACE_LOG(2, "DeltaTimeDiagnostic::execute" << fname << " " << rank)
   if (singleOut() && !master) return;
 
   if ((0.0 == physicalTime) && appending()) open(fname);
 
-  if (physicalTime >= nextOutput)
-  {
+  if (physicalTime >= nextOutput) {
     if (!appending()) open(parsedFileName(rank, count));
     write();
     if (!appending()) close();
@@ -145,8 +131,7 @@ void DeltaTimeDiagnostic::execute(bool master, int rank, double physicalTime)
   }
 }
 
-double DeltaTimeDiagnostic::getNextOutput()
-{
+double DeltaTimeDiagnostic::getNextOutput() {
   return nextOutput;
 }
 
@@ -154,81 +139,68 @@ double DeltaTimeDiagnostic::getDeltaTime() {
   return deltaTime;
 }
 
-void DeltaTimeDiagnostic::initParameters(BlockParameters &blockPars)
-{
+void DeltaTimeDiagnostic::initParameters(BlockParameters &blockPars) {
   DiagnosticInterface::initParameters(blockPars);
   blockPars.addParameter("deltaTime", &deltaTime, 1.0);
   blockPars.addParameter("delay", &nextOutput, 0.0);
 }
 
-DiagnosticManager::DiagnosticManager() :
-    timecounter(0), physicalTime(0), usePhysicalTime(false), master(true), rank(0)
-{
-}
+DiagnosticManager::DiagnosticManager()
+    : timecounter(0), physicalTime(0), usePhysicalTime(false), master(true), rank(0) {}
 
-void DiagnosticManager::setTimeCounter(int *timecounter_)
-{
+void DiagnosticManager::setTimeCounter(int *timecounter_) {
   timecounter = timecounter_;
   usePhysicalTime = false;
 }
 
-void DiagnosticManager::setPhysicalTime(double *physicalTime_)
-{
+void DiagnosticManager::setPhysicalTime(double *physicalTime_) {
   physicalTime = physicalTime_;
   usePhysicalTime = true;
 }
 
-void DiagnosticManager::setMaster(bool master_)
-{
+void DiagnosticManager::setMaster(bool master_) {
   master = master_;
 }
 
-void DiagnosticManager::setRank(int rank_)
-{
+void DiagnosticManager::setRank(int rank_) {
   rank = rank_;
 }
 
-
-void DiagnosticManager::addIntervalDiagnostic(IntervalDiagnostic *diag)
-{
+void DiagnosticManager::addIntervalDiagnostic(IntervalDiagnostic *diag) {
   intervalDiags.push_back(diag);
 }
 
-void DiagnosticManager::addDeltaTimeDiagnostic(DeltaTimeDiagnostic *diag)
-{
+void DiagnosticManager::addDeltaTimeDiagnostic(DeltaTimeDiagnostic *diag) {
   deltaTimeDiags.push_back(diag);
 }
 
-void DiagnosticManager::execute()
-{
-
-  SCHNEK_TRACE_LOG(2, "DiagnosticManager::execute " << rank << " "
-                   << usePhysicalTime?boost::lexical_cast<std::string>(*physicalTime):boost::lexical_cast<std::string>(*timecounter));
+void DiagnosticManager::execute() {
+  SCHNEK_TRACE_LOG(
+      2, "DiagnosticManager::execute " << rank << " " << usePhysicalTime
+             ? boost::lexical_cast<std::string>(*physicalTime)
+             : boost::lexical_cast<std::string>(*timecounter)
+  );
 
   if ((!usePhysicalTime && !timecounter) || (usePhysicalTime && !physicalTime))
-    throw schnek::VariableNotInitialisedException("In DiagnosticManager: A time counter or physical time must be specified!");
+    throw schnek::VariableNotInitialisedException(
+        "In DiagnosticManager: A time counter or physical time must be specified!"
+    );
 
-  for(IntervalDiagnostic *diag: intervalDiags)
-  {
+  for (IntervalDiagnostic *diag : intervalDiags) {
     diag->execute(master, rank, *timecounter);
   }
 
-  for(DeltaTimeDiagnostic *diag: deltaTimeDiags)
-  {
+  for (DeltaTimeDiagnostic *diag : deltaTimeDiags) {
     diag->execute(master, rank, *physicalTime);
   }
 }
 
-
-double DiagnosticManager::adjustDeltaT(double deltaT)
-{
+double DiagnosticManager::adjustDeltaT(double deltaT) {
   double adjustedDt = deltaT;
 
-
-  for(DeltaTimeDiagnostic *diag: deltaTimeDiags)
-  {
+  for (DeltaTimeDiagnostic *diag : deltaTimeDiags) {
     double dt = diag->getNextOutput() - *physicalTime;
-    if (dt>0) adjustedDt = std::min(adjustedDt, dt);
+    if (dt > 0) adjustedDt = std::min(adjustedDt, dt);
   }
 
   return adjustedDt;

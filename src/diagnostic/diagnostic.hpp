@@ -27,157 +27,163 @@
 #ifndef SCHNEK_DIAGNOSTIC_HPP_
 #define SCHNEK_DIAGNOSTIC_HPP_
 
-#include "../variables/block.hpp"
-#include "../util/singleton.hpp"
-
-#include <memory>
 #include <fstream>
+#include <memory>
+
+#include "../util/singleton.hpp"
+#include "../variables/block.hpp"
 
 namespace schnek {
 
-/**
- * Interface for diagnostic tasks.
- *
- * This interface can be used to implement different types of diagnostics.
- * The DiagnosticInterface is closely related to the DiagnosticManager. When an
- * instance of the interface is created it will register itself with the
- * DiagnosticManager. This then takes the responsibility of calling the execute
- * method of the DiagnosticInterface.
- */
-class DiagnosticInterface : public Block
-{
-  protected:
-    /// The file name into which to write
-    std::string fname;
-    /// Append data at every write to the same file?
-    int append;
-  public:
-    /// Default constructor
-    DiagnosticInterface();
-    /// Virtual destructor
-    virtual ~DiagnosticInterface() {}
-  protected:
-    /// Open the output file
-    virtual void open(const std::string &) {}
-    /// Write into the touput file
-    virtual void write() {}
-    /// Close the output file
-    virtual void close() {}
+  /**
+   * Interface for diagnostic tasks.
+   *
+   * This interface can be used to implement different types of diagnostics.
+   * The DiagnosticInterface is closely related to the DiagnosticManager. When an
+   * instance of the interface is created it will register itself with the
+   * DiagnosticManager. This then takes the responsibility of calling the execute
+   * method of the DiagnosticInterface.
+   */
+  class DiagnosticInterface : public Block {
+    protected:
+      /// The file name into which to write
+      std::string fname;
+      /// Append data at every write to the same file?
+      int append;
 
-    virtual bool singleOut() { return false; }
-    void initParameters(BlockParameters&);
+    public:
+      /// Default constructor
+      DiagnosticInterface();
+      /// Virtual destructor
+      virtual ~DiagnosticInterface() {}
 
-    bool appending();
-    std::string parsedFileName(int rank, int timeCounter);
-    std::string parsedFileName(int rank, double physicalTime);
-};
+    protected:
+      /// Open the output file
+      virtual void open(const std::string &) {}
+      /// Write into the touput file
+      virtual void write() {}
+      /// Close the output file
+      virtual void close() {}
 
-class IntervalDiagnostic : public DiagnosticInterface
-{
-  private:
-    /// The interval at which to write
-    int interval;
-  public:
-    IntervalDiagnostic();
-    void execute(bool master, int rank, int timeCounter);
-    int getInterval();
-  protected:
-    void initParameters(BlockParameters&);
-};
+      virtual bool singleOut() { return false; }
+      void initParameters(BlockParameters &);
 
-class DeltaTimeDiagnostic : public DiagnosticInterface
-{
-  private:
-    /// The physical time interval at which to write
-    double deltaTime;
-    double nextOutput;
-    int count;
-  public:
-    DeltaTimeDiagnostic();
-    void execute(bool master, int rank, double physicalTime);
-    double getNextOutput();
-    double getDeltaTime();
-  protected:
-    void initParameters(BlockParameters&);
-};
+      bool appending();
+      std::string parsedFileName(int rank, int timeCounter);
+      std::string parsedFileName(int rank, double physicalTime);
+  };
 
-typedef std::shared_ptr<DiagnosticInterface> pDiagnosticInterface;
-typedef std::list<pDiagnosticInterface> DiagList;
+  class IntervalDiagnostic : public DiagnosticInterface {
+    private:
+      /// The interval at which to write
+      int interval;
 
-class DiagnosticManager : public Singleton<DiagnosticManager>
-{
-  private:
-    std::list<IntervalDiagnostic*> intervalDiags;
-    std::list<DeltaTimeDiagnostic*> deltaTimeDiags;
+    public:
+      IntervalDiagnostic();
+      void execute(bool master, int rank, int timeCounter);
+      int getInterval();
 
-    /// The current time step
-    int *timecounter;
-    double *physicalTime;
-    bool usePhysicalTime;
-    bool master;
-    int rank;
+    protected:
+      void initParameters(BlockParameters &);
+  };
 
-    friend class Singleton<DiagnosticManager>;
-    friend class CreateUsingNew<DiagnosticManager>;
-  public:
-    void addIntervalDiagnostic(IntervalDiagnostic*);
-    void addDeltaTimeDiagnostic(DeltaTimeDiagnostic*);
-    void execute();
+  class DeltaTimeDiagnostic : public DiagnosticInterface {
+    private:
+      /// The physical time interval at which to write
+      double deltaTime;
+      double nextOutput;
+      int count;
 
-    void setTimeCounter(int *timecounter);
-    void setPhysicalTime(double *physicalTime);
-    void setMaster(bool master);
-    void setRank(int rank);
+    public:
+      DeltaTimeDiagnostic();
+      void execute(bool master, int rank, double physicalTime);
+      double getNextOutput();
+      double getDeltaTime();
 
-    double adjustDeltaT(double deltaT);
-  private:
-    DiagnosticManager();
-};
+    protected:
+      void initParameters(BlockParameters &);
+  };
 
-template<class Type, typename PointerType = std::shared_ptr<Type>, class DiagnosticType = IntervalDiagnostic>
-class SimpleDiagnostic : public DiagnosticType
-{
-  private:
-    /// The name of the field to write out
-    std::string fieldName;
-    bool single_out;
-  protected:
-    PointerType field;
-  public:
-    SimpleDiagnostic() { single_out=false; }
-    virtual ~SimpleDiagnostic();
-  protected:
-    bool singleOut() { return single_out; }
-    void initParameters(BlockParameters&);
-    void init();
-    std::string getFieldName() { return fieldName; }
+  typedef std::shared_ptr<DiagnosticInterface> pDiagnosticInterface;
+  typedef std::list<pDiagnosticInterface> DiagList;
 
-    /**
-     * Is the field to be written derived from another field and not available through
-     * the Block::retrieveData mechanism.
-     *
-     * If a class overrides and returns true then SimpleDiagnostic::field has
-     * to be set manually.
-     */
-    virtual bool isDerived() { return false; }
-  public:
-    void setSingleOut(bool single_out_) { single_out = single_out_; }
-};
+  class DiagnosticManager : public Singleton<DiagnosticManager> {
+    private:
+      std::list<IntervalDiagnostic *> intervalDiags;
+      std::list<DeltaTimeDiagnostic *> deltaTimeDiags;
 
-template<class Type, typename PointerType = std::shared_ptr<Type>, class DiagnosticType = IntervalDiagnostic >
-class SimpleFileDiagnostic : public SimpleDiagnostic<Type, PointerType, DiagnosticType>
-{
-  private:
-    std::ofstream output;
-  protected:
-    void open(const std::string &);
-    void write();
-    void close();
-};
+      /// The current time step
+      int *timecounter;
+      double *physicalTime;
+      bool usePhysicalTime;
+      bool master;
+      int rank;
 
-} // namespace schnek
+      friend class Singleton<DiagnosticManager>;
+      friend class CreateUsingNew<DiagnosticManager>;
 
+    public:
+      void addIntervalDiagnostic(IntervalDiagnostic *);
+      void addDeltaTimeDiagnostic(DeltaTimeDiagnostic *);
+      void execute();
+
+      void setTimeCounter(int *timecounter);
+      void setPhysicalTime(double *physicalTime);
+      void setMaster(bool master);
+      void setRank(int rank);
+
+      double adjustDeltaT(double deltaT);
+
+    private:
+      DiagnosticManager();
+  };
+
+  template<class Type, typename PointerType = std::shared_ptr<Type>, class DiagnosticType = IntervalDiagnostic>
+  class SimpleDiagnostic : public DiagnosticType {
+    private:
+      /// The name of the field to write out
+      std::string fieldName;
+      bool single_out;
+
+    protected:
+      PointerType field;
+
+    public:
+      SimpleDiagnostic() { single_out = false; }
+      virtual ~SimpleDiagnostic();
+
+    protected:
+      bool singleOut() { return single_out; }
+      void initParameters(BlockParameters &);
+      void init();
+      std::string getFieldName() { return fieldName; }
+
+      /**
+       * Is the field to be written derived from another field and not available through
+       * the Block::retrieveData mechanism.
+       *
+       * If a class overrides and returns true then SimpleDiagnostic::field has
+       * to be set manually.
+       */
+      virtual bool isDerived() { return false; }
+
+    public:
+      void setSingleOut(bool single_out_) { single_out = single_out_; }
+  };
+
+  template<class Type, typename PointerType = std::shared_ptr<Type>, class DiagnosticType = IntervalDiagnostic>
+  class SimpleFileDiagnostic : public SimpleDiagnostic<Type, PointerType, DiagnosticType> {
+    private:
+      std::ofstream output;
+
+    protected:
+      void open(const std::string &);
+      void write();
+      void close();
+  };
+
+}  // namespace schnek
 
 #include "diagnostic.t"
 
-#endif // SCHNEK_DIAGNOSTIC_HPP_
+#endif  // SCHNEK_DIAGNOSTIC_HPP_

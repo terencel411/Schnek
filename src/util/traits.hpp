@@ -24,26 +24,24 @@
  *
  */
 
-
 #ifndef SCHNEK_UTIL_TRAITS_HPP
 #define SCHNEK_UTIL_TRAITS_HPP
 
 namespace schnek {
 
-    /**
-     * @brief Determines whether Fn can be invoked with the arguments Args....
-     */
-    template <class Fn, class... Args>
-    struct is_invocable
-    {
-        template <class U>
-        static auto test(U* p) -> decltype((*p)(std::declval<Args>()...), void(), std::true_type());
-        template <class U>
-        static auto test(...) -> decltype(std::false_type());
+  /**
+   * @brief Determines whether Fn can be invoked with the arguments Args....
+   */
+  template<class Fn, class... Args>
+  struct is_invocable {
+      template<class U>
+      static auto test(U* p) -> decltype((*p)(std::declval<Args>()...), void(), std::true_type());
+      template<class U>
+      static auto test(...) -> decltype(std::false_type());
 
-        static constexpr bool value = decltype(test<Fn>(0))::value;
-    };
+      static constexpr bool value = decltype(test<Fn>(0))::value;
+  };
 
-} // namespace schnek
+}  // namespace schnek
 
 #endif SCHNEK_UTIL_TRAITS_HPP

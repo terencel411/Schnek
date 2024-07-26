@@ -27,11 +27,9 @@
 #ifndef SCHNEK_LOGGER_HPP_
 #define SCHNEK_LOGGER_HPP_
 
-
+#include <boost/preprocessor/comparison/greater_equal.hpp>
 #include <boost/preprocessor/control/iif.hpp>
 #include <boost/preprocessor/facilities/empty.hpp>
-#include <boost/preprocessor/comparison/greater_equal.hpp>
-
 #include <iostream>
 #include <string>
 
@@ -51,11 +49,10 @@ namespace schnek {
  *  The message argument can consist of multiple strings or values
  *  concatenated with <<. It should end in a newline.
  */
-#define SCHNEK_TRACE_LOG(i,x)                         \
-  BOOST_PP_IIF( BOOST_PP_GREATER_EQUAL( LOGLEVEL, i ), \
-    schnek::Logger::instance().out() << __LINE__ << " " << __FILE__ << ": "<< x << "\n";, \
-    BOOST_PP_EMPTY()                                   \
-  )
+#define SCHNEK_TRACE_LOG(i, x)                                                                               \
+  BOOST_PP_IIF(BOOST_PP_GREATER_EQUAL(LOGLEVEL, i), schnek::Logger::instance().out()                         \
+                                                        << __LINE__ << " " << __FILE__ << ": " << x << "\n"; \
+               , BOOST_PP_EMPTY())
 
 /** Macro for writing to the error log.
  *
@@ -69,23 +66,20 @@ namespace schnek {
  *  The message argument can consist of multiple strings or values
  *  concatenated with <<. It should end in a newline.
  */
-#define SCHNEK_TRACE_ERR(i,x)                                  \
-  BOOST_PP_IIF( BOOST_PP_GREATER_EQUAL( LOGLEVEL, i ), \
-      schnek::Logger::instance().err() << __LINE__ << " " << __FILE__ << ": " << x << "\n";, \
-    BOOST_PP_EMPTY()                                   \
-  )
+#define SCHNEK_TRACE_ERR(i, x)                                                                               \
+  BOOST_PP_IIF(BOOST_PP_GREATER_EQUAL(LOGLEVEL, i), schnek::Logger::instance().err()                         \
+                                                        << __LINE__ << " " << __FILE__ << ": " << x << "\n"; \
+               , BOOST_PP_EMPTY())
 
-#define SCHNEK_TRACE_ENTER_FUNCTION(i)                                  \
-  BOOST_PP_IIF( BOOST_PP_GREATER_EQUAL( LOGLEVEL, i ), \
-    schnek::Logger::instance().out() << "Entering " << BOOST_CURRENT_FUNCTION << std::endl;, \
-    BOOST_PP_EMPTY()                                   \
-  )
+#define SCHNEK_TRACE_ENTER_FUNCTION(i)                                                                         \
+  BOOST_PP_IIF(BOOST_PP_GREATER_EQUAL(LOGLEVEL, i), schnek::Logger::instance().out()                           \
+                                                        << "Entering " << BOOST_CURRENT_FUNCTION << std::endl; \
+               , BOOST_PP_EMPTY())
 
-#define SCHNEK_TRACE_EXIT_FUNCTION(i)                                  \
-  BOOST_PP_IIF( BOOST_PP_GREATER_EQUAL( LOGLEVEL, i ), \
-    schnek::Logger::instance().out() << "Leaving " << BOOST_CURRENT_FUNCTION << std::endl;, \
-    BOOST_PP_EMPTY()                                   \
-  )
+#define SCHNEK_TRACE_EXIT_FUNCTION(i)                                                                         \
+  BOOST_PP_IIF(BOOST_PP_GREATER_EQUAL(LOGLEVEL, i), schnek::Logger::instance().out()                          \
+                                                        << "Leaving " << BOOST_CURRENT_FUNCTION << std::endl; \
+               , BOOST_PP_EMPTY())
 
 /** Predefines the log level if it is not defined.
  *
@@ -100,66 +94,66 @@ namespace schnek {
 
 #include "singleton.hpp"
 
-/** Instance of the logger singleton used for logging debug and error
- *  messages.
- *
- *  The logger provides a std::ostream for error messages and for other
- *  messages. These are provided by the methods out and err. Currently they
- *  are implemented to return the std::cout and std::cerr streams.
- */
-class Logger : public Singleton<Logger>
-{
-  public:
-    /** Return the ostream for writing standard debug comments.
-     *
-     *  Currently implemented to return std::cout
-     */
-    std::ostream &out() { return std::cout; }
+  /** Instance of the logger singleton used for logging debug and error
+   *  messages.
+   *
+   *  The logger provides a std::ostream for error messages and for other
+   *  messages. These are provided by the methods out and err. Currently they
+   *  are implemented to return the std::cout and std::cerr streams.
+   */
+  class Logger : public Singleton<Logger> {
+    public:
+      /** Return the ostream for writing standard debug comments.
+       *
+       *  Currently implemented to return std::cout
+       */
+      std::ostream &out() { return std::cout; }
 
-    /** Return the ostream for writing error messages.
-     *
-     *  Currently implemented to return std::cerr
-     */
-    std::ostream &err() { return std::cerr; }
-  private:
-    friend class Singleton<Logger>;
-    friend class CreateUsingNew<Logger>;
+      /** Return the ostream for writing error messages.
+       *
+       *  Currently implemented to return std::cerr
+       */
+      std::ostream &err() { return std::cerr; }
 
-    /** The private default constructor can only be called by the
-     *  singleton template.
-     */
-    Logger() { }
+    private:
+      friend class Singleton<Logger>;
+      friend class CreateUsingNew<Logger>;
 
-    /** The private destructor can only be called by the
-     *  singleton template.
-     */
-    ~Logger() {
-//      std::cerr << "DELETING LOGGER "<< this <<" " <<i<<"\n";
-    }
-};
+      /** The private default constructor can only be called by the
+       *  singleton template.
+       */
+      Logger() {}
 
-/** @file logger.hpp
- *
- *  Defines the Logger singleton and macros for using it
- *
- *  Example:
- *
- * #undef LOGLEVEL
- * #define LOGLEVEL 2
- *
- * WRITELOG(1,"Level 1")
- *
- * WRITELOG(2,"Level 2")
- *
- * WRITELOG(3,"Level 3")
- *
- * WRITELOG(4,"Level 4")
- *
- * WRITELOG(5,"Level 5")
- *
- *  This will only produce code for the level 1 and 2 statements. All other
- *  macros expand to nothing.
- */
+      /** The private destructor can only be called by the
+       *  singleton template.
+       */
+      ~Logger() {
+        //      std::cerr << "DELETING LOGGER "<< this <<" " <<i<<"\n";
+      }
+  };
 
-} // namespace 
-#endif // LOGGER_HPP_ 
+  /** @file logger.hpp
+   *
+   *  Defines the Logger singleton and macros for using it
+   *
+   *  Example:
+   *
+   * #undef LOGLEVEL
+   * #define LOGLEVEL 2
+   *
+   * WRITELOG(1,"Level 1")
+   *
+   * WRITELOG(2,"Level 2")
+   *
+   * WRITELOG(3,"Level 3")
+   *
+   * WRITELOG(4,"Level 4")
+   *
+   * WRITELOG(5,"Level 5")
+   *
+   *  This will only produce code for the level 1 and 2 statements. All other
+   *  macros expand to nothing.
+   */
+
+}  // namespace schnek
+#endif  // LOGGER_HPP_

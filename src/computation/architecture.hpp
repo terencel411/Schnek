@@ -30,29 +30,29 @@
 #include "concepts/architecture-concept.hpp"
 
 namespace schnek::computation {
-    /**
-     * Meta-type definition for an architecture:
-     * 
-     * struct Architecture {
-     *   typedef ... GridStorageType;
-     *   
-     * };
-     * 
-     * We need compile-time checks for template parameters to check that they are architectures.
-     */
+  /**
+   * Meta-type definition for an architecture:
+   *
+   * struct Architecture {
+   *   typedef ... GridStorageType;
+   *
+   * };
+   *
+   * We need compile-time checks for template parameters to check that they are architectures.
+   */
 
-    /**
-     * 
-     */
-    template<typename ...Architecture>
-    struct ArchitectureCollection {
-        // static_assert(
-        //     concept::check_all_grid_storage_concepts<Architecture...>(), 
-        //     "All Architectures must define compatible GridStorageType."
-        // );
+  /**
+   *
+   */
+  template<typename... Architecture>
+  struct ArchitectureCollection {
+      // static_assert(
+      //     concept::check_all_grid_storage_concepts<Architecture...>(),
+      //     "All Architectures must define compatible GridStorageType."
+      // );
 
-        static constexpr size_t size = sizeof...(Architecture);
-    };
-} // namespace schnek::computation
+      static constexpr size_t size = sizeof...(Architecture);
+  };
+}  // namespace schnek::computation
 
-#endif // SCHNEK_COMPUTATION_ARCHITECTURE_HPP_
+#endif  // SCHNEK_COMPUTATION_ARCHITECTURE_HPP_

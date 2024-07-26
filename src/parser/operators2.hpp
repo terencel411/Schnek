@@ -27,18 +27,13 @@
 #ifndef SCHNEK_OPERATORS_HPP_
 #define SCHNEK_OPERATORS_HPP_
 
-namespace schnek {
+namespace schnek {}
 
-}
-
-class Operator
-{
+class Operator {
   public:
     virtual ExpressionVariant evaluate() = 0;
 };
 
+}  // namespace
 
-
-} // namespace
-
-#endif // SCHNEK_OPERATORS_HPP_
+#endif  // SCHNEK_OPERATORS_HPP_

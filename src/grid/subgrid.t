@@ -24,84 +24,46 @@
  *
  */
 
-namespace schnek
-{
+namespace schnek {
 
-template<
-  typename T,
-  size_t rank,
-  class BaseGrid
->
-SubGridStorage<T, rank, BaseGrid>::SubGridStorage()
-  : baseGrid(NULL), domain(0,0), dims(0)
-{}
+  template<typename T, size_t rank, class BaseGrid>
+  SubGridStorage<T, rank, BaseGrid>::SubGridStorage() : baseGrid(NULL), domain(0, 0), dims(0) {}
 
-template<
-  typename T,
-  size_t rank,
-  class BaseGrid
->
-SubGridStorage<T, rank, BaseGrid>::SubGridStorage(const IndexType &low_, const IndexType &high_)
-  : baseGrid(NULL), domain(low_, high_)
-{
-  for (size_t d = 0; d < rank; d++)
-    dims[d] = high_[d] - low_[d] + 1;
-}
+  template<typename T, size_t rank, class BaseGrid>
+  SubGridStorage<T, rank, BaseGrid>::SubGridStorage(const IndexType &low_, const IndexType &high_)
+      : baseGrid(NULL), domain(low_, high_) {
+    for (size_t d = 0; d < rank; d++) dims[d] = high_[d] - low_[d] + 1;
+  }
 
-template<
-  typename T,
-  size_t rank,
-  class BaseGrid
->
-void SubGridStorage<T, rank, BaseGrid>::resize(const IndexType &low_, const IndexType &high_)
-{
+  template<typename T, size_t rank, class BaseGrid>
+  void SubGridStorage<T, rank, BaseGrid>::resize(const IndexType &low_, const IndexType &high_) {
     domain = DomainType(low_, high_);
-}
+  }
 
-template<
-  class BaseGrid,
-  template<size_t> class CheckingPolicy
->
-SubGrid<BaseGrid, CheckingPolicy>::SubGrid()
-  : ParentType()
-{}
+  template<class BaseGrid, template<size_t> class CheckingPolicy>
+  SubGrid<BaseGrid, CheckingPolicy>::SubGrid() : ParentType() {}
 
-template<
-  class BaseGrid,
-  template<size_t> class CheckingPolicy
->
-SubGrid<BaseGrid, CheckingPolicy>::SubGrid(const IndexType &size, BaseGridType &baseGrid_)
-  : ParentType(size)
-{
-	this->check(this->getLo(), baseGrid_.getLo(), baseGrid_.getHi());
-	this->check(this->getHi(), baseGrid_.getLo(), baseGrid_.getHi());
+  template<class BaseGrid, template<size_t> class CheckingPolicy>
+  SubGrid<BaseGrid, CheckingPolicy>::SubGrid(const IndexType &size, BaseGridType &baseGrid_) : ParentType(size) {
+    this->check(this->getLo(), baseGrid_.getLo(), baseGrid_.getHi());
+    this->check(this->getHi(), baseGrid_.getLo(), baseGrid_.getHi());
     this->setBaseGrid(baseGrid_);
-}
+  }
 
-template<
-  class BaseGrid,
-  template<size_t> class CheckingPolicy
->
-SubGrid<BaseGrid, CheckingPolicy>::SubGrid(const IndexType &low, const IndexType &high, BaseGridType &baseGrid_)
-  : ParentType(low, high)
-{
-	this->check(this->getLo(), baseGrid_.getLo(), baseGrid_.getHi());
-	this->check(this->getHi(), baseGrid_.getLo(), baseGrid_.getHi());
+  template<class BaseGrid, template<size_t> class CheckingPolicy>
+  SubGrid<BaseGrid, CheckingPolicy>::SubGrid(const IndexType &low, const IndexType &high, BaseGridType &baseGrid_)
+      : ParentType(low, high) {
+    this->check(this->getLo(), baseGrid_.getLo(), baseGrid_.getHi());
+    this->check(this->getHi(), baseGrid_.getLo(), baseGrid_.getHi());
     this->setBaseGrid(baseGrid_);
-}
+  }
 
-template<
-  class BaseGrid,
-  template<size_t> class CheckingPolicy
->
-SubGrid<BaseGrid, CheckingPolicy>::SubGrid(const RangeType &range, BaseGridType &baseGrid_)
-  : ParentType(range.getLo(), range.getHi())
-{
-  this->check(this->getLo(), baseGrid_.getLo(), baseGrid_.getHi());
-  this->check(this->getHi(), baseGrid_.getLo(), baseGrid_.getHi());
-  this->setBaseGrid(baseGrid_);
-}
+  template<class BaseGrid, template<size_t> class CheckingPolicy>
+  SubGrid<BaseGrid, CheckingPolicy>::SubGrid(const RangeType &range, BaseGridType &baseGrid_)
+      : ParentType(range.getLo(), range.getHi()) {
+    this->check(this->getLo(), baseGrid_.getLo(), baseGrid_.getHi());
+    this->check(this->getHi(), baseGrid_.getLo(), baseGrid_.getHi());
+    this->setBaseGrid(baseGrid_);
+  }
 
-
-
-} // namespace schnek
+}  // namespace schnek

@@ -29,14 +29,14 @@
 #include "../config.hpp"
 #ifdef SCHNEK_HAVE_HDF5
 
-#include "../grid/grid.hpp"
-#include "diagnostic.hpp"
-
 #include <hdf5.h>
 
 #include <memory>
 
-#if defined (H5_HAVE_PARALLEL) && defined (SCHNEK_USE_HDF_PARALLEL)
+#include "../grid/grid.hpp"
+#include "diagnostic.hpp"
+
+#if defined(H5_HAVE_PARALLEL) && defined(SCHNEK_USE_HDF_PARALLEL)
 #include <mpi.h>
 #endif
 
@@ -44,305 +44,309 @@
 
 namespace schnek {
 
-template<typename TYPE>
-struct H5DataType{
-  static const hid_t type;
-};
+  template<typename TYPE>
+  struct H5DataType {
+      static const hid_t type;
+  };
 
+  /**
+   * A container type for grids that are being passed to the HDFGridDiagnostic
+   */
+  template<typename FieldType>
+  struct GridContainer {
+      /// The pointer to the grid
+      FieldType grid;
 
-/**
- * A container type for grids that are being passed to the HDFGridDiagnostic
- */
-template<typename FieldType>
-struct GridContainer
-{
-  /// The pointer to the grid
-  FieldType grid;
+      /// The global minimum coordinate
+      typename FieldType::IndexType global_min;
 
-  /// The global minimum coordinate
-  typename FieldType::IndexType global_min;
+      /// The global maximum coordinate
+      typename FieldType::IndexType global_max;
 
-  /// The global maximum coordinate
-  typename FieldType::IndexType global_max;
+      /// The local minimum coordinate
+      typename FieldType::IndexType local_min;
 
-  /// The local minimum coordinate
-  typename FieldType::IndexType local_min;
+      /// The local maximum coordinate
+      typename FieldType::IndexType local_max;
+  };
 
-  /// The local maximum coordinate
-  typename FieldType::IndexType local_max;
-};
+  /**
+   * HDF5 attributes to a data set
+   *
+   * Attributes can contain numerical values indexed by name
+   */
+  struct HdfAttributes {
+      friend class HdfOStream;
 
-/**
- * HDF5 attributes to a data set
- *
- * Attributes can contain numerical values indexed by name
- */
-struct HdfAttributes {
-  friend class HdfOStream;
-  private:
-    struct Info {
-      hid_t type;
-      hsize_t dims;
-      const void *buffer;
-    };
-    typedef std::shared_ptr<Info> pInfo;
+    private:
+      struct Info {
+          hid_t type;
+          hsize_t dims;
+          const void *buffer;
+      };
+      typedef std::shared_ptr<Info> pInfo;
 
-    std::map<std::string, pInfo> attributes;
-  public:
+      std::map<std::string, pInfo> attributes;
 
-    /**
-     * Set a value on the dataset's attributes
-     *
-     * @param name   the name of the attribute
-     * @param value  the value to be stored
-     */
-    template<typename T>
-    void set(std::string name, const T *value, hsize_t dims = 1);
+    public:
+      /**
+       * Set a value on the dataset's attributes
+       *
+       * @param name   the name of the attribute
+       * @param value  the value to be stored
+       */
+      template<typename T>
+      void set(std::string name, const T *value, hsize_t dims = 1);
 
-    /**
-     * Set a value on the dataset's attributes
-     *
-     * @param name   the name of the attribute
-     * @param value  the value to be stored
-     */
-    template<typename T>
-    void set(std::string name, const T &value, hsize_t dims = 1);
-};
+      /**
+       * Set a value on the dataset's attributes
+       *
+       * @param name   the name of the attribute
+       * @param value  the value to be stored
+       */
+      template<typename T>
+      void set(std::string name, const T &value, hsize_t dims = 1);
+  };
 
-typedef std::shared_ptr<HdfAttributes> pHdfAttributes;
+  typedef std::shared_ptr<HdfAttributes> pHdfAttributes;
 
-/** @brief IO class for handling HDF files
-  *
-  * This is the abstract base class for HDF-IO- classes.
-  * Implements the basic operations on HdfStreams as virtual methods.
-  */
-class HdfStream {
-  protected:
-    /// HDF5 File id
-    hid_t       file_id;
+  /** @brief IO class for handling HDF files
+   *
+   * This is the abstract base class for HDF-IO- classes.
+   * Implements the basic operations on HdfStreams as virtual methods.
+   */
+  class HdfStream {
+    protected:
+      /// HDF5 File id
+      hid_t file_id;
 
-    /// HDF5 Error status
-    herr_t      status;
+      /// HDF5 Error status
+      herr_t status;
 
-    /// name of the datablock to be read or written
-    std::string blockname;
+      /// name of the datablock to be read or written
+      std::string blockname;
 
-    /// any attributes attached to the data
-    pHdfAttributes attributes;
+      /// any attributes attached to the data
+      pHdfAttributes attributes;
 
-    /// counter for the sets with a given blockname read from or written to the file
-    int sets_count;
+      /// counter for the sets with a given blockname read from or written to the file
+      int sets_count;
 
-    /// Specifies if the stream is active in this process (in case of parallel execution)
-    bool active;
-    bool activeModified;
+      /// Specifies if the stream is active in this process (in case of parallel execution)
+      bool active;
+      bool activeModified;
 
-  public:
-    /// constructor
-    HdfStream();
-    ///copy constructur
-    HdfStream(const HdfStream&);
-    /// destructor
-    virtual ~HdfStream();
+    public:
+      /// constructor
+      HdfStream();
+      /// copy constructur
+      HdfStream(const HdfStream &);
+      /// destructor
+      virtual ~HdfStream();
 
-    /// open  file
-    virtual int open(const char*)=0;
+      /// open  file
+      virtual int open(const char *) = 0;
 
-    /// close file
-    virtual void close();
+      /// close file
+      virtual void close();
 
-    /// return true=1 if data are still available
-    virtual bool good() const;
+      /// return true=1 if data are still available
+      virtual bool good() const;
 
-    /// set the name of the data block
-    void setBlockName(std::string blockname_);
+      /// set the name of the data block
+      void setBlockName(std::string blockname_);
 
-    /// set the attributes
-    void setAttributes(pHdfAttributes attributes_);
+      /// set the attributes
+      void setAttributes(pHdfAttributes attributes_);
 
-    /// assign
-    HdfStream& operator = (const HdfStream&);
+      /// assign
+      HdfStream &operator=(const HdfStream &);
 
-    void setActive(bool active_) { active = active_; activeModified = true; }
+      void setActive(bool active_) {
+        active = active_;
+        activeModified = true;
+      }
 
-  protected:
-    std::string getNextBlockName();
+    protected:
+      std::string getNextBlockName();
 
-#if defined (H5_HAVE_PARALLEL) && defined (SCHNEK_USE_HDF_PARALLEL)
-    void makeMPIGroup();
+#if defined(H5_HAVE_PARALLEL) && defined(SCHNEK_USE_HDF_PARALLEL)
+      void makeMPIGroup();
 
-    MPI_Comm mpiComm;
-    bool commSet;
+      MPI_Comm mpiComm;
+      bool commSet;
 #endif
+  };
 
-};
+  /** @brief Input stream for HDF files */
+  class HdfIStream : public HdfStream {
+    private:
+      hid_t dxpl_id;
 
+    public:
+      /// constructor
+      HdfIStream();
 
-/** @brief Input stream for HDF files */
-class HdfIStream : public HdfStream {
-  private:
-    hid_t dxpl_id;
-  public:
-    /// constructor
-    HdfIStream();
+      /// copy constructor */
+      HdfIStream(const HdfIStream &);
 
-    /// copy constructor */
-    HdfIStream(const HdfIStream&);
+      /// constructor, opens HDF file "fname", selects first dataset
+      HdfIStream(const char *fname);
 
-    /// constructor, opens HDF file "fname", selects first dataset
-    HdfIStream(const char* fname);
+      /// opens HDF file "fname", selects first dataset
+      int open(const char *);
 
-    /// opens HDF file "fname", selects first dataset
-    int open(const char*);
+      /// stream input operator for a schnek::Matrix
+      template<typename FieldType>
+      void readGrid(GridContainer<FieldType> &g);
+  };
 
-    /// stream input operator for a schnek::Matrix
-    template<typename FieldType>
-    void readGrid(GridContainer<FieldType> &g);
-};
-
-
-/** @brief output stream for HDF files */
-class HdfOStream : public HdfStream {
-  private:
-    hid_t dxpl_id;
-#if defined (H5_HAVE_PARALLEL) && defined (SCHNEK_USE_HDF_PARALLEL)
-    MPI_Info mpi_info;
+  /** @brief output stream for HDF files */
+  class HdfOStream : public HdfStream {
+    private:
+      hid_t dxpl_id;
+#if defined(H5_HAVE_PARALLEL) && defined(SCHNEK_USE_HDF_PARALLEL)
+      MPI_Info mpi_info;
 #endif
-    hid_t plist_id;
-    bool initialised;
-  public:
-    /// constructor
-    HdfOStream();
+      hid_t plist_id;
+      bool initialised;
 
-    /// copy constructor
-    HdfOStream(const HdfOStream&);
+    public:
+      /// constructor
+      HdfOStream();
 
-    /// constructor, opens HDF file "fname"
-    HdfOStream(const char* fname);
+      /// copy constructor
+      HdfOStream(const HdfOStream &);
 
-    /// open file
-    int open(const char*);
+      /// constructor, opens HDF file "fname"
+      HdfOStream(const char *fname);
 
-    /// stream output operator for a matrix
-    template<typename FieldType>
-    void writeGrid(GridContainer<FieldType> &g);
-};
-/**
- * Abstract diagnostic class for writing Grids into HDF5 data files
- */
-template<typename Type, class DiagnosticType = IntervalDiagnostic >
-class HDFGridDiagnostic : public SimpleDiagnostic<Type, Type, DiagnosticType> {
-  public:
-    typedef typename Type::IndexType IndexType;
-  protected:
-    HdfOStream output;
-    GridContainer<Type> container;
-  protected:
-    /// Open the output file
-    void open(const std::string &);
-    /// Write into the touput file
-    void write();
-    /// Close the output file
-    void close();
+      /// open file
+      int open(const char *);
 
-    /// Block inititialisation
-    void init();
-    /// Get the global minimum of the simulation bounds
-    virtual IndexType getGlobalMin() = 0;
-    /// Get the global maximum of the simulation bounds
-    virtual IndexType getGlobalMax() = 0;
+      /// stream output operator for a matrix
+      template<typename FieldType>
+      void writeGrid(GridContainer<FieldType> &g);
+  };
+  /**
+   * Abstract diagnostic class for writing Grids into HDF5 data files
+   */
+  template<typename Type, class DiagnosticType = IntervalDiagnostic>
+  class HDFGridDiagnostic : public SimpleDiagnostic<Type, Type, DiagnosticType> {
+    public:
+      typedef typename Type::IndexType IndexType;
 
-    /**
-     * Get the name of the data set in the HDF file
-     *
-     * @return  the field name `data`
-     */
-    virtual std::string getDatasetName();
+    protected:
+      HdfOStream output;
+      GridContainer<Type> container;
 
-    /**
-     * Get the attributes to be stored with the dataset.
-     *
-     * Override this to store additional attributes with the dataset
-     *
-     * @return  an empty attributes set
-     */
-    virtual pHdfAttributes getAttributes() {
-      return std::make_shared<HdfAttributes>();
-    };
-  public:
-    virtual ~HDFGridDiagnostic() {}
-};
+    protected:
+      /// Open the output file
+      void open(const std::string &);
+      /// Write into the touput file
+      void write();
+      /// Close the output file
+      void close();
 
-/**
- * Reader for HDF grid data
- *
- * An interface that
- */
-template<typename Type>
-class HDFGridReader : public Block
-{
-  public:
-    typedef typename Type::IndexType IndexType;
-  protected:
-    /// The HDF output stream
-    HdfIStream input;
-    /// The container for the grid holding additional data
-    GridContainer<Type> container;
-    /// The field that the data will be read into
-    Type field;
-    /// The name of the field to read the data into
-    std::string fieldName;
-    /// The name of the file to read the data from
-    std::string fileName;
-  public:
-    /// Default constructor
-    HDFGridReader();
-    /// Virtual destructor
-    virtual ~HDFGridReader() {}
-  protected:
-    /// Open the input file
-    void open();
+      /// Block inititialisation
+      void init();
+      /// Get the global minimum of the simulation bounds
+      virtual IndexType getGlobalMin() = 0;
+      /// Get the global maximum of the simulation bounds
+      virtual IndexType getGlobalMax() = 0;
 
-    /// Read from the input file
-    void read();
+      /**
+       * Get the name of the data set in the HDF file
+       *
+       * @return  the field name `data`
+       */
+      virtual std::string getDatasetName();
 
-    /// Close the output file
-    void close();
+      /**
+       * Get the attributes to be stored with the dataset.
+       *
+       * Override this to store additional attributes with the dataset
+       *
+       * @return  an empty attributes set
+       */
+      virtual pHdfAttributes getAttributes() { return std::make_shared<HdfAttributes>(); };
 
-    /**
-     * Run the grid reader
-     *
-     * This will open the file, read the data and close the file again.
-     *
-     * This method needs to be run after the block has been initialised during
-     * the `init` lifecycle stage.
-     */
-    void execute();
+    public:
+      virtual ~HDFGridDiagnostic() {}
+  };
 
-    /// Block inititialisation
-    void init();
+  /**
+   * Reader for HDF grid data
+   *
+   * An interface that
+   */
+  template<typename Type>
+  class HDFGridReader : public Block {
+    public:
+      typedef typename Type::IndexType IndexType;
 
-    /// Get the global minimum of the simulation bounds
-    virtual IndexType getGlobalMin() = 0;
+    protected:
+      /// The HDF output stream
+      HdfIStream input;
+      /// The container for the grid holding additional data
+      GridContainer<Type> container;
+      /// The field that the data will be read into
+      Type field;
+      /// The name of the field to read the data into
+      std::string fieldName;
+      /// The name of the file to read the data from
+      std::string fileName;
 
-    /// Get the global maximum of the simulation bounds
-    virtual IndexType getGlobalMax() = 0;
+    public:
+      /// Default constructor
+      HDFGridReader();
+      /// Virtual destructor
+      virtual ~HDFGridReader() {}
 
-    /**
-     * Get the name of the data set in the HDF file
-     *
-     * @return  the field name `data`
-     */
-    virtual std::string getDatasetName();
+    protected:
+      /// Open the input file
+      void open();
 
-    /// Block callback to initialise the parameters
-    void initParameters(BlockParameters &blockPars);
-};
+      /// Read from the input file
+      void read();
 
-} // namespace schnek
+      /// Close the output file
+      void close();
+
+      /**
+       * Run the grid reader
+       *
+       * This will open the file, read the data and close the file again.
+       *
+       * This method needs to be run after the block has been initialised during
+       * the `init` lifecycle stage.
+       */
+      void execute();
+
+      /// Block inititialisation
+      void init();
+
+      /// Get the global minimum of the simulation bounds
+      virtual IndexType getGlobalMin() = 0;
+
+      /// Get the global maximum of the simulation bounds
+      virtual IndexType getGlobalMax() = 0;
+
+      /**
+       * Get the name of the data set in the HDF file
+       *
+       * @return  the field name `data`
+       */
+      virtual std::string getDatasetName();
+
+      /// Block callback to initialise the parameters
+      void initParameters(BlockParameters &blockPars);
+  };
+
+}  // namespace schnek
 
 #include "hdfdiagnostic.t"
 
 #endif
 
-#endif // SCHNEK_HDFDIAGNOSTIC_HPP_
+#endif  // SCHNEK_HDFDIAGNOSTIC_HPP_

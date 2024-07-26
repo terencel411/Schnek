@@ -29,93 +29,83 @@
 
 #include <boost/current_function.hpp>
 #include <exception>
+#include <string>
 
 namespace schnek {
 
-//! Base error class
-class ScheckException : public std::exception {
-  private:
-    std::string message;
-  public:
-    ScheckException(const std::string& file,
-                    long line,
-                    const std::string& functionName,
-                    const std::string& message_ = "");
+  //! Base error class
+  class ScheckException : public std::exception {
+    private:
+      std::string message;
 
-    ~ScheckException() throw() {}
-    //! returns the error message.
-    const char* what() const throw ();
-};
+    public:
+      ScheckException(
+          const std::string& file, long line, const std::string& functionName, const std::string& message_ = ""
+      );
 
-} // namespace
+      ~ScheckException() throw() {}
+      //! returns the error message.
+      const char* what() const throw();
+  };
 
-#define SCHNECK_FAIL(message) \
-{ \
-    std::ostringstream _schnek_msg_stream; \
-    _schnek_msg_stream << message; \
-    throw schnek::ScheckException(__FILE__,__LINE__, \
-                          BOOST_CURRENT_FUNCTION,_schnek_msg_stream.str()); \
-}
+}  // namespace schnek
 
+#define SCHNECK_FAIL(message)                                                                            \
+  {                                                                                                      \
+    std::ostringstream _schnek_msg_stream;                                                               \
+    _schnek_msg_stream << message;                                                                       \
+    throw schnek::ScheckException(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, _schnek_msg_stream.str()); \
+  }
 
-#define SCHNEK_ASSERT(condition,message) \
-if (!(condition)) { \
-    std::ostringstream _schnek_msg_stream; \
-    _schnek_msg_stream << message; \
-    throw schnek::ScheckException(__FILE__,__LINE__, \
-                          BOOST_CURRENT_FUNCTION,_schnek_msg_stream.str()); \
-}
+#define SCHNEK_ASSERT(condition, message)                                                                \
+  if (!(condition)) {                                                                                    \
+    std::ostringstream _schnek_msg_stream;                                                               \
+    _schnek_msg_stream << message;                                                                       \
+    throw schnek::ScheckException(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, _schnek_msg_stream.str()); \
+  }
 
-#define SCHNEK_REQUIRE(condition,message) \
-if (!(condition)) { \
-    std::ostringstream _schnek_msg_stream; \
-    _schnek_msg_stream << message; \
-    throw schnek::ScheckException(__FILE__,__LINE__, \
-                          BOOST_CURRENT_FUNCTION,_schnek_msg_stream.str()); \
-}
+#define SCHNEK_REQUIRE(condition, message)                                                               \
+  if (!(condition)) {                                                                                    \
+    std::ostringstream _schnek_msg_stream;                                                               \
+    _schnek_msg_stream << message;                                                                       \
+    throw schnek::ScheckException(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, _schnek_msg_stream.str()); \
+  }
 
-#define SCHNEK_ENSURE(condition,message) \
-if (!(condition)) { \
-    std::ostringstream _schnek_msg_stream; \
-    _schnek_msg_stream << message; \
-    throw schnek::ScheckException(__FILE__,__LINE__, \
-                          BOOST_CURRENT_FUNCTION,_schnek_msg_stream.str()); \
-}
-
+#define SCHNEK_ENSURE(condition, message)                                                                \
+  if (!(condition)) {                                                                                    \
+    std::ostringstream _schnek_msg_stream;                                                               \
+    _schnek_msg_stream << message;                                                                       \
+    throw schnek::ScheckException(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, _schnek_msg_stream.str()); \
+  }
 
 // duplications of the macros allowing for other exceptions with comparable constructor
 
-#define SCHNECK_FAIL_E(message, exceptclass) \
-{ \
-    std::ostringstream _schnek_msg_stream; \
-    _schnek_msg_stream << message; \
-    throw schnek::exceptclass(__FILE__,__LINE__, \
-                          BOOST_CURRENT_FUNCTION,_schnek_msg_stream.str()); \
-}
+#define SCHNECK_FAIL_E(message, exceptclass)                                                         \
+  {                                                                                                  \
+    std::ostringstream _schnek_msg_stream;                                                           \
+    _schnek_msg_stream << message;                                                                   \
+    throw schnek::exceptclass(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, _schnek_msg_stream.str()); \
+  }
 
+#define SCHNEK_ASSERT_E(condition, message, exceptclass)                                             \
+  if (!(condition)) {                                                                                \
+    std::ostringstream _schnek_msg_stream;                                                           \
+    _schnek_msg_stream << message;                                                                   \
+    throw schnek::exceptclass(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, _schnek_msg_stream.str()); \
+  }
 
-#define SCHNEK_ASSERT_E(condition,message, exceptclass) \
-if (!(condition)) { \
-    std::ostringstream _schnek_msg_stream; \
-    _schnek_msg_stream << message; \
-    throw schnek::exceptclass(__FILE__,__LINE__, \
-                          BOOST_CURRENT_FUNCTION,_schnek_msg_stream.str()); \
-}
+#define SCHNEK_REQUIRE_E(condition, message, exceptclass)                                            \
+  if (!(condition)) {                                                                                \
+    std::ostringstream _schnek_msg_stream;                                                           \
+    _schnek_msg_stream << message;                                                                   \
+    throw schnek::exceptclass(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, _schnek_msg_stream.str()); \
+  }
 
-#define SCHNEK_REQUIRE_E(condition,message, exceptclass) \
-if (!(condition)) { \
-    std::ostringstream _schnek_msg_stream; \
-    _schnek_msg_stream << message; \
-    throw schnek::exceptclass(__FILE__,__LINE__, \
-                          BOOST_CURRENT_FUNCTION,_schnek_msg_stream.str()); \
-}
+#define SCHNEK_ENSURE_E(condition, message, exceptclass)                                             \
+  if (!(condition)) {                                                                                \
+    std::ostringstream _schnek_msg_stream;                                                           \
+    _schnek_msg_stream << message;                                                                   \
+    throw schnek::exceptclass(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, _schnek_msg_stream.str()); \
+  }
 
-#define SCHNEK_ENSURE_E(condition,message, exceptclass) \
-if (!(condition)) { \
-    std::ostringstream _schnek_msg_stream; \
-    _schnek_msg_stream << message; \
-    throw schnek::exceptclass(__FILE__,__LINE__, \
-                          BOOST_CURRENT_FUNCTION,_schnek_msg_stream.str()); \
-}
-
-#endif // EXCEPTIONS_HPP_ 
+#endif  // EXCEPTIONS_HPP_
