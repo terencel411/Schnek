@@ -29,6 +29,7 @@
 
 #include "gridstorage/single-array-allocation.hpp"
 #include "gridstorage/single-array-storage-base.hpp"
+#include "gridstorage/grid-storage-concept.hpp"
 
 namespace schnek {
   template<typename T, size_t rank>

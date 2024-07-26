@@ -259,7 +259,8 @@ namespace schnek {
   >
   class Grid : public internal::GridBase<T, rank, CheckingPolicy<rank>,  StoragePolicy<T,rank> >
   {
-
+    private:
+      concept::GridStorageConcept<StoragePolicy<T, rank>> concept_check;
     public:
       typedef T value_type;
       typedef Array<int,rank> IndexType;

@@ -92,15 +92,18 @@ namespace schnek
      * @tparam T The type of data stored in the grid
      * @tparam rank The rank of the grid
      */
-    template <typename T, size_t rank>
+    template <typename T, size_t Rank>
     class SingleArrayInstantAllocation
     {
     public:
+        typedef T value_type;
+        static constexpr size_t rank = Rank;
+
         /// The grid index type
-        typedef Array<int, rank> IndexType;
+        typedef Array<int, Rank> IndexType;
 
         /// The grid range type
-        typedef Range<int, rank> RangeType;
+        typedef Range<int, Rank> RangeType;
     protected:
         struct SizeInfo {
             IndexType lo;
@@ -129,12 +132,12 @@ namespace schnek
         /**
          * @brief Copy constructor
          */
-        SingleArrayInstantAllocation(const SingleArrayInstantAllocation<T, rank> &);
+        SingleArrayInstantAllocation(const SingleArrayInstantAllocation<T, Rank> &);
 
         /**
          * @brief Assignment operator
          */
-        SingleArrayInstantAllocation<T, rank> &operator=(const SingleArrayInstantAllocation<T, rank> &);
+        SingleArrayInstantAllocation<T, Rank> &operator=(const SingleArrayInstantAllocation<T, Rank> &);
 
         /**
          * @brief destructor
@@ -181,15 +184,18 @@ namespace schnek
      * @tparam T The type of data stored in the grid
      * @tparam rank The rank of the grid
      */
-    template <typename T, size_t rank>
+    template <typename T, size_t Rank>
     class SingleArrayLazyAllocation
     {
     public:
+        typedef T value_type;
+        static constexpr size_t rank = Rank;
+        
         /// The grid index type
-        typedef Array<size_t, rank> IndexType;
+        typedef Array<size_t, Rank> IndexType;
 
         /// The grid range type
-        typedef Range<size_t, rank> RangeType;
+        typedef Range<size_t, Rank> RangeType;
     protected:
         struct SizeInfo {
             IndexType lo;
@@ -238,7 +244,7 @@ namespace schnek
         /**
          * @brief Assignment operator
          */
-        SingleArrayLazyAllocation<T, rank> &operator=(const SingleArrayLazyAllocation<T, rank> &);
+        SingleArrayLazyAllocation<T, Rank> &operator=(const SingleArrayLazyAllocation<T, Rank> &);
 
         /**
          * @brief destructor
@@ -279,22 +285,22 @@ namespace schnek
     //=============== SingleArrayInstantAllocation ====================
     //=================================================================
 
-    template <typename T, size_t rank>
-    SingleArrayInstantAllocation<T, rank>::SingleArrayInstantAllocation()
+    template <typename T, size_t Rank>
+    SingleArrayInstantAllocation<T, Rank>::SingleArrayInstantAllocation()
         : data(new internal::SingleArrayAllocationData<T, SizeInfo>()), size(0) 
     {
         this->data->addUpdater(this, [this](const SizeInfo& sizeInfo) { this->updateSizeInfo(sizeInfo); }); 
     }
 
-    template <typename T, size_t rank>
-    SingleArrayInstantAllocation<T, rank>::SingleArrayInstantAllocation(const SingleArrayInstantAllocation<T, rank> &other)
+    template <typename T, size_t Rank>
+    SingleArrayInstantAllocation<T, Rank>::SingleArrayInstantAllocation(const SingleArrayInstantAllocation<T, Rank> &other)
         : data(other.data), size(other.size), range(other.range), dims(other.dims)
     {
         this->data->addUpdater(this, [this](const SizeInfo& sizeInfo) { this->updateSizeInfo(sizeInfo); }); 
     };
 
-    template <typename T, size_t rank>
-    SingleArrayInstantAllocation<T, rank> &SingleArrayInstantAllocation<T, rank>::operator=(const SingleArrayInstantAllocation<T, rank> &other) 
+    template <typename T, size_t Rank>
+    SingleArrayInstantAllocation<T, Rank> &SingleArrayInstantAllocation<T, Rank>::operator=(const SingleArrayInstantAllocation<T, Rank> &other) 
     {
         this->data = other.data;
         this->size = other.size;
@@ -304,24 +310,24 @@ namespace schnek
         return *this;
     };
 
-    template <typename T, size_t rank>
-    SingleArrayInstantAllocation<T, rank>::~SingleArrayInstantAllocation()
+    template <typename T, size_t Rank>
+    SingleArrayInstantAllocation<T, Rank>::~SingleArrayInstantAllocation()
     {
         this->data->removeUpdater(this);
     }
 
-    template <typename T, size_t rank>
-    void SingleArrayInstantAllocation<T, rank>::onUpdate(const UpdaterType &updater)
+    template <typename T, size_t Rank>
+    void SingleArrayInstantAllocation<T, Rank>::onUpdate(const UpdaterType &updater)
     {
         this->updater = updater;
     }
 
-    template <typename T, size_t rank>
-    void SingleArrayInstantAllocation<T, rank>::updateSizeInfo(const SizeInfo &sizeInfo) {
+    template <typename T, size_t Rank>
+    void SingleArrayInstantAllocation<T, Rank>::updateSizeInfo(const SizeInfo &sizeInfo) {
         size = 1;
         range = RangeType{sizeInfo.lo, sizeInfo.hi};
 
-        for (size_t d = 0; d < rank; ++d)
+        for (size_t d = 0; d < Rank; ++d)
         {
             dims[d] = sizeInfo.hi[d] - sizeInfo.lo[d] + 1;
             size *= dims[d];
@@ -332,16 +338,16 @@ namespace schnek
         }
     }
 
-    template <typename T, size_t rank>
-    void SingleArrayInstantAllocation<T, rank>::resizeImpl(const IndexType &lo, const IndexType &hi)
+    template <typename T, size_t Rank>
+    void SingleArrayInstantAllocation<T, Rank>::resizeImpl(const IndexType &lo, const IndexType &hi)
     {
         this->deleteData();
         this->newData(lo, hi);
         data->update(SizeInfo{lo, hi});
     }
 
-    template <typename T, size_t rank>
-    void SingleArrayInstantAllocation<T, rank>::deleteData()
+    template <typename T, size_t Rank>
+    void SingleArrayInstantAllocation<T, Rank>::deleteData()
     {
         if (data->ptr)
         {
@@ -351,8 +357,8 @@ namespace schnek
         size = 0;
     }
 
-    template <typename T, size_t rank>
-    void SingleArrayInstantAllocation<T, rank>::newData(
+    template <typename T, size_t Rank>
+    void SingleArrayInstantAllocation<T, Rank>::newData(
         const IndexType &lo,
         const IndexType &hi
     )
@@ -360,7 +366,7 @@ namespace schnek
         size = 1;
         range = RangeType{lo, hi};
 
-        for (size_t d = 0; d < rank; ++d)
+        for (size_t d = 0; d < Rank; ++d)
         {
             dims[d] = hi[d] - lo[d] + 1;
             size *= dims[d];
@@ -372,8 +378,8 @@ namespace schnek
     //================== SingleArrayLazyAllocation ====================
     //=================================================================
 
-    template <typename T, size_t rank>
-    SingleArrayLazyAllocation<T, rank>::SingleArrayLazyAllocation()
+    template <typename T, size_t Rank>
+    SingleArrayLazyAllocation<T, Rank>::SingleArrayLazyAllocation()
         : data(new internal::SingleArrayAllocationData<T, SizeInfo>()), 
           size(0), 
           bufSize(0), 
@@ -384,8 +390,8 @@ namespace schnek
         this->data->addUpdater(this, [this](const SizeInfo& sizeInfo) { this->updateSizeInfo(sizeInfo); });       
     }
 
-    template <typename T, size_t rank>
-    SingleArrayLazyAllocation<T, rank>::SingleArrayLazyAllocation(const SingleArrayLazyAllocation<T, rank> &other)
+    template <typename T, size_t Rank>
+    SingleArrayLazyAllocation<T, Rank>::SingleArrayLazyAllocation(const SingleArrayLazyAllocation<T, Rank> &other)
         : data(other.data), 
           size(other.size), 
           range(other.range), 
@@ -398,8 +404,8 @@ namespace schnek
         this->data->addUpdater(this, [this](const SizeInfo& sizeInfo) { this->updateSizeInfo(sizeInfo); });      
     };
 
-    template <typename T, size_t rank>
-    SingleArrayLazyAllocation<T, rank> &SingleArrayLazyAllocation<T, rank>::operator=(const SingleArrayLazyAllocation<T, rank> &other) 
+    template <typename T, size_t Rank>
+    SingleArrayLazyAllocation<T, Rank> &SingleArrayLazyAllocation<T, Rank>::operator=(const SingleArrayLazyAllocation<T, Rank> &other) 
     {
         this->data = other.data;
         this->size = other.size;
@@ -410,24 +416,24 @@ namespace schnek
     };
 
 
-    template <typename T, size_t rank>
-    SingleArrayLazyAllocation<T, rank>::~SingleArrayLazyAllocation()
+    template <typename T, size_t Rank>
+    SingleArrayLazyAllocation<T, Rank>::~SingleArrayLazyAllocation()
     {
         this->data->removeUpdater(this);
     }
 
-    template <typename T, size_t rank>
-    void SingleArrayLazyAllocation<T, rank>::onUpdate(const UpdaterType &updater)
+    template <typename T, size_t Rank>
+    void SingleArrayLazyAllocation<T, Rank>::onUpdate(const UpdaterType &updater)
     {
         this->updater = updater;
     }
 
-    template <typename T, size_t rank>
-    void SingleArrayLazyAllocation<T, rank>::updateSizeInfo(const SizeInfo &sizeInfo) {
+    template <typename T, size_t Rank>
+    void SingleArrayLazyAllocation<T, Rank>::updateSizeInfo(const SizeInfo &sizeInfo) {
         size = 1;
         range = RangeType{sizeInfo.lo, sizeInfo.hi};
 
-        for (size_t d = 0; d < rank; ++d)
+        for (size_t d = 0; d < Rank; ++d)
         {
             dims[d] = sizeInfo.hi[d] - sizeInfo.lo[d] + 1;
             size *= dims[d];
@@ -441,13 +447,13 @@ namespace schnek
         }
     }
 
-    template <typename T, size_t rank>
-    void SingleArrayLazyAllocation<T, rank>::resizeImpl(const IndexType &lo, const IndexType &hi)
+    template <typename T, size_t Rank>
+    void SingleArrayLazyAllocation<T, Rank>::resizeImpl(const IndexType &lo, const IndexType &hi)
     {
         size_t newSize = 1;
         range = RangeType{lo, hi};
 
-        for (size_t d = 0; d < rank; d++)
+        for (size_t d = 0; d < Rank; d++)
         {
             dims[d] = hi[d] - lo[d] + 1;
             newSize *= dims[d];
@@ -466,8 +472,8 @@ namespace schnek
         this->data->update(SizeInfo{lo, hi, size, bufSize, avgSize, avgVar});
     }
 
-    template <typename T, size_t rank>
-    void SingleArrayLazyAllocation<T, rank>::deleteData()
+    template <typename T, size_t Rank>
+    void SingleArrayLazyAllocation<T, Rank>::deleteData()
     {
         SCHNEK_TRACE_LOG(5, "Deleting pointer (" << (void *)data << "): size=" << size << " avgSize=" << avgSize << " avgVar=" << avgVar << " bufSize=" << bufSize);
         if (data->ptr)
@@ -479,8 +485,8 @@ namespace schnek
         bufSize = 0;
     }
 
-    template <typename T, size_t rank>
-    void SingleArrayLazyAllocation<T, rank>::newData(
+    template <typename T, size_t Rank>
+    void SingleArrayLazyAllocation<T, Rank>::newData(
         size_t newSize)
     {
         bufSize = newSize + (size_t)(4 * sqrt(avgVar));

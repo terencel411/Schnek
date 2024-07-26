@@ -42,17 +42,16 @@ SCHNEK_INLINE Array<T,Length,CheckingPolicy>::Array(const Array<T, Length, Check
     data[i] = arr[i];
 }
 
-// template<class T, size_t Length, template <size_t> class CheckingPolicy>
-// inline Array<T,Length,CheckingPolicy>::Array(std::initializer_list<T> l)
-// {
-//   data = l;
-// }
-
 template<class T, size_t Length, template <size_t> class CheckingPolicy>
 SCHNEK_INLINE Array<T,Length,CheckingPolicy>::Array(const T& v0)
 {
   for (size_t i=0; i<Length; ++i) data[i] = v0;
 }
+
+// template<class T, size_t Length, template <size_t> class CheckingPolicy>
+// SCHNEK_INLINE Array<T,Length,CheckingPolicy>::Array(std::initializer_list<T> l): data(l)
+// {
+// }
 
 template<class T, size_t Length, template <size_t> class CheckingPolicy>
 SCHNEK_INLINE Array<T,Length,CheckingPolicy>::Array(
