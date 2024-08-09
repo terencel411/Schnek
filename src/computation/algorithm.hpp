@@ -30,6 +30,9 @@
 #include <cstddef>
 #include <list>
 #include <map>
+#include <array>
+
+#include "architecture.hpp"
 
 #include "../generic/type-util.hpp"
 #include "../generic/typelist.hpp"
@@ -46,6 +49,8 @@
 // the algorithm class which fields it needs and on which architecture and the algorithm class creates them using the
 // registered factories.
 namespace schnek::computation {
+
+  template<typename... Architectures>
   class Algorithm;
   namespace internal {
     class RegistrationWrapper : public schnek::Unique<RegistrationWrapper> {
@@ -54,11 +59,14 @@ namespace schnek::computation {
     };
     typedef std::shared_ptr<RegistrationWrapper> pRegistrationWrapper;
 
-    class AlgorithmStepWrapper {
+    class AlgorithmStepWrapper : public schnek::Unique<AlgorithmStepWrapper> {
       public:
         virtual ~AlgorithmStepWrapper() {}
     };
     typedef std::shared_ptr<AlgorithmStepWrapper> pAlgorithmStepWrapper;
+
+
+
   }  // namespace internal
 
   /**
@@ -72,15 +80,22 @@ namespace schnek::computation {
   template<typename FieldType>
   class Registration {
     private:
-      MultiArchitectureFieldFactory<FieldType> &factory;
-      internal::RegistrationWrapper *wrapper;
-
-      Registration(MultiArchitectureFieldFactory<FieldType> &factory) : factory(factory) {}
+      template<typename... Architectures>
       friend class Algorithm;
 
       template<size_t rank, typename Architecture, typename... InputOutputDefinitions>
       friend class AlgorithmStepBuilder;
 
+      MultiArchitectureFieldFactory<FieldType> &factory;
+      internal::RegistrationWrapper *wrapper;
+
+      std::list<std::pair<internal::pAlgorithmStepWrapper, bool>> steps;
+
+      Registration(MultiArchitectureFieldFactory<FieldType> &factory) : factory(factory) {}
+
+      void addAlgorithmStep(internal::pAlgorithmStepWrapper step, bool isInput) { 
+        steps.push_back(std::make_pair(step, isInput)); 
+      }
     public:
       Registration(const Registration &other) : factory(other.factory), wrapper(other.wrapper) {}
       Registration &operator=(const Registration &other) {
@@ -88,6 +103,7 @@ namespace schnek::computation {
         wrapper = other.wrapper;
         return *this;
       }
+
       long getId() const { return wrapper->getId(); }
   };
 
@@ -98,6 +114,13 @@ namespace schnek::computation {
         Registration<FieldType> registration;
         RegistrationWrapperImpl(Registration<FieldType> registration) : registration(registration) {}
     };
+
+    class AlgorithmAction {
+      public:
+        virtual void execute() = 0;
+    };
+
+    typedef std::unique_ptr<AlgorithmAction> pAlgorithmAction;
   }  // namespace internal
 
   template<size_t rank, typename FuncType, typename Architecture, typename... InputOutputDefinitions>
@@ -106,11 +129,12 @@ namespace schnek::computation {
   template<size_t rank, typename Architecture, typename... InputOutputDefinitions>
   class AlgorithmStepBuilder;
 
+  template<typename... Architectures>
   class Algorithm {
     private:
       std::map<long, internal::pRegistrationWrapper> registrations;
       std::list<internal::pAlgorithmStepWrapper> steps;
-
+      static_assert((concept::ArchitectureConcept<Architectures>::value && ...), "Architectures must meet ArchitecturesConcept requirements");
     public:
       /**
        * Register a field factory for all the architectures in the collection
@@ -132,6 +156,15 @@ namespace schnek::computation {
        */
       template<size_t rank, typename Architecture>
       AlgorithmStepBuilder<rank, Architecture> stepBuilder();
+
+      /**
+       * @brief Create a list of actions that represent the algorithm
+       * 
+       * This is public for now to allow testing. It will be private in the final version.
+       * 
+       * @return std::list<internal::pAlgorithmAction> 
+       */
+      std::list<internal::pAlgorithmAction> makeActions();
   };
 
   namespace internal {
@@ -180,6 +213,9 @@ namespace schnek::computation {
 
   template<size_t rank, typename FuncType, typename Architecture, typename... InputOutputDefinitions>
   class AlgorithmStep {
+    private:
+      template<typename... Architectures>
+      friend class Algorithm;
     public:
       using InputRegistrationsTuple = internal::InputRegistrationsTuple<InputOutputDefinitions...>;
       using OutputRegistrationsTuple = internal::OutputRegistrationsTuple<InputOutputDefinitions...>;
@@ -274,31 +310,33 @@ namespace schnek::computation {
             inputRegistrations, outputRegistrations, func};
       }
   };
-  //=================================================================
-  //======================= FieldFactory ============================
-  //=================================================================
+ 
+  namespace internal {
+    /**
+     * @brief Records the state of the fields in the algorithm as the algroithm is executed
+     * 
+     * @tparam Architectures The architectures that the algorithm is run on
+     */
+    template<typename... Architectures>
+    struct AlgorithmState {
+        enum class State { GOOD, OLD, LOCAL  };
 
-  // template<
-  //     typename T,
-  //     size_t rank,
-  //     template<size_t> class CheckingPolicy
-  // >
-  // template<typename Architecture>
-  // typename FieldTypeWrapper<T, rank, CheckingPolicy>::type<Architecture::template GridStorageType>
-  //     MultiArchitectureFieldFactory< FieldTypeWrapper<T, rank, CheckingPolicy> >::create<Architecture>(
-  //         const typename FieldTypeWrapper<T, rank, CheckingPolicy>::type<Architecture::template
-  //         GridStorageType>::RangeType &size, const typename FieldTypeWrapper<T, rank,
-  //         CheckingPolicy>::type<Architecture::template GridStorageType>::DomainType &domain, const typename
-  //         FieldTypeWrapper<T, rank, CheckingPolicy>::type<Architecture::template GridStorageType>::StaggerType
-  //         &stagger, int ghostCells
-  //     )
+        /**
+         * @brief Maps registration IDs to the field states
+         */
+        typedef std::map<long, State> FieldStates;
+        std::array<FieldStates, sizeof...(Architectures)> fieldStates;
+    };
+  }  // namespace internal
 
   //=================================================================
   //========================= Algorithm =============================
   //=================================================================
 
+
+  template<typename... Architectures>
   template<typename FieldType>
-  Registration<FieldType> Algorithm::registerFieldFactory(MultiArchitectureFieldFactory<FieldType> &factory) {
+  Registration<FieldType> Algorithm<Architectures...>::registerFieldFactory(MultiArchitectureFieldFactory<FieldType> &factory) {
     Registration<FieldType> registration{factory};
     internal::pRegistrationWrapper wrapper =
         std::make_shared<internal::RegistrationWrapperImpl<FieldType>>(registration);
@@ -307,19 +345,47 @@ namespace schnek::computation {
     return registration;
   }
 
+  template<typename... Architectures>
   template<size_t rank, typename Architecture>
-  AlgorithmStepBuilder<rank, Architecture> Algorithm::stepBuilder() {
+  AlgorithmStepBuilder<rank, Architecture> Algorithm<Architectures...>::stepBuilder() {
     static_assert(rank > 0, "Rank must be greater than 0");
-    // static_assert(concept::ArchitectureConcept<Architecture>::value, "Architecture must meet ArchitectureConcept
-    // requirements");
+    static_assert(concept::ArchitectureConcept<Architecture>::value, "Architecture must meet ArchitectureConcept requirements");
     return AlgorithmStepBuilder<rank, Architecture>(std::tuple<>(), std::tuple<>());
   }
 
+  template<typename... Architectures>
   template<size_t rank, typename Architecture, typename... InputOutputDefinitions>
-  void Algorithm::addStep(AlgorithmStep<rank, Architecture, InputOutputDefinitions...> &step) {
+  void Algorithm<Architectures...>::addStep(AlgorithmStep<rank, Architecture, InputOutputDefinitions...> &step) {
     internal::pAlgorithmStepWrapper wrapper =
         std::make_shared<internal::AlgorithmStepWrapperImpl<rank, Architecture, InputOutputDefinitions...>>(step);
     steps.push_back(wrapper);
+    // Add the step to each input and output registration
+    std::apply([&wrapper](auto ...r){(r->addAlgorithmStep(wrapper, true),...);}, step.inputRegistrations);
+    std::apply([&wrapper](auto ...r){(r->addAlgorithmStep(wrapper, false),...);}, step.outputRegistrations);
+  }
+
+
+  template<typename... Architectures>
+  std::list<internal::pAlgorithmAction> Algorithm<Architectures...>::makeActions() {
+    std::list<internal::pAlgorithmAction> actions;
+    internal::AlgorithmState<Architectures...> state;
+    for (auto &step : steps) {
+      // check peconditions of the step; the required registrations must be present and in the GOOD state
+      // on at least one architecture
+
+      // create the necessary actions that copy data between architectures and/or update boundary cells
+
+      // create the action that runs the step
+
+      // update the state of the fields
+
+      // Question: What other infrastructure is needed to support this?
+      // - Structures to hold the data on the architectures
+      // - A way to copy data between architectures
+      // - A way to update boundary cells
+
+    }
+    return actions;
   }
 }  // namespace schnek::computation
 

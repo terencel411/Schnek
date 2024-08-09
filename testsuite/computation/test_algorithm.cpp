@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( registerFieldFactory )
     ::MultiArchitectureFieldFactory< schnek::computation::FieldTypeWrapper<int, 2> > factoryInt;
   schnek::computation
     ::MultiArchitectureFieldFactory< schnek::computation::FieldTypeWrapper<double, 2> > factoryDouble;
-  schnek::computation::Algorithm algorithm;
+  schnek::computation::Algorithm<TestArchitecture> algorithm;
   TestFunction testFunction;
 
   auto regA = algorithm.registerFieldFactory(factoryInt);
