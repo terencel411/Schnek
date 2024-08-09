@@ -23,7 +23,7 @@ jobs:
       - run:
           name: "build"
           command: "make"
-
+    # To add linting, we need to update the docker image to include the necessary tools.
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
