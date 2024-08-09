@@ -33,7 +33,7 @@
 #include <utility>
 
 namespace schnek {
-  namespace concept {
+  namespace concepts {
     template<typename, typename = void>
     struct has_value_type : std::false_type {};
 
@@ -145,7 +145,7 @@ namespace schnek {
         static_assert(value, "GridStorage must meet GridStorageConcept requirements");
     };
 
-  }  // namespace concept
+  }  // namespace concepts
 
 }  // namespace schnek
 

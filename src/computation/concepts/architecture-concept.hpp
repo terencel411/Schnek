@@ -34,27 +34,27 @@
 
 #include "../../grid/gridstorage/grid-storage-concept.hpp"
 
-namespace schnek::computation::concept {
+namespace schnek::computation::concepts {
 
   namespace internal::architecture {
     template<typename, typename = std::void_t<>>
     struct has_grid_storage_type : std::false_type {};
 
     template<typename T>
-    struct has_grid_storage_type<T, std::void_t<typename T::template GridStorageType<int, 1>>>
-        : std::true_type {};
+    struct has_grid_storage_type<T, std::void_t<typename T::template GridStorageType<int, 1>>> : std::true_type {};
 
   }  // namespace internal::architecture
 
   /**
    * @brief Concept for an architecture
-   * 
-   * @tparam Architecture 
+   *
+   * @tparam Architecture
    */
-  template <typename Architecture>
+  template<typename Architecture>
   struct ArchitectureConcept {
-      static constexpr bool has_grid_storage_type = internal::architecture::has_grid_storage_type<Architecture>::value; 
-      // static constexpr bool grid_storage_type_meets_concept = schnek::concept::GridStorageConcept<typename Architecture::GridStorageType>::value;
+      static constexpr bool has_grid_storage_type = internal::architecture::has_grid_storage_type<Architecture>::value;
+      // static constexpr bool grid_storage_type_meets_concept = schnek::concepts::GridStorageConcept<typename
+      // Architecture::GridStorageType>::value;
 
       static_assert(has_grid_storage_type, "Architecture must have a GridStorageType member");
       // static_assert(grid_storage_type_meets_concept, "Architecture's GridStorageType must meet GridStorageConcept");
@@ -73,6 +73,6 @@ namespace schnek::computation::concept {
   //     : std::integral_constant<bool, ArchitectureConcept<First>::value &&
   //     check_all_grid_storage_concepts<Rest...>::value> {};
 
-}  // namespace schnek::computation::concept
+}  // namespace schnek::computation::concepts
 
 #endif  // SCHNEK_COMPUTATION_CONCEPTS_ARCHITECTURE_CONCEPT_HPP_
