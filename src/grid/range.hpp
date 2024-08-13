@@ -284,7 +284,18 @@ namespace schnek {
        *
        * Implements operator* and getPos which both return the current iterator position
        */
-      class iterator : public std::iterator<std::forward_iterator_tag, LimitType> {
+      class iterator {
+        public:
+          /// The type of the iterator.
+          typedef std::forward_iterator_tag iterator_category;
+          /// The type "pointed to" by the iterator.
+          typedef LimitType value_type;
+          /// Distance between iterators is represented as this type.
+          typedef ptrdiff_t  difference_type;
+          /// This type represents a pointer-to-value_type.
+          typedef LimitType* pointer;
+          /// This type represents a reference-to-value_type.
+          typedef LimitType& reference;
         private:
           BOOST_CONCEPT_ASSERT((boost::Integer<T>));
           friend class Range;

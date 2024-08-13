@@ -42,7 +42,18 @@ namespace schnek {
       BufferType buffer;
 
     public:
-      class iterator : public std::iterator<std::forward_iterator_tag, T> {
+      class iterator {
+        public:
+          /// The type of the iterator.
+          typedef std::forward_iterator_tag iterator_category;
+          /// The type "pointed to" by the iterator.
+          typedef T value_type;
+          /// Distance between iterators is represented as this type.
+          typedef ptrdiff_t  difference_type;
+          /// This type represents a pointer-to-value_type.
+          typedef T* pointer;
+          /// This type represents a reference-to-value_type.
+          typedef T& reference;
         private:
           friend class DataBuffer;
           unsigned char* data;

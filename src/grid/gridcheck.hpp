@@ -79,7 +79,7 @@ namespace schnek {
   SCHNEK_INLINE const typename GridAssertCheck<rank>::IndexType &GridAssertCheck<rank>::check(
       const IndexType &pos, const IndexType &low, const IndexType &high
   ) {
-    for (int i = 0; i < rank; ++i) {
+    for (size_t i = 0; i < rank; ++i) {
       assert(pos[i] >= low[i]);
       assert(pos[i] <= high[i]);
     }
