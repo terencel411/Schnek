@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
+cmake_policy(VERSION 3.12)
 
 set(SCHNEK_VERSION 1.2.0)
 
@@ -10,6 +11,8 @@ project(Schnek VERSION ${SCHNEK_VERSION})
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(MPI_CXX_SKIP_MPICXX TRUE)
 
 find_package(MPI)
 find_package(HDF5)

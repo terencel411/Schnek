@@ -203,7 +203,7 @@ namespace schnek {
                 "\")"
         );
         Array<pParameter, rank, CheckingPolicy> result;
-        for (int i = 0; i < rank; ++i) result[i] = addParameter(varName + extension[i], &(var[i]), perm);
+        for (size_t i = 0; i < rank; ++i) result[i] = addParameter(varName + extension[i], &(var[i]), perm);
         return result;
       }
 
@@ -222,7 +222,7 @@ namespace schnek {
                 "\")"
         );
         Array<pParameter, rank, CheckingPolicy> result;
-        for (int i = 0; i < rank; ++i)
+        for (size_t i = 0; i < rank; ++i)
           result[i] = addParameter(varName + extension[i], &(var[i]), default_values[i], perm);
         return result;
       }
@@ -242,7 +242,7 @@ namespace schnek {
                 "\")"
         );
         Array<pParameter, rank, CheckingPolicy> result;
-        for (int i = 0; i < rank; ++i) result[i] = addParameter(varName + extension[i], &(var[i]), default_value, perm);
+        for (size_t i = 0; i < rank; ++i) result[i] = addParameter(varName + extension[i], &(var[i]), default_value, perm);
         return result;
       }
 

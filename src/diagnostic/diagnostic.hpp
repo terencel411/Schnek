@@ -80,7 +80,8 @@ namespace schnek {
 
     public:
       IntervalDiagnostic();
-      void execute(bool master, int rank, int timeCounter);
+      virtual ~IntervalDiagnostic() {}
+      virtual void execute(bool master, int rank, int timeCounter);
       int getInterval();
 
     protected:
@@ -96,7 +97,8 @@ namespace schnek {
 
     public:
       DeltaTimeDiagnostic();
-      void execute(bool master, int rank, double physicalTime);
+      virtual ~DeltaTimeDiagnostic() {}
+      virtual void execute(bool master, int rank, double physicalTime);
       double getNextOutput();
       double getDeltaTime();
 
