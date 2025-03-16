@@ -96,5 +96,7 @@
 
     //     std::cout << grid2(pos[0], pos[1]) << std::endl;
     // }
+
+    // return
  }
  
