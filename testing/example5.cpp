@@ -13,7 +13,6 @@
  #include <iostream>
  #include <cmath>
  #include <chrono>
- #include <ctime>
  
  using namespace schnek;
  using namespace std::chrono;
@@ -34,62 +33,60 @@
     Range<int, 3>::LimitType high(n-1, n-1, n-1);
     Range<int, 3> range(low, high);
 
-    std::cout<<"Test"<<std::endl;
+    // Case 1
+    auto beg = high_resolution_clock::now();
 
-    // // Case 1
-    // auto beg = high_resolution_clock::now();
+    for (auto &pos : range){
+        grid1[pos] = exp(grid1[pos]) * sin(2 * (pos[0] + pos[1] + pos[2]) * M_PI);
+    }
 
-    // for (auto &pos : range){
-    //     grid1[pos] = exp(grid1[pos]) * sin(2 * (pos[0] + pos[1] + pos[2]) * M_PI);
-    // }
+    auto end = high_resolution_clock::now();
 
-    // auto end = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(end - beg);
 
-    // auto duration = duration_cast<milliseconds>(end - beg);
+    std::cout << "Case 1: Elapsed Time: " << duration.count() << "  |  " << grid1(100, 100, 100) << std::endl;
 
-    // std::cout << "Case 1: Elapsed Time: " << duration.count() << "  |  " << grid1(100, 100, 100) << std::endl;
+    grid1 = 100;
 
-    // grid1 = 100;
+    // Case 2
+    beg = high_resolution_clock::now();
 
-    // // Case 2
-    // beg = high_resolution_clock::now();
+    for (Range<int, 3>::iterator it=range.begin(); it!=range.end(); ++it)
+    {
+        const Range<int, 3>::LimitType &pos = *it;
 
-    // for (Range<int, 3>::iterator it=range.begin(); it!=range.end(); ++it)
-    // {
-    //     const Range<int, 3>::LimitType &pos = *it;
+        // grid1(pos[0], pos[1], pos[2]) = exp(grid1(pos[0], pos[1], pos[2])) * sin(2 * M_PI);
+        grid1[pos] = exp(grid1[pos]) * sin(2 * (pos[0] + pos[1] + pos[2]) * M_PI);
 
-    //     // grid1(pos[0], pos[1], pos[2]) = exp(grid1(pos[0], pos[1], pos[2])) * sin(2 * M_PI);
-    //     grid1[pos] = exp(grid1[pos]) * sin(2 * (pos[0] + pos[1] + pos[2]) * M_PI);
+        // std::cout << grid1(pos[0], pos[1], pos[2]) << std::endl;
+    }
 
-    //     // std::cout << grid1(pos[0], pos[1], pos[2]) << std::endl;
-    // }
+    // std::cout << grid1(10, 10, 10) << std::endl;
 
-    // // std::cout << grid1(10, 10, 10) << std::endl;
+    end = high_resolution_clock::now();
 
-    // end = high_resolution_clock::now();
+    duration = duration_cast<milliseconds>(end - beg);
 
-    // duration = duration_cast<milliseconds>(end - beg);
+    std::cout << "Case 2: Elapsed Time: " << duration.count() << "  |  " << grid1(100, 100, 100) << std::endl;
 
-    // std::cout << "Case 2: Elapsed Time: " << duration.count() << "  |  " << grid1(100, 100, 100) << std::endl;
+    // Case 3
+    beg = high_resolution_clock::now();
 
-    // // Case 3
-    // beg = high_resolution_clock::now();
+    for (int i=grid2.getLo(0); i<=grid2.getHi(0); ++i)
+        for (int j=grid2.getLo(1); j<=grid2.getHi(1); ++j)
+            for (int k=grid2.getLo(2); k<=grid2.getHi(2); ++k){
+                grid2(i, j, k) = exp(grid2(i, j, k)) * sin(2 * (i + j + k) * M_PI);
 
-    // for (int i=grid2.getLo(0); i<=grid2.getHi(0); ++i)
-    //     for (int j=grid2.getLo(1); j<=grid2.getHi(1); ++j)
-    //         for (int k=grid2.getLo(2); k<=grid2.getHi(2); ++k){
-    //             grid2(i, j, k) = exp(grid2(i, j, k)) * sin(2 * (i + j + k) * M_PI);
-
-    //             // std::cout << grid2(i, j, k) << std::endl;
-    //         }
+                // std::cout << grid2(i, j, k) << std::endl;
+            }
     
-    // // std::cout << grid2(10, 10, 10) << std::endl;
+    // std::cout << grid2(10, 10, 10) << std::endl;
 
-    // end = high_resolution_clock::now();
+    end = high_resolution_clock::now();
 
-    // duration = duration_cast<milliseconds>(end - beg);
+    duration = duration_cast<milliseconds>(end - beg);
 
-    // std::cout << "Case 3: Elapsed Time: " << duration.count() << "  |  " << grid2(100, 100, 100) << std::endl;
+    std::cout << "Case 3: Elapsed Time: " << duration.count() << "  |  " << grid2(100, 100, 100) << std::endl;
 
     // for (Range<int, 2>::iterator it=range.begin(); it!=range.end(); ++it)
     // {
