@@ -49,6 +49,61 @@ struct GridTest
     GridTest() : dist(-1.0,1.0) {}
 
     template<class GridType>
+    void test_reduce_1d(GridType &grid)
+    {
+      double sumDirect = 0.0;
+
+      typename GridType::IndexType lo = grid.getLo();
+      typename GridType::IndexType hi = grid.getHi();
+
+      // write random numbers
+      for (int i=lo[0]; i<=hi[0]; ++i)
+      {
+        double val = dist(rGen);
+        grid(i) = val;
+        sumDirect += val;
+      }
+
+      double sum_grid = grid.reduce(std::plus<double>(), 0.0);
+
+      // Usage examples:
+      // grid.reduce(std::plus<T>(), 0);  // Sum of all elements
+      // grid.reduce([](T a, T b) { return std::max(a, b); }, std::numeric_limits<T>::lowest());
+
+      std::cout<<"Case (reduce_1d) : "<<"sumDirect = " <<sumDirect<<std::endl;
+      std::cout<<"Case (reduce_1d) : "<<"sumgrid   = " <<sum_grid<<std::endl;
+
+      BOOST_CHECK(is_equal(sumDirect, sum_grid));
+    }
+
+    template<class GridType>
+    void test_reduce_ex(GridType &grid)
+    {
+      double sumDirect = 0.0;
+
+      typename GridType::IndexType lo = grid.getLo();
+      typename GridType::IndexType hi = grid.getHi();
+
+      // write random numbers
+      for (int i=lo[0]; i<=hi[0]; ++i)
+      {
+        double val = dist(rGen);
+        grid(i) = val;
+        sumDirect += val;
+      }
+
+      double sum_grid = 0.0;
+
+      // read back random numbers
+      for (int i=lo[0]; i<=hi[0]; ++i)
+      {
+        sum_grid += grid(i);
+      }
+
+      BOOST_CHECK(is_equal(sumDirect, sum_grid));
+    }
+
+    template<class GridType>
     void test_access_1d(GridType &grid)
     {
       double sumDirect = 0.0;

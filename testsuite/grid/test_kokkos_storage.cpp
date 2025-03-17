@@ -31,6 +31,45 @@ BOOST_AUTO_TEST_SUITE( grid )
 
 BOOST_AUTO_TEST_SUITE( kokkos_storage )
 
+BOOST_FIXTURE_TEST_CASE( reduce_1d, GridTest )
+{
+  typedef schnek::Grid<double, 1, GridBoostTestCheck, GridStorage> GridType;
+  GridType::IndexType lo, hi;
+  boost::timer::progress_display show_progress(25);
+  for (int n=0; n<5; ++n)
+  {
+    random_extent<1>(lo, hi);
+    GridType g(lo, hi);
+    test_reduce_1d(g);
+    for (int m=0; m<5; ++m)
+    {
+      random_extent<1>(lo, hi);
+      g.resize(lo, hi);
+      test_reduce_1d(g);
+      ++show_progress;
+    }
+  }
+}
+BOOST_FIXTURE_TEST_CASE( reduce_ex, GridTest )
+{
+  typedef schnek::Grid<double, 1, GridBoostTestCheck, GridStorage> GridType;
+  GridType::IndexType lo, hi;
+  boost::timer::progress_display show_progress(25);
+  for (int n=0; n<5; ++n)
+  {
+    random_extent<1>(lo, hi);
+    GridType g(lo, hi);
+    test_reduce_ex(g);
+    for (int m=0; m<5; ++m)
+    {
+      random_extent<1>(lo, hi);
+      g.resize(lo, hi);
+      test_reduce_ex(g);
+      ++show_progress;
+    }
+  }
+}
+
 BOOST_FIXTURE_TEST_CASE( access_1d, GridTest )
 {
   typedef schnek::Grid<double, 1, GridBoostTestCheck, GridStorage> GridType;
