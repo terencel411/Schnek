@@ -18,7 +18,7 @@
  using namespace std::chrono;
  
  int main()
- {  int n  = 1000;
+ {  int n  = 100;
 
     typedef schnek::Grid<double, 3> MyGrid;
     typedef MyGrid::IndexType MyIndex;
@@ -32,6 +32,8 @@
     Range<int, 3>::LimitType low(0, 0, 0);
     Range<int, 3>::LimitType high(n-1, n-1, n-1);
     Range<int, 3> range(low, high);
+
+    std::cout<<"Test"<<std::endl;
 
     // Case 1
     auto beg = high_resolution_clock::now();

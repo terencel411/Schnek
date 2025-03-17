@@ -163,6 +163,9 @@ namespace schnek {
        */
       void resize(const IndexType &low, const IndexType &high);
 
+      template<typename ReduceOp>
+      T reduce(ReduceOp op, T initialValue) const;
+
       /**
        * @brief returns the stride of the specified dimension
        */
@@ -279,6 +282,25 @@ namespace schnek {
   template<typename T, size_t rank_t, class... ViewProperties>
   SCHNEK_INLINE ptrdiff_t KokkosGridStorage<T, rank_t, ViewProperties...>::stride(size_t dim) const {
     return this->view.stride(dim);
+  }
+
+  template<typename T, size_t rank_t, class... ViewProperties>
+  template<typename ReduceOp>
+  T KokkosGridStorage<T, rank_t, ViewProperties...>::reduce(ReduceOp op, T initialValue) const {
+      // Create a Kokkos reduction
+      T result = initialValue;
+      
+      Kokkos::parallel_reduce(
+          Kokkos::RangePolicy<>(0, dims[0]),
+          [&](int i, T& value) {
+              IndexType index;
+              index[0] = i + range.getLo(0);
+              value = op(value, get(index));
+          },
+          result
+      );
+      
+      return result;
   }
 
 }  // namespace schnek
