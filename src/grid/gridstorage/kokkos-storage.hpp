@@ -287,7 +287,6 @@ namespace schnek {
   template<typename T, size_t rank_t, class... ViewProperties>
   template<typename ReduceOp>
   T KokkosGridStorage<T, rank_t, ViewProperties...>::reduce(ReduceOp op, T initialValue) const {
-      // Create a Kokkos reduction
       T result = initialValue;
       
       Kokkos::parallel_reduce(
