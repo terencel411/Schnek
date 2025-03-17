@@ -66,10 +66,6 @@ struct GridTest
 
       double sum_grid = grid.reduce(std::plus<double>(), 0.0);
 
-      // Usage examples:
-      // grid.reduce(std::plus<T>(), 0);  // Sum of all elements
-      // grid.reduce([](T a, T b) { return std::max(a, b); }, std::numeric_limits<T>::lowest());
-
       std::cout<<"Case (reduce_1d) : "<<"sumDirect = " <<sumDirect<<std::endl;
       std::cout<<"Case (reduce_1d) : "<<"sumgrid   = " <<sum_grid<<std::endl;
 
