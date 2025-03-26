@@ -163,8 +163,14 @@ namespace schnek {
        */
       void resize(const IndexType &low, const IndexType &high);
 
-      template<typename ReduceOp>
-      T reduce(ReduceOp op, T initialValue) const;
+      template<typename reduceFunctor>
+      T reduce(reduceFunctor func, T initialValue) const;
+
+      template<typename reduceFunctor, typename GridType>
+      T reduceGridParams(reduceFunctor func, const GridType& grid1, T initialValue) const;
+
+      template<typename mergeFunctor, typename GridType>
+      void mergeGrids(mergeFunctor func, GridType& grid1, const GridType& grid3) const;
 
       /**
        * @brief returns the stride of the specified dimension
@@ -248,7 +254,7 @@ namespace schnek {
     view = createKokkosView(dims);
     (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
   }
-
+  
   template<typename T, size_t rank_t, class... ViewProperties>
   KokkosGridStorage<T, rank_t, ViewProperties...>::~KokkosGridStorage() {
     updaters->erase(this);
@@ -285,22 +291,91 @@ namespace schnek {
   }
 
   template<typename T, size_t rank_t, class... ViewProperties>
-  template<typename ReduceOp>
-  T KokkosGridStorage<T, rank_t, ViewProperties...>::reduce(ReduceOp op, T initialValue) const {
+  template<typename reduceFunctor>
+  T KokkosGridStorage<T, rank_t, ViewProperties...>::reduce(reduceFunctor func, T initialValue) const {
       T result = initialValue;
-      
-      Kokkos::parallel_reduce(
+
+      // std::vector<int> begDims(rank_t, 0);
+      // std::vector<int> endDims(dims[0], dims[rank_t - 1]);
+
+      // handles 1d case
+      if constexpr (rank_t == 1) {
+        Kokkos::parallel_reduce("1d reduce",
           Kokkos::RangePolicy<>(0, dims[0]),
           [&](int i, T& value) {
               IndexType index;
               index[0] = i + range.getLo(0);
-              value = op(value, get(index));
+              value = func(value, get(index));
           },
           result
-      );
-      
+        );
+        
+      } // handles 2d case
+      else if constexpr (rank_t == 2) {
+        Kokkos::parallel_reduce("2d reduce",
+          Kokkos::MDRangePolicy<Kokkos::Rank<2>>({0,0}, {dims[0], dims[1]}),
+          [&](int i, int j, T& value) {
+              IndexType index;
+              index[0] = i + range.getLo(0);
+              index[1] = j + range.getLo(1);
+              value = func(value, get(index));
+          },
+          result
+        );
+      }
+    
       return result;
   }
+
+  template<typename T, size_t rank_t, class... ViewProperties>
+  template<typename reduceFunctor, typename GridType>
+  T KokkosGridStorage<T, rank_t, ViewProperties...>::reduceGridParams(
+    reduceFunctor func, 
+    const GridType& grid1, 
+    T initialValue) const {
+
+      T result = initialValue;
+
+      // check if grid has same dims?
+
+      // handles 1d case
+      if constexpr (rank_t == 1) {
+        Kokkos::parallel_reduce("1d reduce with grid params",
+          Kokkos::RangePolicy<>(0, dims[0]),
+          [&](int i, T& value) {
+              IndexType index;
+              index[0] = i + range.getLo(0);
+              value = func(value, func(get(index), grid1.get(index)));
+          },
+          result
+        );
+      }
+
+      // else nD cases
+    
+      return result;
+  }
+
+  template<typename T, size_t rank_t, class... ViewProperties>
+  template<typename mergeFunctor, typename GridType>
+  void KokkosGridStorage<T, rank_t, ViewProperties...>::mergeGrids(
+    mergeFunctor func, 
+    GridType& grid1, 
+    const GridType& grid3) const {
+
+      Kokkos::parallel_for("1d merge grids",
+        Kokkos::RangePolicy<>(0, dims[0]),
+        [&](int i) {
+            IndexType index;
+            index[0] = i + range.getLo(0);
+            // this->get(index) = func(grid2.get(index), grid3.get(index));
+            grid1[index] = func(get(index), grid3.get(index));
+        }
+      );
+  }
+  
+  // CHECK:
+  // parallel_transform_reduce - can perform some value transformation before applying reduction
 
 }  // namespace schnek
 
