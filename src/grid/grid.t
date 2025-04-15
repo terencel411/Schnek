@@ -30,6 +30,8 @@
 #include "arrayexpression.hpp"
 #include "range.hpp"
 
+#include "gridstorage/kokkos-storage.hpp"
+
 namespace schnek {
 
   namespace internal {
