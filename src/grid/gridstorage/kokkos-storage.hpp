@@ -80,6 +80,8 @@ namespace schnek {
       typedef std::function<void(const RangeType &)> UpdaterType;
       typedef std::map<void *, UpdaterType> UpdaterMapType;
 
+      size_t size;
+
       /// The lowest and highest coordinates in the grid (inclusive)
       RangeType range;
 
@@ -163,6 +165,128 @@ namespace schnek {
       /// Get the length of the allocated array
       SCHNEK_INLINE int getSize() const { return this->size; }
 
+      // class storage_iterator {
+      //   private:
+      //     KokkosGridStorage* storage;
+      //     IndexType pos;
+      //     bool atEnd;
+          
+      //   public:
+      //     storage_iterator(KokkosGridStorage* s, bool end = false)
+      //       : storage(s), atEnd(end) {
+      //       if (!end) {
+      //         // Start at the first element
+      //         for (size_t i = 0; i < rank_t; ++i)
+      //           pos[i] = 0;
+      //       }
+      //     }
+          
+      //     T& operator*() { 
+      //       IndexType realPos;
+      //       for (size_t i = 0; i < rank_t; ++i) {
+      //         realPos[i] = pos[i] + storage->range.getLo(i);
+      //       }
+      //       return storage->get(realPos); 
+      //     }
+          
+      //     storage_iterator& operator++() {
+      //       // Increment position
+      //       int d = rank_t;
+      //       while (d > 0) {
+      //         --d;
+      //         if (++pos[d] >= storage->dims[d]) {
+      //           pos[d] = 0;
+      //         }
+      //         else 
+      //           return *this;
+      //       }
+      //       atEnd = true;
+      //       return *this;
+      //     }
+          
+      //     bool operator!=(const storage_iterator& other) const {
+      //       return atEnd != other.atEnd;
+      //     }
+          
+      //     bool operator==(const storage_iterator& other) const {
+      //       return atEnd == other.atEnd;
+      //     }
+      //   };
+        
+      //   // Const iterator version
+      //   class const_storage_iterator {
+      //   private:
+      //     const KokkosGridStorage* storage;
+      //     IndexType pos;
+      //     bool atEnd;
+          
+      //   public:
+      //     const_storage_iterator(const KokkosGridStorage* s, bool end = false)
+      //       : storage(s), atEnd(end) {
+      //       if (!end) {
+      //         // Start at the first element
+      //         for (size_t i = 0; i < rank_t; ++i)
+      //           pos[i] = 0;
+      //       }
+      //     }
+          
+      //     const T& operator*() const { 
+      //       IndexType realPos;
+      //       for (size_t i = 0; i < rank_t; ++i) {
+      //         realPos[i] = pos[i] + storage->range.getLo(i);
+      //       }
+      //       return storage->get(realPos); 
+      //     }
+          
+      //     const_storage_iterator& operator++() {
+      //       // Increment position
+      //       int d = rank_t;
+      //       while (d > 0) {
+      //         --d;
+      //         if (++pos[d] >= storage->dims[d]) {
+      //           pos[d] = 0;
+      //         }
+      //         else 
+      //           return *this;
+      //       }
+      //       atEnd = true;
+      //       return *this;
+      //     }
+          
+      //     bool operator!=(const const_storage_iterator& other) const {
+      //       return atEnd != other.atEnd;
+      //     }
+          
+      //     bool operator==(const const_storage_iterator& other) const {
+      //       return atEnd == other.atEnd;
+      //     }
+      //   };
+        
+      //   // Begin and end methods for iterators
+      //   storage_iterator begin() { return storage_iterator(this); }
+      //   storage_iterator end() { return storage_iterator(this, true); }
+        
+      //   const_storage_iterator begin() const { return const_storage_iterator(this); }
+      //   const_storage_iterator end() const { return const_storage_iterator(this, true); }
+        
+      //   const_storage_iterator cbegin() const { return const_storage_iterator(this); }
+      //   const_storage_iterator cend() const { return const_storage_iterator(this, true); }
+
+      // T* getRawData() const {
+      //     // Return a pointer to the data in the Kokkos view
+      //     // For Kokkos views, this requires some care to ensure it's available on the host
+      //     return view.data();
+      // }
+
+      // T* getRawData() const {
+      //   // Create a host-accessible copy if needed
+      //   auto host_view = Kokkos::create_mirror_view(view);
+      //   Kokkos::deep_copy(host_view, view);
+        
+      //   // Return pointer to the host data
+      //   return host_view.data();
+      // }
+
       /**
        * @brief resizes to grid with lower indices low[0],...,low[rank-1]
        * and upper indices high[0],...,high[rank-1]
@@ -222,10 +346,21 @@ namespace schnek {
         }
       }
 
+      // void updateSizeInfo(const RangeType &range) {
+      //   this->range = range;
+      //   for (size_t i = 0; i < rank_t; ++i) {
+      //     dims[i] = range.getHi(i) - range.getLo(i) + 1;
+      //   }
+      // }
+
       void updateSizeInfo(const RangeType &range) {
         this->range = range;
         for (size_t i = 0; i < rank_t; ++i) {
           dims[i] = range.getHi(i) - range.getLo(i) + 1;
+        }
+        size = 1;
+        for (size_t i = 0; i < rank_t; ++i) {
+          size *= dims[i];
         }
       }
   };
@@ -237,32 +372,68 @@ namespace schnek {
   //==================== KokkosGridStorage ==========================
   //=================================================================
 
+  // template<typename T, size_t rank_t, class... ViewProperties>
+  // KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage()
+  //     : range{IndexType{0}, IndexType{0}}, dims{0}, updaters{new UpdaterMapType} {
+  //   (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
+  // }
+
   template<typename T, size_t rank_t, class... ViewProperties>
   KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage()
-      : range{IndexType{0}, IndexType{0}}, dims{0}, updaters{new UpdaterMapType} {
+      : range{IndexType{0}, IndexType{0}}, dims{0}, size(0), updaters{new UpdaterMapType} {
     (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
   }
 
+  // template<typename T, size_t rank_t, class... ViewProperties>
+  // KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const KokkosGridStorage &other)
+  //     : range{other.range}, dims{other.dims}, view{other.view}, updaters{other.updaters} {
+  //   (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
+  // }
+
   template<typename T, size_t rank_t, class... ViewProperties>
   KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const KokkosGridStorage &other)
-      : range{other.range}, dims{other.dims}, view{other.view}, updaters{other.updaters} {
+      : range{other.range}, dims{other.dims}, size(other.size), view{other.view}, updaters{other.updaters} {
     (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
   }
+
+  // template<typename T, size_t rank_t, class... ViewProperties>
+  // KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const IndexType &lo, const IndexType &hi)
+  //     : range{lo, hi}, updaters{new UpdaterMapType} {
+  //   dims = hi - lo + 1;
+  //   view = createKokkosView(dims);
+  //   (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
+  // }
 
   template<typename T, size_t rank_t, class... ViewProperties>
   KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const IndexType &lo, const IndexType &hi)
       : range{lo, hi}, updaters{new UpdaterMapType} {
     dims = hi - lo + 1;
+    size = 1;
+    for (size_t i = 0; i < rank_t; ++i) {
+      size *= dims[i];
+    }
     view = createKokkosView(dims);
     (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
   }
 
+  // template<typename T, size_t rank_t, class... ViewProperties>
+  // KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const RangeType &range)
+  //     : range{range}, updaters{new UpdaterMapType} {
+  //   dims = range.getHi() - range.getLo() + 1;
+  //   view = createKokkosView(dims);
+  //   (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
+  // }
+
   template<typename T, size_t rank_t, class... ViewProperties>
   KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const RangeType &range)
-      : range{range}, updaters{new UpdaterMapType} {
-    dims = range.getHi() - range.getLo() + 1;
-    view = createKokkosView(dims);
-    (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
+    : range{range}, updaters{new UpdaterMapType} {
+  dims = range.getHi() - range.getLo() + 1;
+  size = 1;
+  for (size_t i = 0; i < rank_t; ++i) {
+    size *= dims[i];
+  }
+  view = createKokkosView(dims);
+  (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
   }
   
   template<typename T, size_t rank_t, class... ViewProperties>
@@ -288,9 +459,20 @@ namespace schnek {
     return getFromView(pos);
   }
 
+  // template<typename T, size_t rank_t, class... ViewProperties>
+  // void KokkosGridStorage<T, rank_t, ViewProperties...>::resize(const IndexType &lo, const IndexType &hi) {
+  //   IndexType dims = hi - lo + 1;
+  //   this->view = createKokkosView(dims);
+  //   update(RangeType{lo, hi});
+  // }
+
   template<typename T, size_t rank_t, class... ViewProperties>
   void KokkosGridStorage<T, rank_t, ViewProperties...>::resize(const IndexType &lo, const IndexType &hi) {
-    IndexType dims = hi - lo + 1;
+    dims = hi - lo + 1;
+    size = 1;
+    for (size_t i = 0; i < rank_t; ++i) {
+      size *= dims[i];
+    }
     this->view = createKokkosView(dims);
     update(RangeType{lo, hi});
   }
