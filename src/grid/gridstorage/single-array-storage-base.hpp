@@ -146,7 +146,7 @@ namespace schnek {
        */
       SingleArrayGridCOrderStorageBase<T, rank, AllocationPolicy>
           &operator=(const SingleArrayGridCOrderStorageBase<T, rank, AllocationPolicy> &) = default;
-
+      
       /**
        * @brief Get the lvalue at a given grid index
        *
@@ -179,6 +179,9 @@ namespace schnek {
        * @brief returns the stride of the specified dimension
        */
       ptrdiff_t stride(size_t dim) const;
+
+      template<typename reduceFunctor>
+      T reduce(reduceFunctor func, T initialValue) const;
 
     private:
       /**
@@ -293,6 +296,17 @@ namespace schnek {
   //=============== SingleArrayGridCOrderStorageBase ================
   //=================================================================
 
+  template<typename T, size_t rank, template<typename, size_t> class AllocationPolicy>
+  template<typename reduceFunctor>
+  T SingleArrayGridCOrderStorageBase<T, rank, AllocationPolicy>::reduce(reduceFunctor func, T initialValue) const {
+      T result = initialValue;
+      const T* end = this->data->ptr + this->size;
+      for (const T* p = this->data->ptr; p != end; ++p) {
+          result = func(result, *p);
+      }
+      return result;
+  } 
+      
   template<typename T, size_t rank, template<typename, size_t> class AllocationPolicy>
   SingleArrayGridCOrderStorageBase<T, rank, AllocationPolicy>::SingleArrayGridCOrderStorageBase()
       : BaseType(), data_fast(NULL) {
