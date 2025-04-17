@@ -165,11 +165,11 @@ namespace schnek {
       /// Get the length of the allocated array
       SCHNEK_INLINE int getSize() const { return this->size; }
 
-      // T* getRawData() const {
-      //     // Return a pointer to the data in the Kokkos view
-      //     // For Kokkos views, this requires some care to ensure it's available on the host
-      //     return view.data();
-      // }
+      T* getRawData() const {
+          // Return a pointer to the data in the Kokkos view
+          // For Kokkos views, this requires some care to ensure it's available on the host
+          return view.data();
+      }
 
       // T* getRawData() const {
       //   // Create a host-accessible copy if needed
@@ -198,6 +198,8 @@ namespace schnek {
       KokkosGridStorage<T, rank_t, ViewProperties...> &operator=(const T &val);
       
       void fill(const T &val);
+
+      SCHNEK_INLINE void set(const IndexType &index, const T &value) const;
 
       /**
        * @brief returns the stride of the specified dimension
@@ -264,6 +266,18 @@ namespace schnek {
   //=================================================================
   //==================== KokkosGridStorage ==========================
   //=================================================================
+  
+  template<typename T, size_t rank_t, class... ViewProperties>
+  SCHNEK_INLINE void KokkosGridStorage<T, rank_t, ViewProperties...>::set(
+      const IndexType &index, const T &value) const {
+      IndexType pos;
+      for (size_t i = 0; i < rank_t; ++i) {
+          pos[i] = index[i] - range.getLo(i);
+      }
+      // Note: you'll need to make getFromView const as well
+      // and also make sure the view can be modified inside a const method
+      const_cast<T&>(getFromView(pos)) = value;
+  }
 
   // template<typename T, size_t rank_t, class... ViewProperties>
   // KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage()

@@ -308,6 +308,23 @@ namespace schnek {
           return StoragePolicy<T, rank>::reduce(func, initialValue);
           // return static_cast<const StoragePolicy<T, rank>&>(*this).reduce(func, initialValue);
       } 
+
+      // template<typename reduceFunctor>
+      // T reduce(reduceFunctor func, T initialValue) const {
+      //     // Check if we're using KokkosGridStorage which has a reduce method
+      //     if constexpr (requires { StoragePolicy<T, rank>::reduce(func, initialValue); }) {
+      //         return StoragePolicy<T, rank>::reduce(func, initialValue);
+      //     }
+      //     // For other storage types like SingleArrayGridStorage, implement a generic version
+      //     else {
+      //         T result = initialValue;
+      //         auto range = this->getRange();
+      //         for (auto it = range.begin(); it != range.end(); ++it) {
+      //             result = func(result, this->operator[](*it));
+      //         }
+      //         return result;
+      //     }
+      // }
       
       /** assign another grid */
       GridType& operator=(const T& val) {

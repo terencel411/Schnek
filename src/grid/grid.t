@@ -237,6 +237,26 @@ namespace schnek {
       return *this;
     }
 
+    // template<typename T, size_t rank, class CheckingPolicy, class StoragePolicy>
+    // SCHNEK_INLINE GridBase<T, rank, CheckingPolicy, StoragePolicy>&
+    // GridBase<T, rank, CheckingPolicy, StoragePolicy>::operator=(const T& val) {
+    //   // Check if we're using KokkosGridStorage at compile time
+    //   if constexpr (std::is_same_v<StoragePolicy, KokkosGridStorage<T, rank>>) {
+    //     // Use the fill method for KokkosGridStorage
+    //     static_cast<KokkosGridStorage<T, rank>&>(*this).fill(val);
+    //   } else {
+    //     // Use iterators for other storage policies
+    //     typedef typename StoragePolicy::storage_iterator Iterator;
+    //     Iterator end = this->end();
+    //     Iterator dest = this->begin();
+    //     while (dest != end) {
+    //       *dest = val;
+    //       ++dest;
+    //     }
+    //   }
+    //   return *this;
+    // }
+
     template<typename T, size_t rank, class CheckingPolicy, class StoragePolicy>
     template<typename T2, class CheckingPolicy2>
     SCHNEK_INLINE GridBase<T, rank, CheckingPolicy, StoragePolicy>&
