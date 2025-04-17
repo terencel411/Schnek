@@ -201,6 +201,9 @@ namespace schnek {
 
       SCHNEK_INLINE void set(const IndexType &index, const T &value) const;
 
+      template<typename FunctionType>
+      void parallel_func(const IndexType &low, const IndexType &high, FunctionType func) const;
+
       /**
        * @brief returns the stride of the specified dimension
        */
@@ -524,6 +527,31 @@ namespace schnek {
 
   // CHECK:
   // parallel_transform_reduce - can perform some value transformation before applying reduction
+
+  template<typename T, size_t rank_t, class... ViewProperties>
+  template<typename FunctionType>
+  void KokkosGridStorage<T, rank_t, ViewProperties...>::parallel_func(
+      const IndexType& low, 
+      const IndexType& high, 
+      FunctionType func) const {
+      
+      if constexpr (rank_t == 2) {
+          Kokkos::parallel_for("kokkos_parallel_2d",
+              Kokkos::MDRangePolicy<Kokkos::Rank<2>>(
+                  {low[0], low[1]}, 
+                  {high[0], high[1]}
+              ),
+              // [=] KOKKOS_LAMBDA (const int i, const int j) {
+              [&](int i, int j) {
+                  IndexType pos;
+                  pos[0] = i;
+                  pos[1] = j;
+                  func(pos);
+              }
+          );
+      }
+      Kokkos::fence();
+  }
 
 }  // namespace schnek
 
