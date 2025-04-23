@@ -166,17 +166,14 @@ namespace schnek {
       SCHNEK_INLINE int getSize() const { return this->size; }
 
       T* getRawData() const {
-          // Return a pointer to the data in the Kokkos view
-          // For Kokkos views, this requires some care to ensure it's available on the host
           return view.data();
       }
 
       // T* getRawData() const {
-      //   // Create a host-accessible copy if needed
+      //   // copy from device to host (check in case I am using GPU)
       //   auto host_view = Kokkos::create_mirror_view(view);
       //   Kokkos::deep_copy(host_view, view);
         
-      //   // Return pointer to the host data
       //   return host_view.data();
       // }
 
@@ -244,13 +241,6 @@ namespace schnek {
         }
       }
 
-      // void updateSizeInfo(const RangeType &range) {
-      //   this->range = range;
-      //   for (size_t i = 0; i < rank_t; ++i) {
-      //     dims[i] = range.getHi(i) - range.getLo(i) + 1;
-      //   }
-      // }
-
       void updateSizeInfo(const RangeType &range) {
         this->range = range;
         for (size_t i = 0; i < rank_t; ++i) {
@@ -277,16 +267,8 @@ namespace schnek {
       for (size_t i = 0; i < rank_t; ++i) {
           pos[i] = index[i] - range.getLo(i);
       }
-      // Note: you'll need to make getFromView const as well
-      // and also make sure the view can be modified inside a const method
       const_cast<T&>(getFromView(pos)) = value;
   }
-
-  // template<typename T, size_t rank_t, class... ViewProperties>
-  // KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage()
-  //     : range{IndexType{0}, IndexType{0}}, dims{0}, updaters{new UpdaterMapType} {
-  //   (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
-  // }
 
   template<typename T, size_t rank_t, class... ViewProperties>
   KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage()
@@ -294,25 +276,11 @@ namespace schnek {
     (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
   }
 
-  // template<typename T, size_t rank_t, class... ViewProperties>
-  // KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const KokkosGridStorage &other)
-  //     : range{other.range}, dims{other.dims}, view{other.view}, updaters{other.updaters} {
-  //   (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
-  // }
-
   template<typename T, size_t rank_t, class... ViewProperties>
   KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const KokkosGridStorage &other)
       : range{other.range}, dims{other.dims}, size(other.size), view{other.view}, updaters{other.updaters} {
     (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
   }
-
-  // template<typename T, size_t rank_t, class... ViewProperties>
-  // KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const IndexType &lo, const IndexType &hi)
-  //     : range{lo, hi}, updaters{new UpdaterMapType} {
-  //   dims = hi - lo + 1;
-  //   view = createKokkosView(dims);
-  //   (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
-  // }
 
   template<typename T, size_t rank_t, class... ViewProperties>
   KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const IndexType &lo, const IndexType &hi)
@@ -325,14 +293,6 @@ namespace schnek {
     view = createKokkosView(dims);
     (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
   }
-
-  // template<typename T, size_t rank_t, class... ViewProperties>
-  // KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const RangeType &range)
-  //     : range{range}, updaters{new UpdaterMapType} {
-  //   dims = range.getHi() - range.getLo() + 1;
-  //   view = createKokkosView(dims);
-  //   (*updaters)[this] = [this](const RangeType &range) { this->updateSizeInfo(range); };
-  // }
 
   template<typename T, size_t rank_t, class... ViewProperties>
   KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage(const RangeType &range)
@@ -368,13 +328,6 @@ namespace schnek {
     }
     return getFromView(pos);
   }
-
-  // template<typename T, size_t rank_t, class... ViewProperties>
-  // void KokkosGridStorage<T, rank_t, ViewProperties...>::resize(const IndexType &lo, const IndexType &hi) {
-  //   IndexType dims = hi - lo + 1;
-  //   this->view = createKokkosView(dims);
-  //   update(RangeType{lo, hi});
-  // }
 
   template<typename T, size_t rank_t, class... ViewProperties>
   void KokkosGridStorage<T, rank_t, ViewProperties...>::resize(const IndexType &lo, const IndexType &hi) {
