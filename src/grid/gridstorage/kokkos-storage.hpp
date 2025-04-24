@@ -165,7 +165,7 @@ namespace schnek {
       /// Get the length of the allocated array
       SCHNEK_INLINE int getSize() const { return this->size; }
 
-      T* getRawData() const {
+      SCHNEK_INLINE T* getRawData() const {
           return view.data();
       }
 
@@ -181,7 +181,7 @@ namespace schnek {
        * @brief resizes to grid with lower indices low[0],...,low[rank-1]
        * and upper indices high[0],...,high[rank-1]
        */
-      void resize(const IndexType &low, const IndexType &high);
+      SCHNEK_INLINE void resize(const IndexType &low, const IndexType &high);
 
       template<typename reduceFunctor>
       T reduce(reduceFunctor func, T initialValue) const;
@@ -267,6 +267,7 @@ namespace schnek {
       for (size_t i = 0; i < rank_t; ++i) {
           pos[i] = index[i] - range.getLo(i);
       }
+      // getFromView(pos) = value;
       const_cast<T&>(getFromView(pos)) = value;
   }
 
@@ -451,14 +452,13 @@ namespace schnek {
       );
   }
   
-  // Add to KokkosGridStorage class definition
   template<typename T, size_t rank_t, class... ViewProperties>
   void KokkosGridStorage<T, rank_t, ViewProperties...>::fill(const T& val) {
       // For 1D case
       if constexpr (rank_t == 1) {
           Kokkos::parallel_for("fill_grid_1d", 
               Kokkos::RangePolicy<>(0, dims[0]),
-              KOKKOS_LAMBDA (const int i) {
+              SCHNEK_DEVICE_LAMBDA (const int i) {
                   IndexType pos;
                   pos[0] = i;
                   view(i) = val;
@@ -469,12 +469,11 @@ namespace schnek {
       else if constexpr (rank_t == 2) {
           Kokkos::parallel_for("fill_grid_2d", 
               Kokkos::MDRangePolicy<Kokkos::Rank<2>>({0,0}, {dims[0], dims[1]}),
-              KOKKOS_LAMBDA (const int i, const int j) {
+              SCHNEK_DEVICE_LAMBDA (const int i, const int j) {
                   view(i, j) = val;
               }
           );
       }
-      // Add cases for higher dimensions if needed
       Kokkos::fence(); // Ensure operations complete
   }
 
@@ -494,8 +493,11 @@ namespace schnek {
                   {low[0], low[1]}, 
                   {high[0], high[1]}
               ),
+              SCHNEK_DEVICE_LAMBDA (const int i, const int j) {
+              // better for device execution
               // [=] KOKKOS_LAMBDA (const int i, const int j) {
-              [&](int i, int j) {
+              // reference call mgiht cause issues for host memory
+              // [&](int i, int j) {
                   IndexType pos;
                   pos[0] = i;
                   pos[1] = j;
