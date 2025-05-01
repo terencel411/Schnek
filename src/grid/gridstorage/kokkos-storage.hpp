@@ -40,6 +40,8 @@
 #include "../range.hpp"
 #include "../gridcheck.hpp"
 
+#include <schnek/grid/iteration/kokkos-iteration.hpp>
+
 namespace schnek {
 
   namespace internal {
@@ -346,11 +348,11 @@ namespace schnek {
     return this->view.stride(dim);
   }
 
-  template<typename T, size_t rank, template<size_t> class CheckingPolicy = GridAssertCheck>
-  void fill_kokkos_grid(Grid<T, rank, CheckingPolicy, KokkosDefaultGridStorage>& grid, const T& value) {
-      auto& storage = static_cast<KokkosDefaultGridStorage<T, rank>&>(grid);
-      storage.fill(value);
-  }
+  // template<typename T, size_t rank, template<size_t> class CheckingPolicy = GridAssertCheck>
+  // void fill_kokkos_grid(Grid<T, rank, CheckingPolicy, KokkosDefaultGridStorage>& grid, const T& value) {
+  //     auto& storage = static_cast<KokkosDefaultGridStorage<T, rank>&>(grid);
+  //     storage.fill(value);
+  // }
 
   // template<typename T, size_t rank_t, class... ViewProperties>
   // KokkosGridStorage<T, rank_t, ViewProperties...>& 
@@ -507,6 +509,52 @@ namespace schnek {
       }
       Kokkos::fence();
   }
+
+  namespace kokkos_utils {
+    template<typename GridType, typename FunctionType>
+    void parallel_kokkos_parallel_for(
+        const typename GridType::IndexType& low,
+        const typename GridType::IndexType& high,
+        FunctionType func) {
+        
+        if constexpr (GridType::Rank == 2) {
+            Kokkos::parallel_for("parallel_operation",
+                Kokkos::MDRangePolicy<Kokkos::Rank<2>>(
+                    {low[0], low[1]}, 
+                    {high[0], high[1]}
+                ),
+                SCHNEK_DEVICE_LAMBDA (const int i, const int j) {
+                    typename GridType::IndexType pos;
+                    pos[0] = i;
+                    pos[1] = j;
+                    func(pos);
+                }
+            );
+            Kokkos::fence();
+        }
+    }
+
+    template<typename GridType, typename FunctionType>
+    void parallel_kokkos_iteration(
+        const typename GridType::IndexType& low,
+        const typename GridType::IndexType& high,
+        FunctionType func) {
+        
+        using RangeType = schnek::Range<int, GridType::Rank, schnek::ArrayNoArgCheck>;
+        RangeType range(low, high);
+        
+        schnek::RangeKokkosIterationPolicy<GridType::Rank>::forEach(range, func);
+
+        // if constexpr (GridType::Rank == 1) {
+        //  schnek::RangeKokkosIterationPolicy<1>::forEach(range, func);
+        // }
+        // else if constexpr (GridType::Rank == 2) {
+        //   schnek::RangeKokkosIterationPolicy<2>::forEach(range, func);
+        // }
+
+        Kokkos::fence();   
+    }
+  } // namespace kokkos_utils
 
 }  // namespace schnek
 
