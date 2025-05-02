@@ -185,18 +185,9 @@ namespace schnek {
        */
       SCHNEK_INLINE void resize(const IndexType &low, const IndexType &high);
 
-      template<typename reduceFunctor>
-      T reduce(reduceFunctor func, T initialValue) const;
-
-      template<typename reduceFunctor, typename GridType>
-      T reduceGridParams(reduceFunctor func, const GridType& grid1, T initialValue) const;
-
-      template<typename mergeFunctor, typename GridType>
-      void mergeGrids(mergeFunctor func, GridType& grid1, const GridType& grid3) const;
-
       KokkosGridStorage<T, rank_t, ViewProperties...> &operator=(const T &val);
       
-      void fill(const T &val);
+      SCHNEK_INLINE void fill(const T &val);
 
       SCHNEK_INLINE void set(const IndexType &index, const T &value) const;
 
@@ -261,17 +252,6 @@ namespace schnek {
   //=================================================================
   //==================== KokkosGridStorage ==========================
   //=================================================================
-  
-  template<typename T, size_t rank_t, class... ViewProperties>
-  SCHNEK_INLINE void KokkosGridStorage<T, rank_t, ViewProperties...>::set(
-      const IndexType &index, const T &value) const {
-      IndexType pos;
-      for (size_t i = 0; i < rank_t; ++i) {
-          pos[i] = index[i] - range.getLo(i);
-      }
-      // getFromView(pos) = value;
-      const_cast<T&>(getFromView(pos)) = value;
-  }
 
   template<typename T, size_t rank_t, class... ViewProperties>
   KokkosGridStorage<T, rank_t, ViewProperties...>::KokkosGridStorage()
@@ -348,111 +328,16 @@ namespace schnek {
     return this->view.stride(dim);
   }
 
-  // template<typename T, size_t rank, template<size_t> class CheckingPolicy = GridAssertCheck>
-  // void fill_kokkos_grid(Grid<T, rank, CheckingPolicy, KokkosDefaultGridStorage>& grid, const T& value) {
-  //     auto& storage = static_cast<KokkosDefaultGridStorage<T, rank>&>(grid);
-  //     storage.fill(value);
-  // }
-
-  // template<typename T, size_t rank_t, class... ViewProperties>
-  // KokkosGridStorage<T, rank_t, ViewProperties...>& 
-  // KokkosGridStorage<T, rank_t, ViewProperties...>::operator=(const T& val) {
-  //     Kokkos::parallel_for("fill_grid", 
-  //         Kokkos::MDRangePolicy<Kokkos::Rank<rank_t>>(IndexType(0), dims),
-  //         // [=] KOKKOS_LAMBDA (const int i, const int j) {
-  //         [&](int i, int j) {
-  //             IndexType pos;
-  //             pos[0] = i;
-  //             pos[1] = j;
-  //             this->getFromView(pos) = val;
-  //         }
-  //     );
-  //     return *this;
-  // }
-  
   template<typename T, size_t rank_t, class... ViewProperties>
-  template<typename reduceFunctor>
-  T KokkosGridStorage<T, rank_t, ViewProperties...>::reduce(reduceFunctor func, T initialValue) const {
-      T result = initialValue;
-
-      // std::vector<int> begDims(rank_t, 0);
-      // std::vector<int> endDims(dims[0], dims[rank_t - 1]);
-
-      // handles 1d case
-      if constexpr (rank_t == 1) {
-        Kokkos::parallel_reduce("1d reduce",
-          Kokkos::RangePolicy<>(0, dims[0]),
-          [&](int i, T& value) {
-              IndexType index;
-              index[0] = i + range.getLo(0);
-              value = func(value, get(index));
-          },
-          result
-        );
-        
-      } // handles 2d case
-      else if constexpr (rank_t == 2) {
-        Kokkos::parallel_reduce("2d reduce",
-          Kokkos::MDRangePolicy<Kokkos::Rank<2>>({0,0}, {dims[0], dims[1]}),
-          [&](int i, int j, T& value) {
-              IndexType index;
-              index[0] = i + range.getLo(0);
-              index[1] = j + range.getLo(1);
-              value = func(value, get(index));
-          },
-          result
-        );
+  SCHNEK_INLINE void KokkosGridStorage<T, rank_t, ViewProperties...>::set(
+      const IndexType &index, const T &value) const {
+      IndexType pos;
+      for (size_t i = 0; i < rank_t; ++i) {
+          pos[i] = index[i] - range.getLo(i);
       }
-    
-      return result;
-  }
-
-  template<typename T, size_t rank_t, class... ViewProperties>
-  template<typename reduceFunctor, typename GridType>
-  T KokkosGridStorage<T, rank_t, ViewProperties...>::reduceGridParams(
-    reduceFunctor func, 
-    const GridType& grid1, 
-    T initialValue) const {
-
-      T result = initialValue;
-
-      // check if grid has same dims?
-
-      // handles 1d case
-      if constexpr (rank_t == 1) {
-        Kokkos::parallel_reduce("1d reduce with grid params",
-          Kokkos::RangePolicy<>(0, dims[0]),
-          [&](int i, T& value) {
-              IndexType index;
-              index[0] = i + range.getLo(0);
-              value = func(value, func(get(index), grid1.get(index)));
-          },
-          result
-        );
-      }
-
-      // else nD cases
-    
-      return result;
-  }
-
-  template<typename T, size_t rank_t, class... ViewProperties>
-  template<typename mergeFunctor, typename GridType>
-  void KokkosGridStorage<T, rank_t, ViewProperties...>::mergeGrids(
-    mergeFunctor func, 
-    GridType& grid1, 
-    const GridType& grid3) const {
-
-      Kokkos::parallel_for("1d merge grids",
-        Kokkos::RangePolicy<>(0, dims[0]),
-        [&](int i) {
-            IndexType index;
-            index[0] = i + range.getLo(0);
-            // this->get(index) = func(grid2.get(index), grid3.get(index));
-            grid1[index] = func(get(index), grid3.get(index));
-        }
-      );
-  }
+      // getFromView(pos) = value;
+      const_cast<T&>(getFromView(pos)) = value;
+  }  
   
   template<typename T, size_t rank_t, class... ViewProperties>
   void KokkosGridStorage<T, rank_t, ViewProperties...>::fill(const T& val) {
