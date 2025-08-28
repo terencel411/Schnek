@@ -28,6 +28,8 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #endif
 
+#include <grid/gridstorage/kokkos-storage.hpp>
+
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
@@ -50,7 +52,7 @@ struct GridTest
 
     template<class GridType>
     void test_access_1d(GridType &grid)
-    {
+    { 
       double sumDirect = 0.0;
 
       typename GridType::IndexType lo = grid.getLo();
